@@ -1,6 +1,6 @@
-# Security Note: PyPI publishing disabled to prevent accidental uploads
-# To publish: manually run `uv publish` or create a PR to release.yml
-name: Release
+# Security Note: Manual releases only via git tags
+# To create a release: git tag vX.Y.Z && git push origin tag vX.Y.Z
+name: Manual Release (Git Tags Only)
 
 on:
   push:
@@ -11,7 +11,7 @@ permissions:
   contents: write
 
 jobs:
-  build-and-publish:
+  build-tag:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -21,26 +21,25 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install build twine hatchling
-
       - name: Build package
-        run: python -m build
+        run: |
+          pip install build hatchling
+          python -m build
 
-      - name: Check package
-        run: twine check dist/*
+      - name: Upload package artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: champi-tts-artifacts
+          path: dist/
 
-      # PyPI publishing disabled - requires manual authorization
-      # - name: Publish to PyPI
-      #   env:
-      #     TWINE_USERNAME: __token__
-      #     TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
-      #   run: twine upload dist/*
+      - name: Create Git tag release
+        run: |
+          # Tag is already created by GitHub on push
+          echo "Git tag created: ${{ github.ref_name }}"
 
-      - name: Create GitHub Release
+      - name: Create GitHub Release from tag
         uses: softprops/action-gh-release@v1
         with:
-          files: dist/*
+          tag_name: ${{ github.ref_name }}
           generate_release_notes: true
+          files: dist/*
