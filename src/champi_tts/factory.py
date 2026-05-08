@@ -1,12 +1,33 @@
 """
 Provider factory for creating TTS providers and readers.
+
+Uses lazy loading to reduce initial startup time.
 """
 
+import sys
 from typing import Literal
 
 from champi_tts.core.base_config import BaseTTSConfig
 from champi_tts.core.base_provider import BaseTTSProvider
 from champi_tts.reader import TextReaderService
+
+# Lazy loading cache to avoid re-importing heavy dependencies
+_lazy_modules = {}
+
+
+def _lazy_import(module_name: str) -> object:
+    """
+    Lazy import heavy dependencies to reduce startup time.
+
+    Args:
+        module_name: Module name to import
+
+    Returns:
+        Imported module
+    """
+    if module_name not in _lazy_modules:
+        _lazy_modules[module_name] = __import__(module_name)
+    return _lazy_modules[module_name]
 
 # Type for supported providers
 ProviderType = Literal["kokoro"]  # Will add more providers later

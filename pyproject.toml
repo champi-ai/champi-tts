@@ -248,6 +248,7 @@ testpaths = ["tests"]
 python_files = "test_*.py"
 python_classes = "Test*"
 python_functions = "test_*"
+addopts = "-v --durations=10"  # Show slowest 10 tests
 
 [tool.coverage.run]
 source = ["src"]
@@ -261,10 +262,18 @@ omit = [
 precision = 2
 show_missing = true
 skip_covered = false
+fail_under = 70  # Require >70% coverage
 
 [tool.bandit]
 exclude_dirs = ["tests", "examples"]
 skips = ["B101", "B601"]
+
+# Performance benchmark configuration
+[tool.bench]
+# Benchmark suite configuration
+enabled = true
+threshold_factor = 2.0  # Alert if benchmark is 2x slower
+save_results = ".benchmarks.json"
 
 # Commitizen configuration for semantic versioning
 [tool.commitizen]
