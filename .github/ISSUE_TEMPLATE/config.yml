@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Documentation Issues
+    url: https://github.com/divagnz/champi-tts/blob/main/ARCHITECTURE.md
+    about: Please check ARCHITECTURE.md and README.md before reporting documentation issues.
+  - name: General Questions
+    url: https://github.com/divagnz/champi-tts/issues
+    about: For general questions, please search existing issues or create a new discussion.
