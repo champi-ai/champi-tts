@@ -8,7 +8,7 @@ on:
 
 jobs:
   lint:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
 
@@ -32,7 +32,7 @@ jobs:
         run: mypy src/
 
   security:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
 
@@ -53,11 +53,11 @@ jobs:
         run: detect-secrets scan --baseline .secrets.baseline
 
   test:
-    runs-on: ${{ matrix.os }}
+    runs-on: self-hosted
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: ["3.12"]
+        os: [ubuntu-22.04, macos-latest]
+        python-version: ["3.12", "3.13"]
 
     steps:
       - uses: actions/checkout@v4
@@ -67,27 +67,24 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Cache pip dependencies
+      - name: Cache uv dependencies
         uses: actions/cache@v4
         with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('uv.lock') }}
+          path: |
+            ~/.cache/pip
+            .venv
+            target
+          key: ${{ runner.os }}-uv-${{ hashFiles('uv.lock') }}
           restore-keys: |
-            ${{ runner.os }}-pip-
+            ${{ runner.os }}-uv-
 
-      - name: Cache pytest artifacts
-        uses: actions/cache@v4
-        with:
-          path: .coverage
-          key: ${{ runner.os }}-pytest-${{ hashFiles('tests/**') }}
-
-      - name: Install dependencies
+      - name: Install dependencies with uv
         run: |
           python -m pip install --upgrade pip
-          pip install -e ".[dev]"
+          uv sync --frozen
 
       - name: Run tests
-        run: pytest tests/ -v --cov=src/champi_tts --cov-report=xml --cov-report=term
+        run: uv run pytest tests/ -v --cov=src/champi_tts --cov-report=xml --cov-report=term
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
@@ -96,7 +93,7 @@ jobs:
           fail_ci_if_error: false
 
   build:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
 
@@ -105,10 +102,10 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install build dependencies
+      - name: Install build dependencies with uv
         run: |
           python -m pip install --upgrade pip
-          pip install build hatchling
+          uv sync --frozen
 
       - name: Build package
         run: python -m build
