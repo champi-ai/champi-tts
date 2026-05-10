@@ -1,3 +1,5 @@
+# Release workflow
+# Use self-hosted runner with uv for package management
 name: Release
 
 on:
@@ -9,8 +11,8 @@ permissions:
   contents: write
 
 jobs:
-  build-and-publish:
-    runs-on: ubuntu-latest
+  build-and-release:
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
 
@@ -19,25 +21,24 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install dependencies
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Build package with uv
         run: |
-          python -m pip install --upgrade pip
-          pip install build twine hatchling
+          uv build
 
-      - name: Build package
-        run: python -m build
-
-      - name: Check package
-        run: twine check dist/*
-
-      - name: Publish to PyPI
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
-        run: twine upload dist/*
+      - name: Upload package
+        uses: actions/upload-artifact@v3
+        with:
+          name: champi-tts-release
+          path: dist/
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          files: dist/*
+          tag_name: ${{ github.ref_name }}
           generate_release_notes: true
+          files: dist/*
