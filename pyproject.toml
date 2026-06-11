@@ -62,10 +62,9 @@ all = [
 ]
 
 # Development tools
+# Note: 'build' and 'twine' removed to prevent accidental PyPI uploads
 dev = [
     "champi-tts[all]",
-    "build",
-    "twine",
     "pytest>=7.0.0",
     "pytest-asyncio>=0.21.0",
     "pytest-cov>=4.0.0",
@@ -95,6 +94,10 @@ test = [
 Homepage = "https://github.com/divagnz/champi-tts"
 Repository = "https://github.com/divagnz/champi-tts"
 Issues = "https://github.com/divagnz/champi-tts/issues"
+
+# PyPI publishing: intentionally disabled
+# Do not add 'build', 'twine' to dev dependencies
+# To publish to PyPI requires manual authorization
 
 [project.scripts]
 champi-tts = "champi_tts.cli:main"
