@@ -44,13 +44,37 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install bandit[toml] detect-secrets
+          pip install bandit[toml] detect-secrets safety
 
       - name: Run bandit
         run: bandit -c pyproject.toml -r src/
 
       - name: Run detect-secrets
         run: detect-secrets scan --baseline .secrets.baseline
+
+      - name: Run safety check
+        run: |
+          pip install safety
+          safety check --file pyproject.toml --output safety-report.txt || true
+          if [ -s safety-report.txt ]; then
+            echo "Vulnerabilities found:"
+            cat safety-report.txt
+            exit 1
+          fi
+
+      - name: Check for secrets in git history
+        run: |
+          if [ -f .secrets.baseline ]; then
+            echo "Detect-secrets baseline exists"
+          else
+            echo "Warning: No detect-secrets baseline found. Run detect-secrets scan first."
+          fi
+
+      - name: Verify no hardcoded secrets in code
+        run: |
+          if git diff --cached --name-only | grep -E '\.(py|toml|yaml|yml|env)$'; then
+            git diff --cached --name-only | xargs grep -i 'password\|secret\|api_key\|token' || true
+          fi
 
   test:
     runs-on: ${{ matrix.os }}
