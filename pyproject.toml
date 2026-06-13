@@ -95,6 +95,7 @@ dev = [
     "uv",
     "uv-build>=0.10.0",
     "hatching",
+    "genbadge[coverage]>=1.6.0",
 ]
 
 # Test tools
@@ -297,7 +298,7 @@ testpaths = ["tests"]
 python_files = "test_*.py"
 python_classes = "Test*"
 python_functions = "test_*"
-addopts = "-v --durations=10"  # Show slowest 10 tests
+addopts = "-v --durations=10 --cov=src/champi_tts --cov-report=xml --cov-report=term --cov-fail-under=70"
 
 [tool.coverage.run]
 source = ["src"]
