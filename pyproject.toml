@@ -95,7 +95,7 @@ dev = [
     "uv",
     "uv-build>=0.10.0",
     "hatching",
-    "genbadge[coverage]>=1.6.0",
+    "genbadge[coverage]>=1.1.0",
 ]
 
 # Test tools
