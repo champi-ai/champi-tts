@@ -9,6 +9,42 @@ from typing import Any
 
 from loguru import logger
 
+from champi_tts.providers.kokoro.enums import VoiceLanguage
+
+# Valid two-letter prefixes that identify gender/language of a voice.
+# Format: language-code + gender initial (f=female, m=male).
+VALID_VOICE_PREFIXES: frozenset[str] = frozenset(
+    {
+        "af",
+        "am",
+        "bf",
+        "bm",
+        "ef",
+        "em",
+        "ff",
+        "fm",
+        "hf",
+        "hm",
+        "if",
+        "im",
+        "jf",
+        "jm",
+        "pf",
+        "pm",
+        "zf",
+        "zm",
+    }
+)
+
+# Accepted language codes: all VoiceLanguage enum values plus plain "en".
+VALID_LANGUAGE_CODES: frozenset[str] = frozenset(
+    lang.value for lang in VoiceLanguage
+) | {"en"}
+
+# Speed limits enforced by validate().
+SPEED_MIN: float = 0.5
+SPEED_MAX: float = 2.0
+
 
 @dataclass
 class KokoroConfig:
@@ -57,25 +93,57 @@ class KokoroConfig:
     max_text_length: int = 100000
     retry_on_failure: bool = True
 
-    def __post_init__(self):
-        """Post-initialization validation"""
-        # Validate language code
-        valid_languages = ["a", "b", "en", "en-us", "en-gb"]
-        if self.default_language not in valid_languages:
-            logger.warning(f"Invalid language code: {self.default_language}, using 'a'")
-            self.default_language = "a"
+    def __post_init__(self) -> None:
+        """Validate configuration on construction."""
+        self.validate()
 
-        # Validate speed
-        if not (0.1 <= self.default_speed <= 3.0):
-            logger.warning(f"Invalid speed: {self.default_speed}, using 1.0")
-            self.default_speed = 1.0
+    def validate(self) -> bool:
+        """Validate Kokoro configuration settings.
 
-        # Validate chunk size
-        if self.streaming_chunk_size < 50:
-            logger.warning(
-                f"Chunk size too small: {self.streaming_chunk_size}, using 200"
+        Raises:
+            ValueError: If any configuration value is invalid.
+
+        Returns:
+            True if all settings are valid.
+        """
+        if not (SPEED_MIN <= self.default_speed <= SPEED_MAX):
+            raise ValueError(
+                f"default_speed must be between {SPEED_MIN} and {SPEED_MAX}, "
+                f"got {self.default_speed}"
             )
-            self.streaming_chunk_size = 200
+
+        if self.default_voice:
+            parts = self.default_voice.split("_", 1)
+            if len(parts) < 2 or parts[0] not in VALID_VOICE_PREFIXES:
+                raise ValueError(
+                    f"Invalid voice name '{self.default_voice}'. "
+                    f"Voice names must follow the pattern '<prefix>_<name>' "
+                    f"where prefix is one of: {', '.join(sorted(VALID_VOICE_PREFIXES))}"
+                )
+
+        if self.default_language not in VALID_LANGUAGE_CODES:
+            raise ValueError(
+                f"Invalid language code '{self.default_language}'. "
+                f"Valid codes: {', '.join(sorted(VALID_LANGUAGE_CODES))}"
+            )
+
+        if self.streaming_chunk_size < 50:
+            raise ValueError(
+                f"streaming_chunk_size must be >= 50, got {self.streaming_chunk_size}"
+            )
+
+        if self.max_text_length <= 0:
+            raise ValueError(
+                f"max_text_length must be positive, got {self.max_text_length}"
+            )
+
+        supported = self.supported_audio_formats
+        if self.audio_format not in supported:
+            raise ValueError(
+                f"audio_format must be one of {supported}, got '{self.audio_format}'"
+            )
+
+        return True
 
     @classmethod
     def from_dict(cls, config_dict: dict[str, Any]) -> "KokoroConfig":
@@ -184,6 +252,7 @@ class KokoroConfig:
         if env_value := os.environ.get("CHAMPI_AUTO_START_KOKORO"):
             config.auto_start = env_value.lower() in ["true", "1", "yes"]
 
+        config.validate()
         return config
 
     @property
