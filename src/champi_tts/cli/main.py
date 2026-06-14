@@ -12,6 +12,10 @@ from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
 from champi_tts import get_provider, get_reader
+from champi_tts.providers.kokoro.voice_manager import (
+    VOICES_CACHE_DIR,
+    list_cached_voices,
+)
 
 app = typer.Typer(
     name="champi-tts",
@@ -19,6 +23,9 @@ app = typer.Typer(
     add_completion=False,
 )
 console = Console()
+
+voices_app = typer.Typer(help="Manage cached voice files.")
+app.add_typer(voices_app, name="voices")
 
 
 @app.command()
@@ -284,6 +291,33 @@ def version():
     from champi_tts import __version__
 
     console.print(f"champi-tts version [cyan]{__version__}[/cyan]")
+
+
+@voices_app.command("list")
+def voices_list(
+    cache_dir: Path | None = typer.Option(
+        None, "--cache-dir", help="Override the voice cache directory."
+    ),
+) -> None:
+    """List voice files available in the cache directory."""
+    voices = list_cached_voices(cache_dir)
+    if not voices:
+        console.print("[yellow]No cached voices found.[/yellow]")
+        raise typer.Exit(0)
+    console.print("[bold]Cached voices:[/bold]")
+    for voice in voices:
+        console.print(f"  • {voice}")
+
+
+@voices_app.command("cache-dir")
+def voices_cache_dir(
+    cache_dir: Path | None = typer.Option(
+        None, "--cache-dir", help="Override the voice cache directory."
+    ),
+) -> None:
+    """Print the voice cache directory path."""
+    directory = cache_dir if cache_dir is not None else VOICES_CACHE_DIR
+    console.print(str(directory))
 
 
 def main():
