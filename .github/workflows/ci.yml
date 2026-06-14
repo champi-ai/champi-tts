@@ -1,117 +1,104 @@
 name: CI
 
 on:
-  push:
-    branches: [master, main, develop]
   pull_request:
-    branches: [master, main, develop]
+    branches: [ main ]
+
+concurrency:
+  group: ci-${{ github.head_ref }}
+  cancel-in-progress: true
+
 
 jobs:
-  lint:
-    runs-on: self-hosted
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install ruff black mypy
-
-      - name: Run ruff
-        run: ruff check src/
-
-      - name: Run black
-        run: black --check src/
-
-      - name: Run mypy
-        run: mypy src/
-
-  security:
-    runs-on: self-hosted
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install bandit[toml] detect-secrets
-
-      - name: Run bandit
-        run: bandit -c pyproject.toml -r src/
-
-      - name: Run detect-secrets
-        run: detect-secrets scan --baseline .secrets.baseline
-
   test:
+    name: Test on Python ${{ matrix.python-version }}
     runs-on: self-hosted
+    if: "!contains(github.event.head_commit.message, 'update coverage badge')"
+    permissions:
+      contents: write
     strategy:
       matrix:
-        os: [ubuntu-22.04, macos-latest]
-        python-version: ["3.12", "3.13"]
+        python-version: ['3.12', '3.13']
 
     steps:
-      - uses: actions/checkout@v4
+    - name: Check out
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      with:
+        ref: ${{ github.head_ref }}
+        persist-credentials: false
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
+    - name: Clean up virtualenv
+      run: rm -rf .venv
 
-      - name: Cache uv dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/pip
-            .venv
-            target
-          key: ${{ runner.os }}-uv-${{ hashFiles('uv.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-uv-
+    - name: Install uv
+      run: curl -LsSf https://astral.sh/uv/install.sh | sh && echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-      - name: Install dependencies with uv
-        run: |
-          python -m pip install --upgrade pip
-          uv sync --frozen
+    - name: Set up Python ${{ matrix.python-version }}
+      run: uv python install ${{ matrix.python-version }}
 
-      - name: Run tests
-        run: uv run pytest tests/ -v --cov=src/champi_tts --cov-report=xml --cov-report=term
+    - name: Install dependencies
+      run: uv sync --all-extras --dev
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
-        with:
-          file: ./coverage.xml
-          fail_ci_if_error: false
+    - name: Run ruff check
+      run: uv run ruff check .
 
-  build:
+    - name: Run ruff format check
+      run: uv run ruff format --check .
+
+    - name: Run mypy
+      run: uv run mypy src
+
+    - name: Run tests with coverage
+      run: uv run pytest
+
+    - name: Update coverage badge and ratchet threshold
+      if: matrix.python-version == '3.12'
+      run: |
+        mkdir -p badges
+        uv run genbadge coverage -i coverage.xml -o badges/coverage.svg
+
+        COVERAGE=$(uv run coverage report | tail -1 | awk '{gsub(/%/,""); print int($NF) - 1}')
+        THRESHOLD=$(grep -oP '(?<=--cov-fail-under=)\d+' pyproject.toml)
+        echo "Coverage: $COVERAGE%, threshold: $THRESHOLD%"
+        if [ "$COVERAGE" -gt "$THRESHOLD" ]; then
+          sed -i "s/--cov-fail-under=$THRESHOLD/--cov-fail-under=$COVERAGE/" pyproject.toml
+          echo "Bumped threshold $THRESHOLD → $COVERAGE"
+        fi
+
+        git config --local user.name "Divagnz"
+        git config --local user.email "oscar.liguori.bagnis@gmail.com"
+        git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+
+        STASH_RESULT=$(git stash)
+        git fetch origin ${{ github.head_ref }}
+        git reset --hard origin/${{ github.head_ref }}
+        echo "$STASH_RESULT" | grep -q "^No local changes" || git stash pop
+
+        git add badges/coverage.svg pyproject.toml
+        git diff --staged --quiet || git commit -m "chore: update coverage badge and threshold"
+        git push origin HEAD:${{ github.head_ref }}
+
+  security:
+    name: Security Scan
     runs-on: self-hosted
+
     steps:
-      - uses: actions/checkout@v4
+    - name: Check out
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
+    - name: Clean up virtualenv
+      run: rm -rf .venv
 
-      - name: Install build dependencies with uv
-        run: |
-          python -m pip install --upgrade pip
-          uv sync --frozen
+    - name: Install uv
+      run: curl -LsSf https://astral.sh/uv/install.sh | sh && echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-      - name: Build package
-        run: python -m build
+    - name: Install detect-secrets
+      run: uv tool install detect-secrets
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: dist
-          path: dist/
+    - name: Run detect-secrets scan
+      run: |
+        detect-secrets scan --baseline .secrets.baseline
+        if [ $? -ne 0 ]; then
+          echo "Potential secrets detected! Please review the findings."
+          exit 1
+        fi

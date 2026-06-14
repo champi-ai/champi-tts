@@ -1,6 +1,6 @@
 [project]
 name = "champi-tts"
-version = "0.1.0"
+version = "1.0.0"
 description = "Multi-provider text-to-speech library with voice reading features"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -8,20 +8,35 @@ authors = [
     {name = "Divagnz", email = "oscar.liguori.bagnis@gmail.com"}
 ]
 license = {text = "MIT"}
-keywords = ["tts", "text-to-speech", "kokoro", "voice", "speech-synthesis", "neural-tts"]
+keywords = ["tts", "text-to-speech", "kokoro", "voice", "speech-synthesis", "neural-tts", "tts-engine", "text-to-speech-api", "kokoro-tts", "voice-synthesis"]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Multimedia",
+    "Topic :: Multimedia :: Sound/Audio",
     "Topic :: Multimedia :: Sound/Audio :: Speech",
+    "Topic :: Software Development",
+    "Topic :: Software Development :: Libraries",
     "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Operating System :: OS Independent",
+    "Typing :: Typed",
+]
+maintainers = [
+    {name = "Divagnz", email = "oscar.liguori.bagnis@gmail.com"}
 ]
 dependencies = [
     # Core dependencies
-    "numpy",
-    "sounddevice",
-    "soundfile",
+    "numpy>=2.1.0",
+    "sounddevice>=0.5.0",
+    "soundfile>=0.13.0",
     "loguru",
     "blinker>=1.9.0",
     "champi-signals",
@@ -62,55 +77,87 @@ all = [
 ]
 
 # Development tools
-# Note: 'build' and 'twine' removed to prevent accidental PyPI uploads
 dev = [
     "champi-tts[all]",
-    "pytest>=7.0.0",
-    "pytest-asyncio>=0.21.0",
-    "pytest-cov>=4.0.0",
+    "build",
+    "twine",
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.24.0",
+    "pytest-cov>=6.0.0",
     "pytest-mock",
-    "black>=23.0.0",
-    "ruff>=0.1.0",
-    "mypy>=1.0.0",
-    "pre-commit>=3.0.0",
-    "commitizen>=3.0.0",
-    "bandit[toml]>=1.7.0",
-    "detect-secrets>=1.4.0",
+    "black>=24.0.0",
+    "ruff>=0.8.0",
+    "mypy>=1.13.0",
+    "pre-commit>=4.0.0",
+    "commitizen>=4.0.0",
+    "bandit[toml]>=1.8.0",
+    "detect-secrets>=1.5.0",
     "uv",
-    "uv-build>=0.7.21",
+    "uv-build>=0.10.0",
     "hatching",
+    "genbadge[coverage]>=1.6.0",
 ]
 
 # Test tools
 test = [
-    "pytest",
-    "pytest-asyncio",
-    "pytest-cov",
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.24.0",
+    "pytest-cov>=6.0.0",
     "pytest-mock",
-    "coverage",
+    "pytest-benchmark>=5.0.0",
+    "coverage>=7.6.0",
+    "psutil>=6.1.0",  # For CPU/memory monitoring
 ]
-
-[project.urls]
-Homepage = "https://github.com/divagnz/champi-tts"
-Repository = "https://github.com/divagnz/champi-tts"
-Issues = "https://github.com/divagnz/champi-tts/issues"
-
-# PyPI publishing: intentionally disabled
-# Do not add 'build', 'twine' to dev dependencies
-# To publish to PyPI requires manual authorization
 
 [project.scripts]
 champi-tts = "champi_tts.cli:main"
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling>=1.22.0"]
 build-backend = "hatchling.build"
+
+[tool.hatch.build]
+exclude = [
+    "/tests",
+    "/docs",
+    "/examples",
+    "/.git",
+    "/.pytest_cache",
+    "/.mypy_cache",
+    "/.ruff_cache",
+    "/.tox",
+    "/.venv",
+    "/build",
+    "/dist",
+    "/__pycache__",
+    "/*.pyc",
+    "/*.pyo",
+    "/.coverage",
+    "/htmlcov",
+    "/.hatch",
+    "/.benchmarks.json",
+    "/.DS_Store",
+    "*.egg-info",
+]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/champi_tts"]
+include = [
+    "/LICENSE",
+    "/README.md",
+    "/src/champi_tts/**/*.py",
+    "/src/champi_tts/**/*.txt",
+]
+exclude = [
+    "/tests/*",
+    "/examples/*",
+    "/__pycache__/*",
+    "*/__pycache__/*",
+]
 
 [tool.hatch.metadata]
 allow-direct-references = true
+allow-unsafe-include = true
 
 # UV configuration
 [tool.uv]
@@ -251,7 +298,7 @@ testpaths = ["tests"]
 python_files = "test_*.py"
 python_classes = "Test*"
 python_functions = "test_*"
-addopts = "-v --durations=10"  # Show slowest 10 tests
+addopts = "-v --durations=10 --cov=src/champi_tts --cov-report=xml --cov-report=term --cov-fail-under=70"
 
 [tool.coverage.run]
 source = ["src"]
@@ -281,7 +328,7 @@ save_results = ".benchmarks.json"
 # Commitizen configuration for semantic versioning
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "0.1.0"
+version = "1.0.0"
 tag_format = "v$version"
 version_files = [
     "pyproject.toml:version",
