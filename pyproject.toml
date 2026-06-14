@@ -337,7 +337,6 @@ version_files = [
 update_changelog_on_bump = true
 changelog_file = "CHANGELOG.md"
 changelog_incremental = true
-major_version_zero = true
 
 # PyTorch CUDA support
 [[tool.uv.index]]
