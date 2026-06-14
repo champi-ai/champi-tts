@@ -1,44 +1,161 @@
-# Release workflow
-# Use self-hosted runner with uv for package management
 name: Release
 
 on:
   push:
-    tags:
-      - 'v*.*.*'
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      bump_type:
+        description: 'Version bump type'
+        required: true
+        type: choice
+        options:
+          - auto
+          - patch
+          - minor
+          - major
+        default: 'auto'
+      dry_run:
+        description: 'Dry run (skip release creation)'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
-  build-and-release:
+  release:
+    name: Bump version and create release
+    if: "!startsWith(github.event.head_commit.message, 'bump:')"
     runs-on: self-hosted
+
     steps:
-      - uses: actions/checkout@v4
+    - name: Check out
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      with:
+        fetch-depth: 1
+        persist-credentials: false
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
+    - name: Authenticate git and fetch full history
+      run: |
+        git remote set-url origin https://Divagnz:${{ secrets.RELEASE_TOKEN }}@github.com/${{ github.repository }}.git
+        git fetch --unshallow --tags
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v3
-        with:
-          enable-cache: true
+    - name: Install uv for commitizen
+      run: curl -LsSf https://astral.sh/uv/install.sh | sh && echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-      - name: Build package with uv
-        run: |
-          uv build
+    - name: Install commitizen
+      run: uv tool install commitizen
 
-      - name: Upload package
-        uses: actions/upload-artifact@v3
-        with:
-          name: champi-tts-release
-          path: dist/
+    - name: Configure Git
+      run: |
+        git config --local user.name "Divagnz"
+        git config --local user.email "oscar.liguori.bagnis@gmail.com"
+        git config --local pull.rebase true
+        # Disable hooks so the bump commit is not blocked by commit-msg validation
+        git config --local core.hooksPath /dev/null
 
-      - name: Create GitHub Release from tag
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ github.ref_name }}
-          generate_release_notes: true
-          files: dist/*
+    - name: Run commitizen bump
+      id: cz
+      env:
+        GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+      run: |
+        # Get previous version
+        PREV_REV=$(cz version --project)
+        echo "Previous version: $PREV_REV"
+
+        # Check if there are any tags (for first release handling)
+        TAG_COUNT=$(git tag | wc -l)
+        echo "Existing tags: $TAG_COUNT"
+
+        # Determine bump command based on trigger type and tag existence
+        # --no-raise 21: no commitizen-formatted commits found (nothing to bump, clean skip)
+        # --no-raise 16: no increment detected (also clean skip)
+        BUMP_CMD="cz --no-raise 21,16 bump --yes"
+
+        # If manually triggered with specific bump type, use it
+        if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+          BUMP_TYPE="${{ github.event.inputs.bump_type }}"
+          if [[ "$BUMP_TYPE" != "auto" ]]; then
+            BUMP_CMD="cz --no-raise 21,16 bump --yes --increment $BUMP_TYPE"
+          fi
+          echo "Manual trigger with bump_type: $BUMP_TYPE"
+        fi
+
+        eval $BUMP_CMD
+
+        # Read new version directly from pyproject.toml (reliable after bump rewrites the file)
+        REV=$(grep -oP '(?<=^version = ")[^"]+' pyproject.toml | head -1)
+        echo "New version: $REV"
+        echo "version=${REV}" >> $GITHUB_OUTPUT
+
+        # Store whether version changed for later steps
+        if [[ "$REV" != "$PREV_REV" ]]; then
+          echo "version_changed=true" >> $GITHUB_OUTPUT
+        else
+          echo "version_changed=false" >> $GITHUB_OUTPUT
+        fi
+
+        # Extract incremental changelog for this version
+        if [[ "$REV" != "$PREV_REV" ]]; then
+          # Special handling for v0.0.0 (no previous version exists)
+          if [[ "$PREV_REV" == "0.0.0" ]]; then
+            echo "## v${REV}" > body.md
+            echo "" >> body.md
+            echo "Initial release" >> body.md
+            echo "" >> body.md
+            echo "See [CHANGELOG.md](CHANGELOG.md) for full details." >> body.md
+          else
+            # Extract changelog between versions
+            sed -n "/## v${REV}/,/## v${PREV_REV}/p" CHANGELOG.md | sed '$d' > body.md
+
+            # If body.md is empty, fall back to using the entire new version section
+            if [[ ! -s body.md ]]; then
+              sed -n "/## v${REV}/,/## /p" CHANGELOG.md | sed '$d' > body.md
+            fi
+
+            # If still empty, use a default message
+            if [[ ! -s body.md ]]; then
+              echo "Release v${REV}" > body.md
+              echo "" >> body.md
+              echo "See [CHANGELOG.md](CHANGELOG.md) for details." >> body.md
+            fi
+          fi
+
+          echo "Incremental changelog:"
+          cat body.md
+
+          if [[ "${{ github.event.inputs.dry_run }}" != "true" ]]; then
+            git fetch origin main
+            git rebase origin/main
+            git push origin HEAD:main --tags
+          else
+            echo "Dry run mode: skipping push"
+          fi
+        else
+          echo "No version change, skipping release"
+          echo "No changes" > body.md
+        fi
+
+    - name: Print Version
+      run: echo "Bumped to version ${{ steps.cz.outputs.version }}"
+
+    - name: Set up Python for build
+      run: uv python install 3.12
+
+    - name: Build package
+      if: steps.cz.outputs.version_changed == 'true' && github.event.inputs.dry_run != 'true'
+      run: uv build
+
+    - name: Create GitHub Release
+      if: steps.cz.outputs.version_changed == 'true' && github.event.inputs.dry_run != 'true'
+      uses: softprops/action-gh-release@6da8fa9354ddfdc4aeace5fc48d7f679b5214090
+      with:
+        tag_name: v${{ steps.cz.outputs.version }}
+        name: v${{ steps.cz.outputs.version }}
+        body_path: body.md
+        files: dist/*
+        token: ${{ secrets.RELEASE_TOKEN }}
