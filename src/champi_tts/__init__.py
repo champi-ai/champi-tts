@@ -79,7 +79,7 @@ from champi_tts.reader import ReaderState, TextReaderService
 # UI components
 from champi_tts.ui import TTSIndicatorUI, TTSState
 
-__version__ = "1.1.0"
+__version__ = "1.1.1"
 
 __all__ = [
     "BaseSynthesizer",
