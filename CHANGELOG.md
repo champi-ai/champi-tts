@@ -15,6 +15,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CLI interface
 - Documentation
 
+## v1.2.0 (2026-06-14)
+
+### Feat
+
+- **config**: add configuration validation to TTS config classes (#54)
+
+### Fix
+
+- **ci**: add test extra to benchmark workflow to install pytest-benchmark (#68)
+
+### Perf
+
+- implement lazy loading for heavy optional dependencies (#55)
+
 ## v1.1.1 (2026-06-14)
 
 ### Fix
