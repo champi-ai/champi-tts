@@ -1,0 +1,6 @@
+{
+  "Phase 1: CI/CD Pipeline Alignment": "phase:1",
+  "Phase 2: Release Automation": "phase:2",
+  "Phase 3: Docs Infrastructure": "phase:3",
+  "Phase 4: Pre-commit & Security Baseline": "phase:4"
+}
