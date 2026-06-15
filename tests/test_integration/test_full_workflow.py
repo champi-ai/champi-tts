@@ -10,12 +10,11 @@ These tests verify end-to-end functionality including:
 """
 
 import asyncio
-import pytest
 from pathlib import Path
 
+import pytest
+
 from champi_tts import ReaderState, TextReaderService
-from champi_tts.core.audio import AudioPlayer
-from champi_tts.factory import get_provider
 
 
 @pytest.fixture
@@ -66,7 +65,7 @@ async def test_pause_resume_sequence(mock_provider):
 
     # Start another read that can be paused
     async def long_read():
-        for i in range(10):
+        for _i in range(10):
             if reader.state == ReaderState.PAUSED:
                 break
             await asyncio.sleep(0.01)
@@ -122,7 +121,7 @@ async def test_queue_management():
     """
     Test queue management with edge cases.
     """
-    from tests.conftest import MockTTSProvider, MockTTSConfig
+    from tests.conftest import MockTTSConfig, MockTTSProvider
 
     config = MockTTSConfig()
     provider = MockTTSProvider(config)
@@ -148,7 +147,7 @@ async def test_queue_with_pause_resume():
     """
     Test queue operations with pause/resume.
     """
-    from tests.conftest import MockTTSProvider, MockTTSConfig
+    from tests.conftest import MockTTSConfig, MockTTSProvider
 
     config = MockTTSConfig()
     provider = MockTTSProvider(config)
@@ -178,7 +177,7 @@ async def test_read_file_workflow():
     """
     Test reading from file with paragraph processing.
     """
-    from tests.conftest import MockTTSProvider, MockTTSConfig
+    from tests.conftest import MockTTSConfig, MockTTSProvider
 
     config = MockTTSConfig()
     provider = MockTTSProvider(config)
@@ -213,7 +212,7 @@ async def test_file_not_found():
     """
     Test reading from non-existent file raises FileNotFoundError.
     """
-    from tests.conftest import MockTTSProvider, MockTTSConfig
+    from tests.conftest import MockTTSConfig, MockTTSProvider
 
     config = MockTTSConfig()
     provider = MockTTSProvider(config)
@@ -228,7 +227,7 @@ async def test_error_handling():
     """
     Test error handling during synthesis.
     """
-    from tests.conftest import MockTTSProvider, MockTTSConfig
+    from tests.conftest import MockTTSConfig, MockTTSProvider
 
     config = MockTTSConfig()
     provider = MockTTSProvider(config)
@@ -250,7 +249,7 @@ async def test_state_transitions():
     """
     Test all state transition paths.
     """
-    from tests.conftest import MockTTSProvider, MockTTSConfig
+    from tests.conftest import MockTTSConfig, MockTTSProvider
 
     config = MockTTSConfig()
     provider = MockTTSProvider(config)
@@ -273,7 +272,7 @@ async def test_reader_cleanup():
     """
     Test reader cleanup on exit.
     """
-    from tests.conftest import MockTTSProvider, MockTTSConfig
+    from tests.conftest import MockTTSConfig, MockTTSProvider
 
     config = MockTTSConfig()
     provider = MockTTSProvider(config)
@@ -313,7 +312,7 @@ async def test_read_text_with_voice():
     """
     Test reading text with custom voice parameter.
     """
-    from tests.conftest import MockTTSProvider, MockTTSConfig
+    from tests.conftest import MockTTSConfig, MockTTSProvider
 
     config = MockTTSConfig(default_voice="af_bella")
     provider = MockTTSProvider(config)
@@ -323,6 +322,7 @@ async def test_read_text_with_voice():
     voices_used = []
 
     original_synthesize = provider.synthesize
+
     async def tracked_synthesize(*args, voice=None, **kwargs):
         voices_used.append(voice or config.default_voice)
         return await original_synthesize(*args, **kwargs)
@@ -344,7 +344,7 @@ async def test_read_text_with_speed():
     """
     Test reading text with custom speed parameter.
     """
-    from tests.conftest import MockTTSProvider, MockTTSConfig
+    from tests.conftest import MockTTSConfig, MockTTSProvider
 
     config = MockTTSConfig(default_speed=1.0)
     provider = MockTTSProvider(config)
@@ -353,6 +353,7 @@ async def test_read_text_with_speed():
     speeds_used = []
 
     original_synthesize = provider.synthesize
+
     async def tracked_synthesize(*args, speed=None, **kwargs):
         speeds_used.append(speed or config.default_speed)
         return await original_synthesize(*args, **kwargs)
@@ -367,4 +368,3 @@ async def test_read_text_with_speed():
     speeds_used.clear()
     await reader.read_text("Test")
     assert speeds_used[-1] == 1.0
-

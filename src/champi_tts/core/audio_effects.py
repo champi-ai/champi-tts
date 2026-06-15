@@ -9,16 +9,12 @@ This module provides audio enhancement capabilities:
 - Compression
 """
 
-import asyncio
 from pathlib import Path
-from typing import Optional
 
 import numpy as np
 import scipy.signal as signal
-import soundfile as sf
-from loguru import logger
 
-from .audio import AudioPlayer, load_audio
+from .audio import load_audio
 
 
 class AudioProcessor:
@@ -89,7 +85,7 @@ class AudioProcessor:
         self,
         audio: np.ndarray,
         duration: float = 0.5,
-        sample_rate: Optional[int] = None,
+        sample_rate: int | None = None,
     ) -> np.ndarray:
         """
         Add silence before/after audio.
@@ -114,7 +110,7 @@ class AudioProcessor:
         self,
         audio: np.ndarray,
         fade_duration: float = 0.1,
-        sample_rate: Optional[int] = None,
+        sample_rate: int | None = None,
     ) -> np.ndarray:
         """
         Add fade in/out to audio.
@@ -152,7 +148,7 @@ class AudioProcessor:
         delay: float = 0.5,
         decay: float = 0.7,
         spread: float = 0.5,
-        sample_rate: Optional[int] = None,
+        sample_rate: int | None = None,
     ) -> np.ndarray:
         """
         Add echo effect to audio.
@@ -178,9 +174,9 @@ class AudioProcessor:
         # Apply multiple echoes with decreasing amplitude
         result = audio.copy()
         for i in range(3):
-            decayed = decay ** i
+            decayed = decay**i
             spreaded = int(spread * delay_samples)
-            echo = result[:-delay_samples - spreaded]
+            echo = result[: -delay_samples - spreaded]
             result[-spreaded - delay_samples - 1 : -spreaded] += echo * decayed
 
         return result
@@ -252,7 +248,7 @@ class AudioProcessor:
             Boosted audio
         """
         # Simple bass boost: amplify low frequencies
-        half_rate = self.sample_rate // 2
+        self.sample_rate // 2
         freq_range = int(100 * 2 * np.pi / self.sample_rate)
 
         low_freq_mask = np.arange(len(audio)) < freq_range
@@ -290,7 +286,9 @@ class AudioProcessor:
         # Calculate RMS
         window_size = int(0.01 * self.sample_rate)  # 10ms window
 
-        rms = np.sqrt(np.convolve(audio**2, np.ones(window_size), mode="valid") / window_size)
+        rms = np.sqrt(
+            np.convolve(audio**2, np.ones(window_size), mode="valid") / window_size
+        )
         rms_db = 20 * np.log10(rms + 1e-10)
 
         # Calculate gain reduction
@@ -306,7 +304,7 @@ class AudioProcessor:
         audio: np.ndarray,
         decay: float = 1.5,
         early_reflections: int = 5,
-        sample_rate: Optional[int] = None,
+        sample_rate: int | None = None,
     ) -> np.ndarray:
         """
         Apply reverb effect to audio.
@@ -351,7 +349,7 @@ class AudioProcessor:
         self,
         audio: np.ndarray,
         bits: int = 8,
-        sample_rate: Optional[int] = None,
+        sample_rate: int | None = None,
     ) -> np.ndarray:
         """
         Apply bitcrush effect (lo-fi).
@@ -429,7 +427,7 @@ class AudioProcessor:
         self,
         audio: np.ndarray,
         output_path: str | Path,
-        sample_rate: Optional[int] = None,
+        sample_rate: int | None = None,
         format: str = "wav",
     ) -> None:
         """
@@ -441,13 +439,15 @@ class AudioProcessor:
             sample_rate: Sample rate for saving
             format: Audio format
         """
-        await load_audio.__func__(audio, output_path, sample_rate or self.sample_rate, format)
+        await load_audio.__func__(
+            audio, output_path, sample_rate or self.sample_rate, format
+        )
 
 
 def process_audio(
     audio: np.ndarray,
     sample_rate: int = 24000,
-    effects: Optional[list[dict[str, any]]] = None,
+    effects: list[dict[str, any]] | None = None,
 ) -> np.ndarray:
     """
     Convenience function to process audio with effects.

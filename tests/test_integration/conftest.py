@@ -26,6 +26,7 @@ def initialized_provider(mock_provider):
 def temp_audio_file(tmp_path):
     """Create temporary audio file for testing."""
     import numpy as np
+
     from champi_tts.core.audio import save_audio
 
     # Create test audio

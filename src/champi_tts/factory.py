@@ -4,7 +4,6 @@ Provider factory for creating TTS providers and readers.
 Uses lazy loading to reduce initial startup time.
 """
 
-import sys
 from typing import Literal
 
 from champi_tts.core.base_config import BaseTTSConfig
@@ -28,6 +27,7 @@ def _lazy_import(module_name: str) -> object:
     if module_name not in _lazy_modules:
         _lazy_modules[module_name] = __import__(module_name)
     return _lazy_modules[module_name]
+
 
 # Type for supported providers
 ProviderType = Literal["kokoro"]  # Will add more providers later
@@ -74,9 +74,9 @@ def get_provider(
                 # Use default config
                 kokoro_config = KokoroConfig()
         else:
-            assert isinstance(
-                config, KokoroConfig
-            ), "config must be KokoroConfig for kokoro provider"
+            assert isinstance(config, KokoroConfig), (
+                "config must be KokoroConfig for kokoro provider"
+            )
             kokoro_config = config
 
         return KokoroProviderAdapter(config=kokoro_config)
@@ -94,7 +94,7 @@ def get_provider(
 
     else:
         raise ValueError(
-            f"Unknown provider type: {provider_type}. " f"Supported providers: kokoro"
+            f"Unknown provider type: {provider_type}. Supported providers: kokoro"
         )
 
 

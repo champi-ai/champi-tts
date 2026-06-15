@@ -24,8 +24,9 @@ console = Console()
 @app.command()
 def synthesize(
     text: str = typer.Argument(..., help="Text to synthesize"),
-    output: Path
-    | None = typer.Option(None, "--output", "-o", help="Output audio file path"),
+    output: Path | None = typer.Option(
+        None, "--output", "-o", help="Output audio file path"
+    ),
     voice: str | None = typer.Option(None, "--voice", "-v", help="Voice to use"),
     speed: float = typer.Option(1.0, "--speed", "-s", help="Speech speed (0.5-2.0)"),
     provider: str = typer.Option(
@@ -81,8 +82,7 @@ def synthesize(
 @app.command()
 def read(
     file_path: Path | None = typer.Argument(None, help="Text file to read"),
-    text: str
-    | None = typer.Option(
+    text: str | None = typer.Option(
         None, "--text", "-t", help="Text to read (alternative to file)"
     ),
     voice: str | None = typer.Option(None, "--voice", "-v", help="Voice to use"),
