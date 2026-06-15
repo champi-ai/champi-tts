@@ -6,7 +6,6 @@ import sys
 import time
 from enum import Enum
 
-from imgui_bundle import imgui, immapp
 from loguru import logger
 
 
@@ -56,6 +55,8 @@ class TTSIndicatorUI:
 
     def gui(self) -> None:
         """Render the ImGui interface."""
+        from imgui_bundle import imgui
+
         # Set window position
         imgui.set_next_window_pos(
             imgui.ImVec2(self.window_x, self.window_y),
@@ -134,6 +135,8 @@ class TTSIndicatorUI:
 
     def run(self) -> None:
         """Run the UI main loop."""
+        from imgui_bundle import immapp
+
         immapp.run(
             gui_function=self.gui,
             window_title="Champi TTS",
@@ -144,6 +147,8 @@ class TTSIndicatorUI:
 
 def run_standalone(window_x: int = 50, window_y: int = 50) -> None:
     """Run the indicator UI in standalone mode for testing."""
+    from imgui_bundle import imgui, immapp
+
     ui = TTSIndicatorUI(window_x=window_x, window_y=window_y)
 
     # Test state cycling

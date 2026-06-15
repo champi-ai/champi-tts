@@ -65,21 +65,50 @@ from champi_tts.factory import (
     list_providers,
 )
 
-# Backwards compatibility: expose Kokoro directly
-from champi_tts.providers.kokoro import (
-    KokoroConfig,
-    KokoroInference,
-    KokoroProvider,
-    VoiceManager,
-)
-
 # Reader service
 from champi_tts.reader import ReaderState, TextReaderService
 
-# UI components
-from champi_tts.ui import TTSIndicatorUI, TTSState
-
 __version__ = "1.1.1"
+
+# Names from optional extras that are loaded lazily to avoid pulling in
+# heavy dependencies (torch, kokoro, imgui-bundle) at import time.
+_KOKORO_EXPORTS = frozenset(
+    {"KokoroConfig", "KokoroInference", "KokoroProvider", "VoiceManager"}
+)
+_UI_EXPORTS = frozenset({"TTSIndicatorUI", "TTSState"})
+
+
+def __getattr__(name: str) -> object:
+    """Lazily import optional-extra symbols to keep startup fast."""
+    if name in _KOKORO_EXPORTS:
+        from champi_tts.providers.kokoro import (
+            KokoroConfig,
+            KokoroInference,
+            KokoroProvider,
+            VoiceManager,
+        )
+
+        _resolved = {
+            "KokoroConfig": KokoroConfig,
+            "KokoroInference": KokoroInference,
+            "KokoroProvider": KokoroProvider,
+            "VoiceManager": VoiceManager,
+        }
+        globals().update(_resolved)
+        return _resolved[name]
+
+    if name in _UI_EXPORTS:
+        from champi_tts.ui import TTSIndicatorUI, TTSState
+
+        _resolved = {
+            "TTSIndicatorUI": TTSIndicatorUI,
+            "TTSState": TTSState,
+        }
+        globals().update(_resolved)
+        return _resolved[name]
+
+    raise AttributeError(f"module 'champi_tts' has no attribute {name!r}")
+
 
 __all__ = [
     "BaseSynthesizer",
