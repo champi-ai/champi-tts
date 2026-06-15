@@ -1,6 +1,6 @@
 [project]
 name = "champi-tts"
-version = "1.1.1"
+version = "1.2.0"
 description = "Multi-provider text-to-speech library with voice reading features"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -335,7 +335,7 @@ save_results = ".benchmarks.json"
 # Commitizen configuration for semantic versioning
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "1.1.1"
+version = "1.2.0"
 tag_format = "v$version"
 version_files = [
     "pyproject.toml:version",

@@ -68,7 +68,7 @@ from champi_tts.factory import (
 # Reader service
 from champi_tts.reader import ReaderState, TextReaderService
 
-__version__ = "1.1.1"
+__version__ = "1.2.0"
 
 # Names from optional extras that are loaded lazily to avoid pulling in
 # heavy dependencies (torch, kokoro, imgui-bundle) at import time.
