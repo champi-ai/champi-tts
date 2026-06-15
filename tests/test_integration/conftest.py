@@ -2,50 +2,86 @@
 Shared fixtures for integration tests.
 """
 
+import asyncio
+from unittest.mock import patch
+
+import numpy as np
 import pytest
 
+from champi_tts.core.audio import AudioPlayer
 from tests.conftest import MockTTSConfig, MockTTSProvider
+
+
+class SlowMockProvider(MockTTSProvider):
+    """Mock provider with a configurable synthesis delay for async timing tests."""
+
+    def __init__(self, delay: float = 0.3):
+        super().__init__()
+        self._delay = delay
+
+    async def synthesize(
+        self,
+        text: str,
+        voice: str | None = None,
+        speed: float | None = None,
+        **kwargs,
+    ) -> np.ndarray:
+        """Synthesize with artificial delay to allow concurrent state assertions."""
+        await asyncio.sleep(self._delay)
+        return np.zeros(1000, dtype=np.float32)
 
 
 @pytest.fixture
 def mock_provider():
     """Mock provider for integration tests."""
-    config = MockTTSConfig()
-    return MockTTSProvider(config)
+    return MockTTSProvider(MockTTSConfig())
+
+
+@pytest.fixture
+def slow_provider():
+    """Mock provider with a 0.3 s synthesis delay for pause/resume timing tests."""
+    return SlowMockProvider(delay=0.3)
 
 
 @pytest.fixture
 def initialized_provider(mock_provider):
-    """Initialized mock provider."""
-    # Mock initialization is a no-op
+    """Mock provider with _initialized set to True."""
     mock_provider._initialized = True
     return mock_provider
 
 
 @pytest.fixture
-def temp_audio_file(tmp_path):
-    """Create temporary audio file for testing."""
-    import numpy as np
+def audio_player():
+    """AudioPlayer at 22050 Hz for audio playback tests."""
+    return AudioPlayer(sample_rate=22050)
 
-    from champi_tts.core.audio import save_audio
 
-    # Create test audio
-    audio = np.sin(2 * np.pi * 440 * np.linspace(0, 1, 22050))
+@pytest.fixture
+def float_audio():
+    """Float32 440 Hz sine wave at 22050 Hz, 0.5 s duration."""
+    sample_rate = 22050
+    t = np.linspace(0, 0.5, int(sample_rate * 0.5))
+    return np.sin(2 * np.pi * 440 * t).astype(np.float32)
 
-    # Save to temp file
-    audio_file = tmp_path / "test_audio.wav"
-    save_audio(audio, audio_file, sample_rate=22050)
 
-    return audio_file
+@pytest.fixture
+def mock_sd():
+    """Prevent actual audio hardware access during tests."""
+    with (
+        patch("sounddevice.play"),
+        patch("sounddevice.wait"),
+        patch("sounddevice.stop"),
+    ):
+        yield
 
 
 @pytest.fixture
 def test_document(tmp_path):
-    """Create test document for reading tests."""
-    doc_file = tmp_path / "test_document.txt"
-    doc_file.write_text(
+    """Three-paragraph text file for file-reading tests."""
+    doc = tmp_path / "test_document.txt"
+    doc.write_text(
         "This is the first paragraph.\n\n"
         "This is the second paragraph.\n\n"
         "This is the third paragraph."
     )
-    return doc_file
+    return doc
