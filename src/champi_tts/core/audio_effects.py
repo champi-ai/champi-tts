@@ -9,16 +9,12 @@ This module provides audio enhancement capabilities:
 - Compression
 """
 
-import asyncio
 from pathlib import Path
-from typing import Optional
 
 import numpy as np
 import scipy.signal as signal
-import soundfile as sf
-from loguru import logger
 
-from .audio import AudioPlayer, load_audio
+from .audio import load_audio
 
 
 class AudioProcessor:
@@ -89,7 +85,7 @@ class AudioProcessor:
         self,
         audio: np.ndarray,
         duration: float = 0.5,
-        sample_rate: Optional[int] = None,
+        sample_rate: int | None = None,
     ) -> np.ndarray:
         """
         Add silence before/after audio.
@@ -114,7 +110,7 @@ class AudioProcessor:
         self,
         audio: np.ndarray,
         fade_duration: float = 0.1,
-        sample_rate: Optional[int] = None,
+        sample_rate: int | None = None,
     ) -> np.ndarray:
         """
         Add fade in/out to audio.
@@ -152,7 +148,7 @@ class AudioProcessor:
         delay: float = 0.5,
         decay: float = 0.7,
         spread: float = 0.5,
-        sample_rate: Optional[int] = None,
+        sample_rate: int | None = None,
     ) -> np.ndarray:
         """
         Add echo effect to audio.
@@ -252,7 +248,7 @@ class AudioProcessor:
             Boosted audio
         """
         # Simple bass boost: amplify low frequencies
-        half_rate = self.sample_rate // 2
+        self.sample_rate // 2
         freq_range = int(100 * 2 * np.pi / self.sample_rate)
 
         low_freq_mask = np.arange(len(audio)) < freq_range
@@ -306,7 +302,7 @@ class AudioProcessor:
         audio: np.ndarray,
         decay: float = 1.5,
         early_reflections: int = 5,
-        sample_rate: Optional[int] = None,
+        sample_rate: int | None = None,
     ) -> np.ndarray:
         """
         Apply reverb effect to audio.
@@ -351,7 +347,7 @@ class AudioProcessor:
         self,
         audio: np.ndarray,
         bits: int = 8,
-        sample_rate: Optional[int] = None,
+        sample_rate: int | None = None,
     ) -> np.ndarray:
         """
         Apply bitcrush effect (lo-fi).
@@ -429,7 +425,7 @@ class AudioProcessor:
         self,
         audio: np.ndarray,
         output_path: str | Path,
-        sample_rate: Optional[int] = None,
+        sample_rate: int | None = None,
         format: str = "wav",
     ) -> None:
         """
@@ -447,7 +443,7 @@ class AudioProcessor:
 def process_audio(
     audio: np.ndarray,
     sample_rate: int = 24000,
-    effects: Optional[list[dict[str, any]]] = None,
+    effects: list[dict[str, any]] | None = None,
 ) -> np.ndarray:
     """
     Convenience function to process audio with effects.

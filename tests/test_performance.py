@@ -7,8 +7,6 @@ to detect regressions and track improvements.
 
 import asyncio
 import time
-import timeit
-from pathlib import Path
 
 import numpy as np
 import pytest
@@ -43,7 +41,7 @@ async def test_synthesize_performance():
     synthesis_times = []
     for _ in range(3):
         start = time.perf_counter()
-        audio = await provider.synthesize(text)
+        await provider.synthesize(text)
         synthesis_times.append(time.perf_counter() - start)
         await provider.shutdown()
 
@@ -54,7 +52,7 @@ async def test_synthesize_performance():
     synthesis_times = []
     for _ in range(3):
         start = time.perf_counter()
-        audio = await provider.synthesize(text)
+        await provider.synthesize(text)
         synthesis_times.append(time.perf_counter() - start)
         await provider.shutdown()
 
@@ -132,7 +130,7 @@ def test_config_validation_performance():
     validation_times = []
     for _ in range(100):
         start = time.perf_counter()
-        errors = validate_config(config)
+        validate_config(config)
         validation_times.append(time.perf_counter() - start)
 
     avg_validation_time = np.mean(validation_times)
@@ -147,13 +145,13 @@ def test_lazy_import_performance():
 
     # First import (should take longer)
     start = time.perf_counter()
-    module = _lazy_import("numpy")
+    _lazy_import("numpy")
     first_import_time = time.perf_counter() - start
 
     # Subsequent imports (should be fast)
     for _ in range(10):
         start = time.perf_counter()
-        module = _lazy_import("numpy")
+        _lazy_import("numpy")
         import_time.append(time.perf_counter() - start)
 
     assert first_import_time < 5.0, f"First lazy import took too long: {first_import_time}s"
@@ -165,7 +163,6 @@ def test_memory_usage():
     import gc
 
     from champi_tts.factory import get_provider
-    from tests.conftest import MockTTSConfig, MockTTSProvider
 
     # Get initial memory
     gc.collect()
@@ -179,7 +176,7 @@ def test_memory_usage():
     # Cleanup
     provider.shutdown()
     gc.collect()
-    final_memory = sum(obj for obj in gc.get_objects() if isinstance(obj, np.ndarray))
+    sum(obj for obj in gc.get_objects() if isinstance(obj, np.ndarray))
 
     # Memory should not increase significantly
     delta = provider_memory - initial_memory
@@ -198,7 +195,7 @@ async def test_long_document_performance():
 
     # Create long text (like a book chapter)
     paragraphs = ["This is paragraph " + str(i) + ". " * 10 for i in range(100)]
-    long_text = "\n\n".join(paragraphs)
+    "\n\n".join(paragraphs)
 
     read_times = []
 

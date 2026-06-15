@@ -4,9 +4,12 @@ Integration tests for UI indicator.
 These tests verify UI state transitions and visual indicator functionality.
 """
 
+import contextlib
+
 import pytest
 
 from champi_tts import TTSIndicatorUI, TTSState
+from champi_tts.reader import ReaderState
 
 
 @pytest.fixture
@@ -129,10 +132,8 @@ async def test_reader_events_update_ui(mock_provider):
     reader.on_state_changed.connect(track_ui_state)
 
     # Read some text
-    try:
+    with contextlib.suppress(Exception):
         await reader.read_text("Test text")
-    except Exception:
-        pass  # Expected to fail without actual provider
 
     # UI should have been updated
     # Note: The exact sequence depends on signal timing

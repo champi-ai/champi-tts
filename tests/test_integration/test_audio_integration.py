@@ -4,13 +4,14 @@ Integration tests for audio handling.
 These tests verify audio playback, file I/O, and synthesis functionality.
 """
 
-import numpy as np
-import pytest
 import tempfile
 from pathlib import Path
 
+import numpy as np
+import pytest
+from soundfile import SF_FORMAT_WAV
+
 from champi_tts.core.audio import AudioPlayer, load_audio, save_audio
-from soundfile import SF_FORMAT_WAV, SF_FORMAT_PCM_16
 
 
 @pytest.fixture

@@ -4,7 +4,6 @@ Provider factory for creating TTS providers and readers.
 Uses lazy loading to reduce initial startup time.
 """
 
-import sys
 from typing import Literal
 
 from champi_tts.core.base_config import BaseTTSConfig

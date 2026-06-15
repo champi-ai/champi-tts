@@ -6,14 +6,14 @@ Provides validation functions for configuration objects.
 
 import os
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from loguru import logger
 
 
 def validate_voice_name(
     voice: str,
-    available_voices: Optional[list[str]] = None,
+    available_voices: list[str] | None = None,
     voice_prefix: str = "af_",
 ) -> tuple[bool, str]:
     """
@@ -63,7 +63,7 @@ def validate_voice_name(
 
 
 def validate_speed(
-    speed: Optional[float],
+    speed: float | None,
     default_speed: float = 1.0,
     min_speed: float = 0.5,
     max_speed: float = 2.0,
@@ -166,7 +166,7 @@ def validate_cache_path(
 
 
 def validate_sample_rate(
-    sample_rate: Optional[int],
+    sample_rate: int | None,
     default_rate: int = 22050,
 ) -> tuple[int, str]:
     """
@@ -259,7 +259,7 @@ def validate_config(
 
     # Validate speed
     if "default_speed" in config:
-        validated, message = validate_speed(config["default_speed"])
+        _validated, message = validate_speed(config["default_speed"])
         logger.debug(message)
 
     # Validate model path
@@ -279,18 +279,18 @@ def validate_config(
 
     # Validate sample rate
     if "sample_rate" in config:
-        validated, message = validate_sample_rate(config["sample_rate"])
+        _validated, message = validate_sample_rate(config["sample_rate"])
         logger.debug(message)
 
     return errors
 
 
 def validate_all(
-    voice: Optional[str] = None,
-    speed: Optional[float] = None,
-    model_path: Optional[str] = None,
-    cache_path: Optional[str] = None,
-    sample_rate: Optional[int] = None,
+    voice: str | None = None,
+    speed: float | None = None,
+    model_path: str | None = None,
+    cache_path: str | None = None,
+    sample_rate: int | None = None,
 ) -> bool:
     """
     Validate all configuration parameters.
@@ -317,7 +317,7 @@ def validate_all(
 
     if errors:
         logger.error(
-            f"Configuration validation failed:\n"
+            "Configuration validation failed:\n"
             + "\n".join(f"  {field}: {message}" for field, message in errors)
         )
         return False
@@ -326,13 +326,13 @@ def validate_all(
 
 
 # Environment variable helpers
-def get_env_voice() -> Optional[str]:
+def get_env_voice() -> str | None:
     """Get voice from environment or None."""
     voice = os.getenv("CHAMPI_KOKORO_DEFAULT_VOICE")
     return voice
 
 
-def get_env_speed() -> Optional[float]:
+def get_env_speed() -> float | None:
     """Get speed from environment or None."""
     speed_str = os.getenv("CHAMPI_KOKORO_DEFAULT_SPEED")
     if speed_str:
