@@ -2,7 +2,6 @@
 Tests for the text reader service.
 """
 
-
 import contextlib
 
 import pytest

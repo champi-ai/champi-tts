@@ -174,9 +174,9 @@ class AudioProcessor:
         # Apply multiple echoes with decreasing amplitude
         result = audio.copy()
         for i in range(3):
-            decayed = decay ** i
+            decayed = decay**i
             spreaded = int(spread * delay_samples)
-            echo = result[:-delay_samples - spreaded]
+            echo = result[: -delay_samples - spreaded]
             result[-spreaded - delay_samples - 1 : -spreaded] += echo * decayed
 
         return result
@@ -286,7 +286,9 @@ class AudioProcessor:
         # Calculate RMS
         window_size = int(0.01 * self.sample_rate)  # 10ms window
 
-        rms = np.sqrt(np.convolve(audio**2, np.ones(window_size), mode="valid") / window_size)
+        rms = np.sqrt(
+            np.convolve(audio**2, np.ones(window_size), mode="valid") / window_size
+        )
         rms_db = 20 * np.log10(rms + 1e-10)
 
         # Calculate gain reduction
@@ -437,7 +439,9 @@ class AudioProcessor:
             sample_rate: Sample rate for saving
             format: Audio format
         """
-        await load_audio.__func__(audio, output_path, sample_rate or self.sample_rate, format)
+        await load_audio.__func__(
+            audio, output_path, sample_rate or self.sample_rate, format
+        )
 
 
 def process_audio(

@@ -1029,7 +1029,7 @@ class KokoroProvider:
                     end_page = min(doc.page_count, page_range[1])
 
                 logger.debug(
-                    f"Extracting text from PDF: {pdf_path} (pages {start_page+1}-{end_page})"
+                    f"Extracting text from PDF: {pdf_path} (pages {start_page + 1}-{end_page})"
                 )
 
                 for page_num in range(start_page, end_page):
@@ -1070,7 +1070,7 @@ class KokoroProvider:
                         end_page = min(len(reader.pages), page_range[1])
 
                     logger.debug(
-                        f"Extracting text from PDF with PyPDF2: {pdf_path} (pages {start_page+1}-{end_page})"
+                        f"Extracting text from PDF with PyPDF2: {pdf_path} (pages {start_page + 1}-{end_page})"
                     )
 
                     for page_num in range(start_page, end_page):
@@ -1683,7 +1683,7 @@ if __name__ == "__main__":
 
             # Test web page reading and synthesis
             print("\n🌐 Testing Web Page Reading & Synthesis")
-            print(f"{'='*60}")
+            print(f"{'=' * 60}")
 
             test_url = "https://blog.jetbrains.com/pycharm/2025/07/faster-python-unlocking-the-python-global-interpreter-lock/"
             print(f"📄 Testing URL: {test_url}")
@@ -1744,7 +1744,7 @@ if __name__ == "__main__":
                 print(f"   ❌ Web page test failed: {e}")
                 # Don't let web page test failure stop the entire test
 
-            print(f"\n{'-'*60}")
+            print(f"\n{'-' * 60}")
 
         except Exception as e:
             print(f"❌ Provider test failed: {e}")

@@ -83,10 +83,7 @@ async def test_save_audio_file(mock_audio_data):
 
     # Save audio
     await save_audio(
-        mock_audio_data,
-        temp_path,
-        sample_rate=22050,
-        format=SF_FORMAT_WAV
+        mock_audio_data, temp_path, sample_rate=22050, format=SF_FORMAT_WAV
     )
 
     # Verify file exists
@@ -195,4 +192,3 @@ async def test_audio_player_volume_reset(audio_player):
     audio_player.volume = 0.5
     audio_player.set_volume()  # Reset to default
     assert audio_player.volume == 1.0
-

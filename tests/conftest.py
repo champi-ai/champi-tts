@@ -2,7 +2,6 @@
 Pytest configuration and fixtures for champi-tts tests.
 """
 
-
 import numpy as np
 import pytest
 

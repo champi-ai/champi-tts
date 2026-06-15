@@ -322,6 +322,7 @@ async def test_read_text_with_voice():
     voices_used = []
 
     original_synthesize = provider.synthesize
+
     async def tracked_synthesize(*args, voice=None, **kwargs):
         voices_used.append(voice or config.default_voice)
         return await original_synthesize(*args, **kwargs)
@@ -352,6 +353,7 @@ async def test_read_text_with_speed():
     speeds_used = []
 
     original_synthesize = provider.synthesize
+
     async def tracked_synthesize(*args, speed=None, **kwargs):
         speeds_used.append(speed or config.default_speed)
         return await original_synthesize(*args, **kwargs)
@@ -366,4 +368,3 @@ async def test_read_text_with_speed():
     speeds_used.clear()
     await reader.read_text("Test")
     assert speeds_used[-1] == 1.0
-

@@ -31,7 +31,13 @@ def test_ui_update_state(ui):
 
 def test_ui_state_cycle(ui):
     """Test cycling through all UI states."""
-    states = [TTSState.IDLE, TTSState.PROCESSING, TTSState.SPEAKING, TTSState.PAUSED, TTSState.ERROR]
+    states = [
+        TTSState.IDLE,
+        TTSState.PROCESSING,
+        TTSState.SPEAKING,
+        TTSState.PAUSED,
+        TTSState.ERROR,
+    ]
 
     for state in states:
         ui.update_state(state)
@@ -154,4 +160,3 @@ async def test_reader_error_updates_ui(mock_provider):
     # Simulate error state
     reader._set_state(ReaderState.IDLE)  # This will emit state_changed signal
     # UI should have received the state change
-

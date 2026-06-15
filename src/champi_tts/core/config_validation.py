@@ -51,8 +51,10 @@ def validate_voice_name(
             # Common American voices
             pass
         else:
-            available_str = ", ".join(available_voices[:5]) + "..." if len(available_voices) > 5 else ", ".join(
-                available_voices
+            available_str = (
+                ", ".join(available_voices[:5]) + "..."
+                if len(available_voices) > 5
+                else ", ".join(available_voices)
             )
             return (
                 False,
