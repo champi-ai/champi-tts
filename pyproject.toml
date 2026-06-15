@@ -39,7 +39,7 @@ dependencies = [
     "soundfile>=0.13.0",
     "loguru",
     "blinker>=1.9.0",
-    "champi-signals",
+    "champi-signals @ https://github.com/champi-ai/champi-signals/releases/download/v0.1.0/champi_signals-0.1.0-py3-none-any.whl",
 ]
 
 [project.optional-dependencies]
