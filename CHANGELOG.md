@@ -15,6 +15,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CLI interface
 - Documentation
 
+## v1.3.0 (2026-06-14)
+
+### Feat
+
+- **voices**: add voice cache manager and CLI voice commands (#66)
+
+### Perf
+
+- add performance benchmark suite (#57)
+
 ## v1.2.0 (2026-06-14)
 
 ### Feat
