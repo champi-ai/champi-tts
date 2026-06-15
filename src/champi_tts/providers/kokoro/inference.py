@@ -3,23 +3,22 @@ Core Kokoro TTS inference engine.
 Extracted from Kokoro-FastAPI for direct integration.
 """
 
+from __future__ import annotations
+
 import asyncio
+import contextlib
 import os
 import tempfile
 import time
 from collections.abc import AsyncGenerator
+from typing import TYPE_CHECKING
 
 import numpy as np
-import torch
 from loguru import logger
 
-try:
+if TYPE_CHECKING:
+    import torch
     from kokoro import KModel, KPipeline
-except ImportError:
-    logger.error("Kokoro package not found. Install with: pip install kokoro-tts")
-    raise
-
-import contextlib
 
 from champi_tts.providers.kokoro.config import KokoroConfig
 from champi_tts.providers.kokoro.enums import (
@@ -43,7 +42,7 @@ class AudioChunk:
         self.output = output
 
     @staticmethod
-    def combine(chunks: list["AudioChunk"]) -> "AudioChunk":
+    def combine(chunks: list[AudioChunk]) -> AudioChunk:
         """Combine multiple audio chunks"""
         if not chunks:
             return AudioChunk(np.array([], dtype=np.int16))
@@ -80,6 +79,8 @@ class KokoroInference:
 
     def _determine_device(self) -> str:
         """Determine best available device"""
+        import torch
+
         if self.config.force_cpu:
             return "cpu"
         elif torch.cuda.is_available() and self.config.use_gpu:
@@ -92,6 +93,16 @@ class KokoroInference:
     @EventProcessor.emits_event(data=["device", "model"])
     async def load_model(self, model_path: str, config_path: str) -> None:
         """Load Kokoro model from files"""
+        import torch
+
+        try:
+            from kokoro import KModel
+        except ImportError:
+            logger.error(
+                "Kokoro package not found. Install with: pip install kokoro-tts"
+            )
+            raise
+
         try:
             if not os.path.exists(model_path):
                 raise FileNotFoundError(f"Model file not found: {model_path}")
@@ -125,6 +136,8 @@ class KokoroInference:
 
     def _get_pipeline(self, lang_code: str) -> KPipeline:
         """Get or create pipeline for language"""
+        from kokoro import KPipeline
+
         if not self._initialized:
             raise RuntimeError("Model not loaded. Call load_model() first.")
 
@@ -138,6 +151,8 @@ class KokoroInference:
 
     def _load_voice_tensor(self, voice_path: str) -> torch.Tensor:
         """Load and prepare voice tensor"""
+        import torch
+
         if not os.path.exists(voice_path):
             raise FileNotFoundError(f"Voice file not found: {voice_path}")
 
@@ -162,6 +177,8 @@ class KokoroInference:
         self, voice_tensor: torch.Tensor, voice_name: str
     ) -> str:
         """Save voice tensor to temporary file"""
+        import torch
+
         temp_dir = tempfile.gettempdir()
         temp_path = os.path.join(temp_dir, f"kokoro_voice_{voice_name}.pt")
 
@@ -394,6 +411,8 @@ class KokoroInference:
 
     def unload(self) -> None:
         """Unload model and free resources"""
+        import torch
+
         if self.model is not None:
             del self.model
             self.model = None
