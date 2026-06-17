@@ -219,7 +219,8 @@ class AsyncTextNormalizer:
             if num == int(num):
                 num = int(num)
 
-            result = self.inflect_engine.number_to_words(num)
+            words = self.inflect_engine.number_to_words(num)
+            result = " ".join(words) if isinstance(words, list) else words
 
             if sign == "-":
                 result = f"negative {result}"

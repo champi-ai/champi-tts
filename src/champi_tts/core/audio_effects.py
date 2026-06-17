@@ -10,11 +10,12 @@ This module provides audio enhancement capabilities:
 """
 
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import scipy.signal as signal
 
-from .audio import load_audio
+from .audio import save_audio
 
 
 class AudioProcessor:
@@ -373,7 +374,7 @@ class AudioProcessor:
     def chain_effects(
         self,
         audio: np.ndarray,
-        effects: list[dict[str, any]],
+        effects: list[dict[str, Any]],
     ) -> np.ndarray:
         """
         Chain multiple effects together.
@@ -439,15 +440,13 @@ class AudioProcessor:
             sample_rate: Sample rate for saving
             format: Audio format
         """
-        await load_audio.__func__(
-            audio, output_path, sample_rate or self.sample_rate, format
-        )
+        await save_audio(audio, output_path, sample_rate or self.sample_rate)
 
 
 def process_audio(
     audio: np.ndarray,
     sample_rate: int = 24000,
-    effects: list[dict[str, any]] | None = None,
+    effects: list[dict[str, Any]] | None = None,
 ) -> np.ndarray:
     """
     Convenience function to process audio with effects.
