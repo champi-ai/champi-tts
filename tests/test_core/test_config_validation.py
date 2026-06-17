@@ -113,15 +113,15 @@ class TestKokoroConfigValidate:
 
     # -- speed -----------------------------------------------------------
 
-    def test_raises_for_speed_below_minimum(self):
-        """Speed below SPEED_MIN raises ValueError."""
-        with pytest.raises(ValueError, match="default_speed"):
-            KokoroConfig(default_speed=SPEED_MIN - 0.1)
+    def test_speed_below_minimum_resets_to_default(self):
+        """Speed below SPEED_MIN is silently reset to 1.0."""
+        cfg = KokoroConfig(default_speed=SPEED_MIN - 0.1)
+        assert cfg.default_speed == 1.0
 
-    def test_raises_for_speed_above_maximum(self):
-        """Speed above SPEED_MAX raises ValueError."""
-        with pytest.raises(ValueError, match="default_speed"):
-            KokoroConfig(default_speed=SPEED_MAX + 0.1)
+    def test_speed_above_maximum_resets_to_default(self):
+        """Speed above SPEED_MAX is silently reset to 1.0."""
+        cfg = KokoroConfig(default_speed=SPEED_MAX + 0.1)
+        assert cfg.default_speed == 1.0
 
     def test_accepts_speed_at_minimum_boundary(self):
         """Speed exactly at SPEED_MIN is accepted."""
@@ -168,10 +168,10 @@ class TestKokoroConfigValidate:
 
     # -- language --------------------------------------------------------
 
-    def test_raises_for_invalid_language_code(self):
-        """Unknown language code raises ValueError."""
-        with pytest.raises(ValueError, match="language"):
-            KokoroConfig(default_language="xyz")
+    def test_invalid_language_code_resets_to_a(self):
+        """Unknown language code is silently reset to 'a'."""
+        cfg = KokoroConfig(default_language="xyz")
+        assert cfg.default_language == "a"
 
     @pytest.mark.parametrize("code", sorted(VALID_LANGUAGE_CODES))
     def test_accepts_all_valid_language_codes(self, code):
@@ -181,10 +181,10 @@ class TestKokoroConfigValidate:
 
     # -- streaming_chunk_size --------------------------------------------
 
-    def test_raises_for_chunk_size_below_minimum(self):
-        """streaming_chunk_size below 50 raises ValueError."""
-        with pytest.raises(ValueError, match="streaming_chunk_size"):
-            KokoroConfig(streaming_chunk_size=10)
+    def test_chunk_size_below_minimum_resets_to_default(self):
+        """streaming_chunk_size below 50 is silently reset to 200."""
+        cfg = KokoroConfig(streaming_chunk_size=10)
+        assert cfg.streaming_chunk_size == 200
 
     def test_accepts_chunk_size_at_minimum(self):
         """streaming_chunk_size of exactly 50 is accepted."""
@@ -218,25 +218,25 @@ class TestKokoroConfigValidate:
 
     # -- construction integration ----------------------------------------
 
-    def test_construction_raises_with_invalid_speed(self):
-        """Construction fails immediately when speed is out of range."""
-        with pytest.raises(ValueError, match="default_speed"):
-            KokoroConfig(default_speed=5.0)
+    def test_construction_resets_invalid_speed(self):
+        """Construction resets out-of-range speed to 1.0."""
+        cfg = KokoroConfig(default_speed=5.0)
+        assert cfg.default_speed == 1.0
 
     def test_construction_raises_with_invalid_voice(self):
         """Construction fails immediately when voice name is malformed."""
         with pytest.raises(ValueError, match="voice"):
             KokoroConfig(default_voice="invalid")
 
-    def test_construction_raises_with_invalid_language(self):
-        """Construction fails immediately when language code is unknown."""
-        with pytest.raises(ValueError, match="language"):
-            KokoroConfig(default_language="zz")
+    def test_construction_resets_invalid_language(self):
+        """Construction resets an unknown language code to 'a'."""
+        cfg = KokoroConfig(default_language="zz")
+        assert cfg.default_language == "a"
 
     def test_validate_called_at_construction(self):
-        """validate() is invoked by __post_init__ so invalid args raise on init."""
-        with pytest.raises(ValueError):
-            KokoroConfig(default_speed=0.1)
+        """validate() is invoked by __post_init__ and silently resets invalid args."""
+        cfg = KokoroConfig(default_speed=0.1)
+        assert cfg.default_speed == 1.0
 
     def test_explicit_validate_call_returns_true(self):
         """Calling validate() on a valid config returns True."""

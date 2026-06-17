@@ -100,17 +100,20 @@ class KokoroConfig:
     def validate(self) -> bool:
         """Validate Kokoro configuration settings.
 
-        Raises:
-            ValueError: If any configuration value is invalid.
+        Invalid speed, language, and chunk_size values are silently reset to
+        their defaults.  Invalid voice prefix, max_text_length, and
+        audio_format still raise ValueError because there is no sensible
+        default to fall back to.
 
         Returns:
-            True if all settings are valid.
+            True when all settings are valid (after any resets).
         """
         if not (SPEED_MIN <= self.default_speed <= SPEED_MAX):
-            raise ValueError(
-                f"default_speed must be between {SPEED_MIN} and {SPEED_MAX}, "
-                f"got {self.default_speed}"
+            logger.warning(
+                f"default_speed {self.default_speed} is outside "
+                f"[{SPEED_MIN}, {SPEED_MAX}], resetting to 1.0"
             )
+            self.default_speed = 1.0
 
         if self.default_voice:
             parts = self.default_voice.split("_", 1)
@@ -122,15 +125,17 @@ class KokoroConfig:
                 )
 
         if self.default_language not in VALID_LANGUAGE_CODES:
-            raise ValueError(
-                f"Invalid language code '{self.default_language}'. "
-                f"Valid codes: {', '.join(sorted(VALID_LANGUAGE_CODES))}"
+            logger.warning(
+                f"Invalid language code '{self.default_language}', resetting to 'a'"
             )
+            self.default_language = "a"
 
         if self.streaming_chunk_size < 50:
-            raise ValueError(
-                f"streaming_chunk_size must be >= 50, got {self.streaming_chunk_size}"
+            logger.warning(
+                f"streaming_chunk_size {self.streaming_chunk_size} is below 50, "
+                "resetting to 200"
             )
+            self.streaming_chunk_size = 200
 
         if self.max_text_length <= 0:
             raise ValueError(

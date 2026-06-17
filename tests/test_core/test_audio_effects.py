@@ -162,9 +162,9 @@ class TestAddFade:
     def test_fade_start_is_quiet(
         self, processor: AudioProcessor, audio: np.ndarray
     ) -> None:
-        """First sample of faded audio is near zero."""
+        """Faded audio is quieter than the original at a non-zero sample."""
         result = processor.add_fade(audio, fade_duration=0.1)
-        assert abs(result[0]) < abs(audio[0])
+        assert abs(result[1]) < abs(audio[1])
 
     def test_custom_sample_rate(
         self, processor: AudioProcessor, audio: np.ndarray

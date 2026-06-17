@@ -9,6 +9,7 @@ from unittest.mock import patch
 
 import numpy as np
 import pytest
+import soundfile as sf
 
 from champi_tts.core.audio import AudioPlayer, load_audio, normalize_audio, save_audio
 
@@ -243,8 +244,8 @@ class TestLoadAudio:
 
     @pytest.mark.asyncio
     async def test_load_raises_for_missing_file(self) -> None:
-        """load_audio() raises an exception when file does not exist."""
-        with pytest.raises(OSError):
+        """load_audio() raises SoundFileError when file does not exist."""
+        with pytest.raises(sf.SoundFileError):
             await load_audio("/nonexistent/path/audio.wav")
 
 

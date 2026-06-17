@@ -80,7 +80,7 @@ class AudioProcessor:
         if current_rms == 0:
             return audio
 
-        return audio * np.sqrt(target_rms / current_rms)
+        return audio * (target_rms / current_rms)
 
     def add_silence(
         self,
