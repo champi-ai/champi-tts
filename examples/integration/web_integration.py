@@ -100,8 +100,8 @@ def synthesize():
         finally:
             loop.close()
 
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+    except Exception:
+        return jsonify({"status": "error", "message": "Internal server error"}), 500
 
 
 @app.route("/voices", methods=["GET"])
@@ -122,8 +122,8 @@ def list_voices():
         finally:
             loop.close()
 
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+    except Exception:
+        return jsonify({"status": "error", "message": "Internal server error"}), 500
 
 
 def main():
@@ -145,7 +145,7 @@ def main():
     print("\n" + "=" * 50)
 
     # Run Flask app
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=False)
 
 
 if __name__ == "__main__":
