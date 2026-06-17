@@ -17,7 +17,6 @@ from typing import Any
 import numpy as np
 import pytest
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -39,9 +38,7 @@ async def _collect_stream(provider: Any, text: str) -> list[np.ndarray]:
 
 def _run_stream(provider: Any, text: str) -> list[np.ndarray]:
     """Collect all streaming chunks from synthesize_streaming()."""
-    return asyncio.get_event_loop().run_until_complete(
-        _collect_stream(provider, text)
-    )
+    return asyncio.get_event_loop().run_until_complete(_collect_stream(provider, text))
 
 
 # ---------------------------------------------------------------------------
@@ -91,9 +88,7 @@ def test_bench_streaming_chunk_dispatch(benchmark, benchmark_provider: Any) -> N
 
 
 @pytest.mark.benchmark(group="streaming")
-def test_bench_audio_concat_from_chunks(
-    benchmark, sample_audio_5s: np.ndarray
-) -> None:
+def test_bench_audio_concat_from_chunks(benchmark, sample_audio_5s: np.ndarray) -> None:
     """Overhead of assembling streaming chunks into a single array (numpy concat)."""
     chunk_size = 4800
     chunks = [

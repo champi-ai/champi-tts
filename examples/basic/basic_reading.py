@@ -7,8 +7,8 @@ Shows basic usage: create reader, read text file, and control playback.
 """
 
 import asyncio
-import sys
 import os
+import sys
 
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -37,7 +37,7 @@ async def main():
         print(f"3. Creating test file: {test_file}")
 
         # Create a simple test document
-        with open(test_file, 'w') as f:
+        with open(test_file, "w") as f:
             f.write("""Basic Text Reading Example
 
 This is the first paragraph of the test document.
@@ -76,5 +76,6 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n\nError occurred: {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)

@@ -13,7 +13,6 @@ from champi_tts.providers.kokoro.config import (
     KokoroConfig,
 )
 
-
 # ---------------------------------------------------------------------------
 # Minimal concrete subclass used to exercise BaseTTSConfig.validate() directly.
 # ---------------------------------------------------------------------------

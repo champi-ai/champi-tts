@@ -2,8 +2,6 @@
 Tests for Kokoro TTS enums.
 """
 
-import pytest
-
 from champi_tts.providers.kokoro.enums import (
     AudioFormat,
     LifecycleEvents,
@@ -85,9 +83,13 @@ class TestVoiceLanguage:
 
     def test_from_voice_prefix_male_variants(self) -> None:
         """Male variants ('em_', 'fm_', etc.) map to the same language as female."""
-        assert VoiceLanguage.from_voice_prefix("em_voice") == VoiceLanguage.SPANISH.value
+        assert (
+            VoiceLanguage.from_voice_prefix("em_voice") == VoiceLanguage.SPANISH.value
+        )
         assert VoiceLanguage.from_voice_prefix("fm_voice") == VoiceLanguage.FRENCH.value
-        assert VoiceLanguage.from_voice_prefix("jm_voice") == VoiceLanguage.JAPANESE.value
+        assert (
+            VoiceLanguage.from_voice_prefix("jm_voice") == VoiceLanguage.JAPANESE.value
+        )
 
     def test_from_voice_prefix_unknown_defaults_to_american(self) -> None:
         """Unknown prefix defaults to American English."""

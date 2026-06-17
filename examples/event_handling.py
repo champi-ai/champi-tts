@@ -76,9 +76,9 @@ async def main():
     await asyncio.sleep(3)
 
     # Print event summary
-    print(f"\n{'='*50}")
+    print(f"\n{'=' * 50}")
     print("Event Summary:")
-    print(f"{'='*50}")
+    print(f"{'=' * 50}")
     print(f"Total events: {len(events)}")
     for event_type, data in events:
         if data:

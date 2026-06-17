@@ -7,8 +7,9 @@ Shows preprocessing, synthesis, and post-processing steps.
 """
 
 import asyncio
-import sys
 import os
+import sys
+
 import numpy as np
 from champion_signals import SignalBus
 
@@ -16,7 +17,7 @@ from champion_signals import SignalBus
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from champi_tts import get_provider
-from champi_tts.core.audio import save_audio, load_audio
+from champi_tts.core.audio import save_audio
 
 
 class AudioPipeline:
@@ -77,7 +78,7 @@ class AudioPipeline:
         Returns:
             Audio data
         """
-        print(f"Synthesizing text...")
+        print("Synthesizing text...")
 
         audio = await self.provider.synthesize(text, voice=voice)
 
@@ -135,7 +136,9 @@ class AudioPipeline:
         raw_audio = await self.synthesize_text(processed_text, voice)
 
         # Step 3: Audio postprocessing
-        final_audio = await self.postprocess_audio(raw_audio, sample_rate=self.provider.config.sample_rate)
+        final_audio = await self.postprocess_audio(
+            raw_audio, sample_rate=self.provider.config.sample_rate
+        )
 
         print("\nPipeline processing complete!")
         return final_audio
@@ -148,7 +151,9 @@ class AudioPipeline:
         """Signal handler for audio synthesis"""
         print(f"   Signal: Audio synthesized - shape {audio_shape}")
 
-    async def save_audio(self, audio_data: bytes, filename: str, sample_rate: int = 24000):
+    async def save_audio(
+        self, audio_data: bytes, filename: str, sample_rate: int = 24000
+    ):
         """Save audio data to file"""
         await save_audio(audio_data, filename, sample_rate)
         print(f"   Audio saved to: {filename}")
@@ -187,7 +192,9 @@ async def main():
 
         # Save output
         output_file = "pipeline_output.wav"
-        await pipeline.save_audio(output_audio, output_file, sample_rate=pipeline.provider.config.sample_rate)
+        await pipeline.save_audio(
+            output_audio, output_file, sample_rate=pipeline.provider.config.sample_rate
+        )
 
         print("\n" + "=" * 50)
         print("Example completed successfully!")
@@ -197,6 +204,7 @@ async def main():
     except Exception as e:
         print(f"\nError: {e}")
         import traceback
+
         traceback.print_exc()
 
     finally:
@@ -220,7 +228,7 @@ async def main_with_batch():
         texts = [
             "This is the first text for batch processing.",
             "The second text demonstrates batch capabilities.",
-            "Batch processing allows handling multiple texts efficiently."
+            "Batch processing allows handling multiple texts efficiently.",
         ]
 
         # Process all texts
@@ -230,7 +238,11 @@ async def main_with_batch():
             output_audio = await pipeline.process_full_pipeline(text)
             output_file = f"batch_output_{i}.wav"
 
-            await pipeline.save_audio(output_audio, output_file, sample_rate=pipeline.provider.config.sample_rate)
+            await pipeline.save_audio(
+                output_audio,
+                output_file,
+                sample_rate=pipeline.provider.config.sample_rate,
+            )
 
         print("\n" + "=" * 50)
         print("Batch processing completed!")
@@ -239,6 +251,7 @@ async def main_with_batch():
     except Exception as e:
         print(f"\nError: {e}")
         import traceback
+
         traceback.print_exc()
 
     finally:
@@ -260,5 +273,6 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n\nError occurred: {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)

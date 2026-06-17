@@ -17,7 +17,6 @@ import pytest
 
 from champi_tts.reader import ReaderState, TextReaderService
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -34,9 +33,7 @@ def _make_reader(mocked_reader_provider: Any) -> TextReaderService:
 
 
 @pytest.mark.benchmark(group="queue")
-def test_bench_add_to_queue_single(
-    benchmark, mocked_reader_provider: Any
-) -> None:
+def test_bench_add_to_queue_single(benchmark, mocked_reader_provider: Any) -> None:
     """Latency of a single add_to_queue call followed by clear_queue."""
     reader = _make_reader(mocked_reader_provider)
 
@@ -49,9 +46,7 @@ def test_bench_add_to_queue_single(
 
 
 @pytest.mark.benchmark(group="queue")
-def test_bench_add_to_queue_batch(
-    benchmark, mocked_reader_provider: Any
-) -> None:
+def test_bench_add_to_queue_batch(benchmark, mocked_reader_provider: Any) -> None:
     """Throughput of adding 100 items to the queue then clearing."""
     reader = _make_reader(mocked_reader_provider)
     texts = [f"Sentence number {i}." for i in range(100)]
@@ -68,9 +63,7 @@ def test_bench_add_to_queue_batch(
 
 
 @pytest.mark.benchmark(group="queue")
-def test_bench_clear_queue_prefilled(
-    benchmark, mocked_reader_provider: Any
-) -> None:
+def test_bench_clear_queue_prefilled(benchmark, mocked_reader_provider: Any) -> None:
     """Latency of clear_queue() in isolation on an already-filled 50-item queue."""
     reader = _make_reader(mocked_reader_provider)
 
@@ -87,9 +80,7 @@ def test_bench_clear_queue_prefilled(
 
 
 @pytest.mark.benchmark(group="state")
-def test_bench_state_transition_single(
-    benchmark, mocked_reader_provider: Any
-) -> None:
+def test_bench_state_transition_single(benchmark, mocked_reader_provider: Any) -> None:
     """Latency of one _set_state call including blinker signal dispatch."""
     reader = _make_reader(mocked_reader_provider)
 
@@ -102,9 +93,7 @@ def test_bench_state_transition_single(
 
 
 @pytest.mark.benchmark(group="state")
-def test_bench_state_full_cycle(
-    benchmark, mocked_reader_provider: Any
-) -> None:
+def test_bench_state_full_cycle(benchmark, mocked_reader_provider: Any) -> None:
     """Latency of a complete IDLE -> READING -> PAUSED -> STOPPED -> IDLE cycle."""
     reader = _make_reader(mocked_reader_provider)
 
@@ -119,9 +108,7 @@ def test_bench_state_full_cycle(
 
 
 @pytest.mark.benchmark(group="state")
-def test_bench_reader_construction(
-    benchmark, mocked_reader_provider: Any
-) -> None:
+def test_bench_reader_construction(benchmark, mocked_reader_provider: Any) -> None:
     """Overhead of constructing a TextReaderService (includes signal setup)."""
 
     def _create() -> TextReaderService:

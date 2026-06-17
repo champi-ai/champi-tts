@@ -325,7 +325,9 @@ async def test_read_file_splits_paragraphs(mock_provider, mock_sd, tmp_path, moc
 
 
 @pytest.mark.asyncio
-async def test_read_file_skips_blank_paragraphs(mock_provider, mock_sd, tmp_path, mocker):
+async def test_read_file_skips_blank_paragraphs(
+    mock_provider, mock_sd, tmp_path, mocker
+):
     """read_file ignores blank/whitespace-only paragraph separators."""
     mocker.patch("champi_tts.reader.service.asyncio.sleep")
     doc = tmp_path / "sparse.txt"

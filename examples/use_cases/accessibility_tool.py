@@ -7,8 +7,9 @@ Shows how to read text from applications, screen readers, etc.
 """
 
 import asyncio
-import sys
 import os
+import sys
+
 import pyautogui
 from champion_signals import SignalBus
 
@@ -92,7 +93,7 @@ class AccessibilityTool:
             print(f"Error: File not found: {filename}")
             return
 
-        with open(filename, 'r') as f:
+        with open(filename) as f:
             text = f.read()
 
         await self.reader.read(text, voice=voice)
@@ -139,21 +140,16 @@ class AccessibilityTool:
         print("Press Q to quit")
 
         self.running = True
-        last_key = None
 
         while self.running:
             # Check for key presses
             key = pyautogui.press()
 
-            if key == 'space':
+            if key == "space":
                 await self.read_screen_content(voice)
-                last_key = 'space'
+                pass
 
-            elif key == 'q':
-                self.running = False
-                break
-
-            elif key == 'escape':
+            elif key == "q" or key == "escape":
                 self.running = False
                 break
 
@@ -195,7 +191,7 @@ async def main():
 
         print("\nExample 3: Read document")
         test_file = "test_document.txt"
-        with open(test_file, 'w') as f:
+        with open(test_file, "w") as f:
             f.write("This is a test document for the accessibility tool.")
         await tool.read_document(test_file)
         os.remove(test_file)
@@ -210,6 +206,7 @@ async def main():
     except Exception as e:
         print(f"\nError: {e}")
         import traceback
+
         traceback.print_exc()
 
     finally:
@@ -252,5 +249,6 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n\nError occurred: {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)

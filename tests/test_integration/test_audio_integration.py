@@ -44,7 +44,9 @@ async def test_audio_player_play_nonblocking(audio_player, float_audio, mock_sd)
 
 
 @pytest.mark.asyncio
-async def test_audio_player_is_not_playing_after_completion(audio_player, float_audio, mock_sd):
+async def test_audio_player_is_not_playing_after_completion(
+    audio_player, float_audio, mock_sd
+):
     """is_playing is False after play returns."""
     await audio_player.play(float_audio, blocking=True)
     assert not audio_player.is_playing

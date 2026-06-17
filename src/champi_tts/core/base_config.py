@@ -6,7 +6,6 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any
 
-
 _VALID_AUDIO_FORMATS = frozenset({"wav", "mp3", "flac", "pcm", "ogg"})
 _MIN_CHUNK_SIZE = 50
 
