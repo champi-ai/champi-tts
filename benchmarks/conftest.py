@@ -15,7 +15,7 @@ class BenchmarkConfig(BaseTTSConfig):
     """Minimal config for benchmarks — no model or GPU required."""
 
     @classmethod
-    def from_env(cls) -> "BenchmarkConfig":
+    def from_env(cls) -> BenchmarkConfig:
         return cls()
 
     def validate(self) -> bool:

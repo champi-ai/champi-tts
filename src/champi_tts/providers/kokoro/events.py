@@ -1,7 +1,9 @@
 """Signals system for Kokoro TTS service using champi-signals."""
 
 from blinker import Signal
-from champi_signals import BaseSignalManager, TTSEventTypes
+from champi_signals import BaseSignalManager, EventProcessor, TTSEventTypes
+
+__all__ = ["EventProcessor", "TTSSignalManager"]
 
 
 class TTSSignalManager(BaseSignalManager):

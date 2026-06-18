@@ -162,9 +162,9 @@ class TestAddFade:
     def test_fade_start_is_quiet(
         self, processor: AudioProcessor, audio: np.ndarray
     ) -> None:
-        """First sample of faded audio is near zero."""
+        """Faded audio is quieter than the original at a non-zero sample."""
         result = processor.add_fade(audio, fade_duration=0.1)
-        assert abs(result[0]) < abs(audio[0])
+        assert abs(result[1]) < abs(audio[1])
 
     def test_custom_sample_rate(
         self, processor: AudioProcessor, audio: np.ndarray
@@ -221,9 +221,7 @@ class TestFilters:
         result = processor.apply_highpass(audio, cutoff_freq=200)
         assert len(result) == len(audio)
 
-    def test_lowpass_attenuates_high_frequency(
-        self, processor: AudioProcessor
-    ) -> None:
+    def test_lowpass_attenuates_high_frequency(self, processor: AudioProcessor) -> None:
         """Lowpass filter attenuates energy above cutoff."""
         # Create audio with two components: 440 Hz (pass) and 8000 Hz (stop)
         t = np.linspace(0, 1.0, 24000)
@@ -374,7 +372,9 @@ class TestChainEffects:
         self, processor: AudioProcessor, audio: np.ndarray
     ) -> None:
         """chain_effects() applies normalize effect."""
-        result = processor.chain_effects(audio, [{"type": "normalize", "target_db": -20.0}])
+        result = processor.chain_effects(
+            audio, [{"type": "normalize", "target_db": -20.0}]
+        )
         assert np.all(result >= -1.0)
         assert np.all(result <= 1.0)
 
@@ -382,40 +382,44 @@ class TestChainEffects:
         self, processor: AudioProcessor, quiet_audio: np.ndarray
     ) -> None:
         """chain_effects() applies gain effect."""
-        result = processor.chain_effects(quiet_audio, [{"type": "gain", "gain_db": 20.0}])
+        result = processor.chain_effects(
+            quiet_audio, [{"type": "gain", "gain_db": 20.0}]
+        )
         assert np.abs(result).max() > np.abs(quiet_audio).max()
 
-    def test_fade_effect(
-        self, processor: AudioProcessor, audio: np.ndarray
-    ) -> None:
+    def test_fade_effect(self, processor: AudioProcessor, audio: np.ndarray) -> None:
         """chain_effects() applies fade effect without changing length."""
-        result = processor.chain_effects(audio, [{"type": "fade", "fade_duration": 0.05}])
+        result = processor.chain_effects(
+            audio, [{"type": "fade", "fade_duration": 0.05}]
+        )
         assert len(result) == len(audio)
 
-    def test_lowpass_effect(
-        self, processor: AudioProcessor, audio: np.ndarray
-    ) -> None:
+    def test_lowpass_effect(self, processor: AudioProcessor, audio: np.ndarray) -> None:
         """chain_effects() applies lowpass filter."""
-        result = processor.chain_effects(audio, [{"type": "lowpass", "cutoff_freq": 4000}])
+        result = processor.chain_effects(
+            audio, [{"type": "lowpass", "cutoff_freq": 4000}]
+        )
         assert len(result) == len(audio)
 
     def test_highpass_effect(
         self, processor: AudioProcessor, audio: np.ndarray
     ) -> None:
         """chain_effects() applies highpass filter."""
-        result = processor.chain_effects(audio, [{"type": "highpass", "cutoff_freq": 200}])
+        result = processor.chain_effects(
+            audio, [{"type": "highpass", "cutoff_freq": 200}]
+        )
         assert len(result) == len(audio)
 
     def test_bass_boost_effect(
         self, processor: AudioProcessor, audio: np.ndarray
     ) -> None:
         """chain_effects() applies bass_boost effect."""
-        result = processor.chain_effects(audio, [{"type": "bass_boost", "boost_db": 6.0}])
+        result = processor.chain_effects(
+            audio, [{"type": "bass_boost", "boost_db": 6.0}]
+        )
         assert len(result) == len(audio)
 
-    def test_reverb_effect(
-        self, processor: AudioProcessor, audio: np.ndarray
-    ) -> None:
+    def test_reverb_effect(self, processor: AudioProcessor, audio: np.ndarray) -> None:
         """chain_effects() applies reverb effect."""
         result = processor.chain_effects(audio, [{"type": "reverb", "decay": 0.1}])
         assert len(result) > 0
@@ -424,9 +428,7 @@ class TestChainEffects:
         self, processor: AudioProcessor, audio: np.ndarray
     ) -> None:
         """chain_effects() applies bitcrush effect."""
-        result = processor.chain_effects(
-            audio * 0.5, [{"type": "bitcrush", "bits": 8}]
-        )
+        result = processor.chain_effects(audio * 0.5, [{"type": "bitcrush", "bits": 8}])
         assert len(result) == len(audio)
 
     def test_silence_effect_increases_length(
@@ -476,7 +478,9 @@ class TestChainEffects:
         """chain_effects() echo effect covers main path with crafted audio length."""
         processor = AudioProcessor(sample_rate=24000)
         audio = np.sin(2 * np.pi * 440 * np.linspace(0, 1, 601)).astype(np.float64)
-        result = processor.chain_effects(audio, [{"type": "echo", "delay": 0.01, "spread": 0.5}])
+        result = processor.chain_effects(
+            audio, [{"type": "echo", "delay": 0.01, "spread": 0.5}]
+        )
         assert len(result) == 601
 
 

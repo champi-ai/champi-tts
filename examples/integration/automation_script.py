@@ -7,9 +7,10 @@ Shows reading news headlines and processing them automatically.
 """
 
 import asyncio
-import sys
 import os
 import subprocess
+import sys
+
 from champion_signals import SignalBus
 
 # Add parent directory to path for imports
@@ -53,7 +54,9 @@ class NewsReader:
 
             # Save to file
             output_file = f"news_headline_{i:03d}.wav"
-            await save_audio(audio, output_file, sample_rate=self.provider.config.sample_rate)
+            await save_audio(
+                audio, output_file, sample_rate=self.provider.config.sample_rate
+            )
 
             print(f"   Saved: {output_file}")
 
@@ -87,7 +90,7 @@ class NewsReader:
             print(f"Error: File not found: {filename}")
             return
 
-        with open(filename, 'r') as f:
+        with open(filename) as f:
             lines = [line.strip() for line in f if line.strip()]
 
         await self.read_news_headlines(lines, voice)
@@ -120,7 +123,7 @@ async def main():
             "Market update: Stocks rise today.",
             "Weather forecast: Sunny weekend ahead.",
             "Sports: Championship finals this Sunday.",
-            "Technology: AI innovation continues."
+            "Technology: AI innovation continues.",
         ]
 
         await reader.read_news_headlines(headlines, voice="af_bella")
@@ -128,7 +131,7 @@ async def main():
         # Example 2: From file
         print("\n\nExample 2: Reading from file")
         test_file = "test_news.txt"
-        with open(test_file, 'w') as f:
+        with open(test_file, "w") as f:
             f.write("""Morning Briefing
 Stock Market
 - S&P 500 up 1.2%
@@ -158,6 +161,7 @@ Technology News
     except Exception as e:
         print(f"\nError: {e}")
         import traceback
+
         traceback.print_exc()
 
     finally:
@@ -183,7 +187,7 @@ async def main_scheduled():
             headlines = [
                 "This is a scheduled update.",
                 "Here's your daily news summary.",
-                "Remember to stay informed!"
+                "Remember to stay informed!",
             ]
 
             await reader.read_news_headlines(headlines, voice="af_bella")
@@ -216,5 +220,6 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n\nError occurred: {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)

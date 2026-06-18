@@ -8,7 +8,6 @@ the concrete behaviours defined on the abstract bases.
 import pytest
 
 from champi_tts.core.base_config import BaseTTSConfig
-from champi_tts.core.base_synthesizer import BaseSynthesizer
 
 
 class TestBaseTTSConfigToDict:
@@ -55,17 +54,13 @@ class TestBaseTTSProviderProperties:
         assert mock_provider.is_speaking is False
 
     @pytest.mark.asyncio
-    async def test_is_initialized_true_after_initialize(
-        self, mock_provider
-    ) -> None:
+    async def test_is_initialized_true_after_initialize(self, mock_provider) -> None:
         """is_initialized becomes True after initialize()."""
         await mock_provider.initialize()
         assert mock_provider.is_initialized is True
 
     @pytest.mark.asyncio
-    async def test_is_initialized_false_after_shutdown(
-        self, mock_provider
-    ) -> None:
+    async def test_is_initialized_false_after_shutdown(self, mock_provider) -> None:
         """is_initialized becomes False after shutdown()."""
         await mock_provider.initialize()
         await mock_provider.shutdown()
@@ -103,9 +98,7 @@ class TestBaseTTSProviderSynthesize:
     """Tests for BaseTTSProvider.synthesize() via the mock implementation."""
 
     @pytest.mark.asyncio
-    async def test_synthesize_returns_ndarray(
-        self, initialized_provider
-    ) -> None:
+    async def test_synthesize_returns_ndarray(self, initialized_provider) -> None:
         """synthesize() returns a numpy array."""
         import numpy as np
 
@@ -134,9 +127,7 @@ class TestBaseTTSProviderSynthesize:
         assert all(isinstance(v, str) for v in voices)
 
     @pytest.mark.asyncio
-    async def test_interrupt_clears_is_speaking(
-        self, initialized_provider
-    ) -> None:
+    async def test_interrupt_clears_is_speaking(self, initialized_provider) -> None:
         """interrupt() sets _is_speaking to False."""
         initialized_provider._is_speaking = True
         await initialized_provider.interrupt()

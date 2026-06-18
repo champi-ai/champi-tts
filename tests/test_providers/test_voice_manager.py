@@ -81,7 +81,9 @@ class TestListCachedVoices:
         missing = tmp_path / "does_not_exist"
         assert list_cached_voices(cache_dir=missing) == []
 
-    def test_default_cache_dir_used_when_none(self, monkeypatch: pytest.MonkeyPatch) -> None:
+    def test_default_cache_dir_used_when_none(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
         """When cache_dir is None, VOICES_CACHE_DIR is consulted."""
         import champi_tts.providers.kokoro.voice_manager as vm
 

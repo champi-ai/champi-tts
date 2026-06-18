@@ -6,17 +6,17 @@ This example demonstrates how to integrate champi-tts into a Flask web applicati
 Shows API endpoint for text-to-speech synthesis.
 """
 
-from flask import Flask, request, jsonify
 import asyncio
-import sys
 import os
+import sys
+
+from flask import Flask, jsonify, request
 
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from champi_tts import get_provider
 from champi_tts.core.audio import save_audio
-
 
 # Create Flask app
 app = Flask(__name__)
@@ -40,16 +40,13 @@ def get_provider_async(provider_name="kokoro"):
         loop.close()
 
 
-@app.route('/health', methods=['GET'])
+@app.route("/health", methods=["GET"])
 def health():
     """Health check endpoint"""
-    return jsonify({
-        "status": "healthy",
-        "service": "champi-tts"
-    })
+    return jsonify({"status": "healthy", "service": "champi-tts"})
 
 
-@app.route('/synthesize', methods=['POST'])
+@app.route("/synthesize", methods=["POST"])
 def synthesize():
     """
     Synthesize text to speech
@@ -67,9 +64,9 @@ def synthesize():
         if not data:
             return jsonify({"error": "No JSON data provided"}), 400
 
-        text = data.get('text')
-        voice = data.get('voice', 'af_bella')
-        output_format = data.get('output_format', 'wav')
+        text = data.get("text")
+        voice = data.get("voice", "af_bella")
+        _ = data.get("output_format", "wav")
 
         if not text:
             return jsonify({"error": "Text parameter is required"}), 400
@@ -95,7 +92,7 @@ def synthesize():
                 "status": "success",
                 "output_file": output_file,
                 "voice_used": voice,
-                "text_length": len(text)
+                "text_length": len(text),
             }
 
             return jsonify(response), 200
@@ -103,14 +100,11 @@ def synthesize():
         finally:
             loop.close()
 
-    except Exception as e:
-        return jsonify({
-            "status": "error",
-            "message": str(e)
-        }), 500
+    except Exception:
+        return jsonify({"status": "error", "message": "Internal server error"}), 500
 
 
-@app.route('/voices', methods=['GET'])
+@app.route("/voices", methods=["GET"])
 def list_voices():
     """List available voices"""
     try:
@@ -120,22 +114,16 @@ def list_voices():
         asyncio.set_event_loop(loop)
 
         try:
-            voices = loop.run_until_complete(provider.initialize())
+            loop.run_until_complete(provider.initialize())
             loop.run_until_complete(provider.shutdown())
 
-            return jsonify({
-                "status": "success",
-                "voices": provider.voices
-            }), 200
+            return jsonify({"status": "success", "voices": provider.voices}), 200
 
         finally:
             loop.close()
 
-    except Exception as e:
-        return jsonify({
-            "status": "error",
-            "message": str(e)
-        }), 500
+    except Exception:
+        return jsonify({"status": "error", "message": "Internal server error"}), 500
 
 
 def main():
@@ -151,16 +139,16 @@ def main():
     print("  POST /synthesize        - Synthesize text to speech")
     print("  GET  /voices           - List available voices")
     print("\nExample usage:")
-    print('  curl -X POST http://localhost:5000/synthesize \\')
+    print("  curl -X POST http://localhost:5000/synthesize \\")
     print('       -H "Content-Type: application/json" \\')
     print('       -d \'{"text": "Hello, world!", "voice": "af_bella"}\'')
     print("\n" + "=" * 50)
 
     # Run Flask app
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=False)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
 
 

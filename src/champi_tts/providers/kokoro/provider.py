@@ -13,8 +13,12 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
-import sounddevice as sd
 from champi_signals import EventProcessor
+
+try:
+    import sounddevice as sd
+except OSError:
+    sd = None  # PortAudio not available (headless/CI environment)
 from loguru import logger
 
 from champi_tts.providers.kokoro.config import KokoroConfig
@@ -685,6 +689,11 @@ class KokoroProvider:
                 audio_data = (audio_data * 32767).astype(np.int16)
             else:
                 audio_data = audio_data.astype(np.int16)
+
+        if sd is None:
+            raise KokoroAudioError(
+                "Audio playback unavailable: PortAudio library not found"
+            )
 
         # Play audio using sounddevice with PulseAudio mixing support
         try:

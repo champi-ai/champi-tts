@@ -1,7 +1,7 @@
 # Release Complete - Champi TTS v0.2.0
 
-**Date**: 2026-05-08  
-**Release**: v0.2.0  
+**Date**: 2026-05-08
+**Release**: v0.2.0
 **Status**: ✅ Released
 
 ---
@@ -10,8 +10,8 @@
 
 ### v0.2.0 has been released!
 
-**Tag**: v0.2.0  
-**Branch**: main  
+**Tag**: v0.2.0
+**Branch**: main
 **Release Mode**: Git Tags Only (No PyPI Publishing)
 
 ---

@@ -7,13 +7,11 @@ Shows the BaseProvider interface and implementation pattern.
 """
 
 import asyncio
-import sys
 import os
+import sys
 
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from champion_signals import SignalBus
 
 
 class CustomTTSProvider:
@@ -43,7 +41,7 @@ class CustomTTSProvider:
         self.is_initialized = True
         print(f"Provider initialized with {len(self.voices)} voices")
 
-    async def synthesize(self, text: str, voice: str = None, **kwargs) -> bytes:
+    async def synthesize(self, text: str, voice: str | None = None, **kwargs) -> bytes:
         """
         Synthesize text to speech
 
@@ -104,7 +102,7 @@ async def main():
     # Synthesize text
     print("\n4. Synthesizing text...")
     text = "This is a custom TTS provider."
-    audio = await custom_provider.synthesize(text, voice="custom_voice_1")
+    await custom_provider.synthesize(text, voice="custom_voice_1")
 
     # Shutdown provider
     print("\n5. Shutting down provider...")
@@ -143,6 +141,7 @@ async def main_with_error_handling():
     except Exception as e:
         print(f"\nError: {e}")
         import traceback
+
         traceback.print_exc()
 
     finally:
@@ -170,5 +169,6 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n\nError occurred: {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)

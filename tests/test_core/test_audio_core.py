@@ -5,10 +5,11 @@ sounddevice is mocked throughout to avoid requiring audio hardware.
 """
 
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import numpy as np
 import pytest
+import soundfile as sf
 
 from champi_tts.core.audio import AudioPlayer, load_audio, normalize_audio, save_audio
 
@@ -188,7 +189,9 @@ class TestLoadAudio:
     """Tests for load_audio()."""
 
     @pytest.mark.asyncio
-    async def test_load_returns_tuple(self, tmp_path: Path, audio_data: np.ndarray) -> None:
+    async def test_load_returns_tuple(
+        self, tmp_path: Path, audio_data: np.ndarray
+    ) -> None:
         """load_audio() returns (array, sample_rate) tuple."""
         out = tmp_path / "audio.wav"
         await save_audio(audio_data, out, sample_rate=24000)
@@ -203,7 +206,7 @@ class TestLoadAudio:
         """load_audio() returns the correct sample rate."""
         out = tmp_path / "audio.wav"
         await save_audio(audio_data, out, sample_rate=24000)
-        loaded_audio, sample_rate = await load_audio(out)
+        _, sample_rate = await load_audio(out)
         assert sample_rate == 24000
 
     @pytest.mark.asyncio
@@ -218,9 +221,7 @@ class TestLoadAudio:
         assert len(loaded_audio) > 0
 
     @pytest.mark.asyncio
-    async def test_load_resamples_to_target_rate(
-        self, tmp_path: Path
-    ) -> None:
+    async def test_load_resamples_to_target_rate(self, tmp_path: Path) -> None:
         """load_audio() resamples when target_sample_rate differs from file rate."""
         audio = np.sin(2 * np.pi * 440 * np.linspace(0, 1, 24000)).astype(np.float32)
         out = tmp_path / "audio.wav"
@@ -243,8 +244,8 @@ class TestLoadAudio:
 
     @pytest.mark.asyncio
     async def test_load_raises_for_missing_file(self) -> None:
-        """load_audio() raises an exception when file does not exist."""
-        with pytest.raises(Exception):
+        """load_audio() raises SoundFileError when file does not exist."""
+        with pytest.raises(sf.SoundFileError):
             await load_audio("/nonexistent/path/audio.wav")
 
 

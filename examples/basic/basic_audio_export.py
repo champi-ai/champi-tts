@@ -7,8 +7,8 @@ Shows WAV and MP3 export options.
 """
 
 import asyncio
-import sys
 import os
+import sys
 
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -58,7 +58,7 @@ async def main():
         print("   Note: MP3 requires ffmpeg to be installed")
 
     # Check file sizes
-    print(f"\n7. File sizes:")
+    print("\n7. File sizes:")
     if os.path.exists(wav_file):
         wav_size = os.path.getsize(wav_file)
         print(f"   WAV: {wav_size} bytes")
@@ -85,5 +85,6 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n\nError occurred: {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)

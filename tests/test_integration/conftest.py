@@ -3,7 +3,7 @@ Shared fixtures for integration tests.
 """
 
 import asyncio
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import numpy as np
 import pytest
@@ -66,13 +66,15 @@ def float_audio():
 
 @pytest.fixture
 def mock_sd():
-    """Prevent actual audio hardware access during tests."""
-    with (
-        patch("sounddevice.play"),
-        patch("sounddevice.wait"),
-        patch("sounddevice.stop"),
-    ):
-        yield
+    """Prevent actual audio hardware access during tests.
+
+    Patches the module-level ``sd`` reference in ``champi_tts.core.audio``
+    so that ``AudioPlayer.play()`` / ``stop()`` never reach PortAudio even
+    when the sounddevice library is absent or PortAudio is not installed.
+    """
+    mock = MagicMock()
+    with patch("champi_tts.core.audio.sd", mock):
+        yield mock
 
 
 @pytest.fixture

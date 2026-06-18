@@ -214,28 +214,37 @@ class TextReaderService:
 
             self._ui = TTSIndicatorUI()  # type: ignore[assignment]
 
-            # Connect reader signals to UI state updates
+            # Connect reader signals to UI state updates.
+            # weak=False is required because blinker 1.9 defaults to weak
+            # references and inline lambdas have no other strong referent,
+            # causing them to be garbage-collected immediately after connect().
             self.on_reading_started.connect(
                 lambda sender, **kw: self._update_ui_state(
                     TTSState.SPEAKING, kw.get("text", "")
-                )
+                ),
+                weak=False,
             )
             self.on_reading_paused.connect(
-                lambda sender, **kw: self._update_ui_state(TTSState.PAUSED)
+                lambda sender, **kw: self._update_ui_state(TTSState.PAUSED),
+                weak=False,
             )
             self.on_reading_resumed.connect(
-                lambda sender, **kw: self._update_ui_state(TTSState.SPEAKING)
+                lambda sender, **kw: self._update_ui_state(TTSState.SPEAKING),
+                weak=False,
             )
             self.on_reading_stopped.connect(
-                lambda sender, **kw: self._update_ui_state(TTSState.IDLE)
+                lambda sender, **kw: self._update_ui_state(TTSState.IDLE),
+                weak=False,
             )
             self.on_reading_completed.connect(
-                lambda sender, **kw: self._update_ui_state(TTSState.IDLE)
+                lambda sender, **kw: self._update_ui_state(TTSState.IDLE),
+                weak=False,
             )
             self.on_error.connect(
                 lambda sender, **kw: self._update_ui_state(
                     TTSState.ERROR, kw.get("error", "")
-                )
+                ),
+                weak=False,
             )
 
             logger.info("UI indicator initialized and connected")

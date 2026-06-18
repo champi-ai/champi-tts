@@ -7,8 +7,8 @@ Shows basic usage: initialize provider, synthesize text, and save audio.
 """
 
 import asyncio
-import sys
 import os
+import sys
 
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -70,5 +70,6 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n\nError occurred: {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)

@@ -2,8 +2,11 @@
 Pytest configuration and fixtures for champi-tts tests.
 """
 
+from unittest.mock import MagicMock, patch
+
 import numpy as np
 import pytest
+import pytest_asyncio
 
 from champi_tts.core.base_config import BaseTTSConfig
 from champi_tts.core.base_provider import BaseTTSProvider
@@ -57,6 +60,20 @@ class MockTTSProvider(BaseTTSProvider):
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         await self.shutdown()
+        return False
+
+
+@pytest.fixture
+def mock_sd():
+    """Prevent actual audio hardware access during tests.
+
+    Patches the module-level ``sd`` reference in ``champi_tts.core.audio``
+    so that ``AudioPlayer.play()`` / ``stop()`` never reach PortAudio even
+    when the sounddevice library is absent or PortAudio is not installed.
+    """
+    mock = MagicMock()
+    with patch("champi_tts.core.audio.sd", mock):
+        yield mock
 
 
 @pytest.fixture
@@ -71,7 +88,7 @@ def mock_provider(mock_config):
     return MockTTSProvider(mock_config)
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def initialized_provider(mock_provider):
     """Fixture for initialized mock provider."""
     await mock_provider.initialize()

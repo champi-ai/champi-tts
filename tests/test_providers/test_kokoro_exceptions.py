@@ -109,7 +109,7 @@ class TestKokoroErrorCatchAsBase:
             raise KokoroSynthesisError("synthesis failed")
 
     def test_voice_error_caught_as_exception(self) -> None:
-        with pytest.raises(Exception):
+        with pytest.raises(KokoroError):
             raise KokoroVoiceError("voice error")
 
 

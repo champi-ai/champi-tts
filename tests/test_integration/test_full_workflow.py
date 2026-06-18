@@ -28,7 +28,9 @@ async def test_full_read_workflow_state_transitions(mock_provider, mock_sd):
     """Complete read produces READING then IDLE state transitions."""
     reader = TextReaderService(mock_provider)
     states = []
-    reader.on_state_changed.connect(lambda s, **k: states.append(k["new_state"]))
+    reader.on_state_changed.connect(
+        lambda s, **k: states.append(k["new_state"]), weak=False
+    )
 
     await reader.read_text("Hello, this is a test message")
 
@@ -44,10 +46,10 @@ async def test_full_read_emits_started_and_completed_signals(mock_provider, mock
     started_texts: list[str | None] = []
     completed_texts: list[str | None] = []
     reader.on_reading_started.connect(
-        lambda s, **k: started_texts.append(k.get("text"))
+        lambda s, **k: started_texts.append(k.get("text")), weak=False
     )
     reader.on_reading_completed.connect(
-        lambda s, **k: completed_texts.append(k.get("text"))
+        lambda s, **k: completed_texts.append(k.get("text")), weak=False
     )
 
     await reader.read_text("Test message")
@@ -62,7 +64,7 @@ async def test_state_change_signal_includes_old_and_new_values(mock_provider, mo
     reader = TextReaderService(mock_provider)
     transitions: list[tuple[str, str]] = []
     reader.on_state_changed.connect(
-        lambda s, **k: transitions.append((k["old_state"], k["new_state"]))
+        lambda s, **k: transitions.append((k["old_state"], k["new_state"])), weak=False
     )
 
     await reader.read_text("Test")
@@ -104,7 +106,7 @@ async def test_pause_emits_paused_signal(mock_provider):
     reader = TextReaderService(mock_provider)
     reader._set_state(ReaderState.READING)
     paused_count: list[int] = []
-    reader.on_reading_paused.connect(lambda s, **k: paused_count.append(1))
+    reader.on_reading_paused.connect(lambda s, **k: paused_count.append(1), weak=False)
 
     await reader.pause()
 
@@ -147,7 +149,9 @@ async def test_resume_emits_resumed_signal(mock_provider):
     reader._set_state(ReaderState.READING)
     await reader.pause()
     resumed_count: list[int] = []
-    reader.on_reading_resumed.connect(lambda s, **k: resumed_count.append(1))
+    reader.on_reading_resumed.connect(
+        lambda s, **k: resumed_count.append(1), weak=False
+    )
 
     await reader.resume()
 
@@ -210,7 +214,9 @@ async def test_stop_emits_stopped_signal(mock_provider):
     reader = TextReaderService(mock_provider)
     reader._set_state(ReaderState.READING)
     stopped_count: list[int] = []
-    reader.on_reading_stopped.connect(lambda s, **k: stopped_count.append(1))
+    reader.on_reading_stopped.connect(
+        lambda s, **k: stopped_count.append(1), weak=False
+    )
 
     await reader.stop()
 
@@ -269,7 +275,9 @@ async def test_read_queue_processes_all_items_in_order(mock_provider, mock_sd):
     """read_queue reads all queued items in FIFO order and empties the queue."""
     reader = TextReaderService(mock_provider)
     texts_read: list[str | None] = []
-    reader.on_reading_started.connect(lambda s, **k: texts_read.append(k.get("text")))
+    reader.on_reading_started.connect(
+        lambda s, **k: texts_read.append(k.get("text")), weak=False
+    )
 
     reader.add_to_queue("First")
     reader.add_to_queue("Second")
@@ -317,7 +325,9 @@ async def test_read_file_splits_paragraphs(mock_provider, mock_sd, tmp_path, moc
     doc.write_text("Paragraph one.\n\nParagraph two.\n\nParagraph three.")
     reader = TextReaderService(mock_provider)
     texts_read: list[str | None] = []
-    reader.on_reading_started.connect(lambda s, **k: texts_read.append(k.get("text")))
+    reader.on_reading_started.connect(
+        lambda s, **k: texts_read.append(k.get("text")), weak=False
+    )
 
     await reader.read_file(doc)
 
@@ -325,14 +335,18 @@ async def test_read_file_splits_paragraphs(mock_provider, mock_sd, tmp_path, moc
 
 
 @pytest.mark.asyncio
-async def test_read_file_skips_blank_paragraphs(mock_provider, mock_sd, tmp_path, mocker):
+async def test_read_file_skips_blank_paragraphs(
+    mock_provider, mock_sd, tmp_path, mocker
+):
     """read_file ignores blank/whitespace-only paragraph separators."""
     mocker.patch("champi_tts.reader.service.asyncio.sleep")
     doc = tmp_path / "sparse.txt"
     doc.write_text("First.\n\n\n\n\nSecond.")
     reader = TextReaderService(mock_provider)
     texts_read: list[str | None] = []
-    reader.on_reading_started.connect(lambda s, **k: texts_read.append(k.get("text")))
+    reader.on_reading_started.connect(
+        lambda s, **k: texts_read.append(k.get("text")), weak=False
+    )
 
     await reader.read_file(doc)
 
@@ -358,7 +372,9 @@ async def test_synthesis_error_emits_error_signal(mock_provider):
     """A synthesis error emits on_error with the exception message."""
     reader = TextReaderService(mock_provider)
     errors: list[str] = []
-    reader.on_error.connect(lambda s, **k: errors.append(k.get("error", "")))
+    reader.on_error.connect(
+        lambda s, **k: errors.append(k.get("error", "")), weak=False
+    )
 
     async def failing_synthesize(text, **kwargs):
         raise RuntimeError("Synthesis failed")
@@ -393,7 +409,9 @@ async def test_no_error_signal_on_successful_read(mock_provider, mock_sd):
     """Successful read does not emit the on_error signal."""
     reader = TextReaderService(mock_provider)
     errors: list[str] = []
-    reader.on_error.connect(lambda s, **k: errors.append(k.get("error", "")))
+    reader.on_error.connect(
+        lambda s, **k: errors.append(k.get("error", "")), weak=False
+    )
 
     await reader.read_text("Success")
 
@@ -499,7 +517,7 @@ async def test_long_document_reads_all_paragraphs(mock_provider, mock_sd):
     """Reader handles many sequential read_text calls without errors."""
     reader = TextReaderService(mock_provider)
     completed: list[int] = []
-    reader.on_reading_completed.connect(lambda s, **k: completed.append(1))
+    reader.on_reading_completed.connect(lambda s, **k: completed.append(1), weak=False)
 
     for i in range(10):
         await reader.read_text(f"Paragraph {i}")

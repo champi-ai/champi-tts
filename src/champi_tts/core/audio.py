@@ -6,9 +6,13 @@ import asyncio
 from pathlib import Path
 
 import numpy as np
-import sounddevice as sd
 import soundfile as sf
 from loguru import logger
+
+try:
+    import sounddevice as sd
+except OSError:
+    sd = None  # PortAudio not available (headless/CI environment)
 
 
 class AudioPlayer:
@@ -16,7 +20,7 @@ class AudioPlayer:
 
     def __init__(self, sample_rate: int = 24000):
         self.sample_rate = sample_rate
-        self._stream: sd.OutputStream | None = None
+        self._stream: object | None = None
         self._is_playing = False
         self._stop_event = asyncio.Event()
 
@@ -28,6 +32,8 @@ class AudioPlayer:
             audio: Audio data as numpy array
             blocking: Whether to wait for playback to complete
         """
+        if sd is None:
+            raise OSError("Audio playback unavailable: PortAudio library not found")
         try:
             self._is_playing = True
             self._stop_event.clear()
@@ -59,7 +65,8 @@ class AudioPlayer:
     def stop(self) -> None:
         """Stop current playback."""
         self._stop_event.set()
-        sd.stop()
+        if sd is not None:
+            sd.stop()
         self._is_playing = False
 
     @property

@@ -98,7 +98,9 @@ class TestKokoroConfigFromDict:
 
     def test_ignores_unknown_keys(self) -> None:
         """from_dict() ignores keys that are not config fields."""
-        config = KokoroConfig.from_dict({"unknown_key": "ignored", "default_speed": 1.0})
+        config = KokoroConfig.from_dict(
+            {"unknown_key": "ignored", "default_speed": 1.0}
+        )
         assert config.default_speed == 1.0
 
     def test_empty_dict_uses_defaults(self) -> None:
@@ -226,9 +228,7 @@ class TestKokoroConfigFromEnv:
         config = KokoroConfig.from_env()
         assert config.auto_download_model is False
 
-    def test_available_voices_from_env(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_available_voices_from_env(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """CHAMPI_TTS_VOICES env var parses comma-separated voice list."""
         monkeypatch.setenv("CHAMPI_TTS_VOICES", "af_bella,af_sarah,am_adam")
         config = KokoroConfig.from_env()
@@ -240,9 +240,7 @@ class TestKokoroConfigFromEnv:
         config = KokoroConfig.from_env()
         assert config.auto_start is True
 
-    def test_tts_audio_format_from_env(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_tts_audio_format_from_env(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """CHAMPI_TTS_AUDIO_FORMAT env var sets tts_audio_format."""
         monkeypatch.setenv("CHAMPI_TTS_AUDIO_FORMAT", "flac")
         config = KokoroConfig.from_env()
