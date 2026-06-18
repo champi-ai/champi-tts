@@ -15,6 +15,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CLI interface
 - Documentation
 
+## v1.3.1 (2026-06-17)
+
+### Fix
+
+- **deps**: embed champi-signals wheel URL and re-export EventProcessor in events.py (#69)
+
 ## v1.3.0 (2026-06-14)
 
 ### Feat
