@@ -15,6 +15,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CLI interface
 - Documentation
 
+## v1.3.2 (2026-06-17)
+
+### Fix
+
+- **docs**: fix badge org URLs and replace corrupted emoji in README (#70)
+
 ## v1.3.1 (2026-06-17)
 
 ### Fix
