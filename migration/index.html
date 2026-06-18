@@ -1,0 +1,3107 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Multi-provider text-to-speech library with voice assistant features">
+      
+      
+      
+        <link rel="canonical" href="https://champi-ai.github.io/champi-tts/migration/">
+      
+      
+        <link rel="prev" href="../api/">
+      
+      
+        <link rel="next" href="../developer/contributing/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+    
+    
+      
+        <title>Migration Guide - Champi TTS</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.618322db.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#migration-guide-mcp_champikokoro_svc-to-champi_tts" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Champi TTS" class="md-header__button md-logo" aria-label="Champi TTS" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Champi TTS
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Migration Guide
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/champi-ai/champi-tts" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    champi-ai/champi-tts
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../README.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../user/getting-started/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../user/audio-features/" class="md-tabs__link">
+          
+  
+  
+  User Guides
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../TUTORIALS/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Tutorials
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../api/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  API Reference
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Migration Guide
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../developer/contributing/" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../RELEASE_NOTES/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Release Notes
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../TROUBLESHOOTING/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Troubleshooting
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Champi TTS" class="md-nav__button md-logo" aria-label="Champi TTS" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Champi TTS
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/champi-ai/champi-tts" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    champi-ai/champi-tts
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../README.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../user/getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../USER_GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../user/faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FAQ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    User Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../user/audio-features/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Audio Features
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../user/cli-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../user/python-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../user/text-reading/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Text Reading
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../user/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../TUTORIALS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tutorials
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Migration Guide
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Migration Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Start
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Quick Start">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Installation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#minimal-migration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Minimal migration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation-guide" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Installation Guide
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Installation Guide">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Requirements
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#install-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Install options
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-migration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API Migration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="API Migration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#provider-instantiation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Provider instantiation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#synthesis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Synthesis
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#streaming-synthesis-new" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Streaming synthesis (new)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#listing-voices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Listing voices
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interruption" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interruption
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shutdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shutdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reader-service-migration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reader Service Migration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Reader Service Migration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#reading-text" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reading text
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reading-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reading files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#playback-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Playback control
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#queue-management-new" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Queue management (new)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reader-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reader state
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#event-handling-migration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Event Handling Migration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-migration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration Migration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration Migration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Environment variables
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#config-class-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Config class changes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuration-presets-new" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration presets (new)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#audio-processing-migration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Audio Processing Migration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Audio Processing Migration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#saving-audio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Saving audio
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saving-audio-to-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Saving audio to file
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#complete-migration-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Complete Migration Example
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cli-migration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CLI Migration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#breaking-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Breaking Changes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Breaking Changes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-import-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Import path
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-class-name" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Class name
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-config-field-names" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Config field names
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-default-voice" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Default voice
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-default-sample-rate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Default sample rate
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-event-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Event system
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-explicit-provider-initialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Explicit provider initialization
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#model-and-voice-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Model and Voice Setup
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#modulenotfounderror-no-module-named-champi_tts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ModuleNotFoundError: No module named 'champi_tts'
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#voice-not-found" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Voice not found
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cuda-out-of-memory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CUDA out of memory
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ui-not-showing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UI not showing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#attributeerror-on-kokoroconfig-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AttributeError on KokoroConfig fields
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resources
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../developer/contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../release-process.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Release Process
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../BENCHMARKING.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Benchmarking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security-audit-report.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security Audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../PROGRESS_REVIEW/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Progress Review
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../RELEASE_NOTES/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Release Notes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../TROUBLESHOOTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Start
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Quick Start">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Installation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#minimal-migration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Minimal migration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation-guide" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Installation Guide
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Installation Guide">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Requirements
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#install-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Install options
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-migration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API Migration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="API Migration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#provider-instantiation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Provider instantiation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#synthesis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Synthesis
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#streaming-synthesis-new" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Streaming synthesis (new)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#listing-voices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Listing voices
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interruption" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interruption
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shutdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shutdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reader-service-migration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reader Service Migration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Reader Service Migration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#reading-text" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reading text
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reading-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reading files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#playback-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Playback control
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#queue-management-new" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Queue management (new)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reader-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reader state
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#event-handling-migration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Event Handling Migration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-migration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration Migration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration Migration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Environment variables
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#config-class-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Config class changes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuration-presets-new" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration presets (new)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#audio-processing-migration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Audio Processing Migration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Audio Processing Migration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#saving-audio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Saving audio
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saving-audio-to-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Saving audio to file
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#complete-migration-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Complete Migration Example
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cli-migration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CLI Migration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#breaking-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Breaking Changes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Breaking Changes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-import-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Import path
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-class-name" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Class name
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-config-field-names" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Config field names
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-default-voice" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Default voice
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-default-sample-rate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Default sample rate
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-event-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Event system
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-explicit-provider-initialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Explicit provider initialization
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#model-and-voice-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Model and Voice Setup
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#modulenotfounderror-no-module-named-champi_tts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ModuleNotFoundError: No module named 'champi_tts'
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#voice-not-found" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Voice not found
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cuda-out-of-memory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CUDA out of memory
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ui-not-showing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UI not showing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#attributeerror-on-kokoroconfig-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AttributeError on KokoroConfig fields
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resources
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="migration-guide-mcp_champikokoro_svc-to-champi_tts">Migration Guide: mcp_champi.kokoro_svc to champi_tts<a class="headerlink" href="#migration-guide-mcp_champikokoro_svc-to-champi_tts" title="Permanent link">&para;</a></h1>
+<p>Complete migration guide for moving from <code>mcp_champi.kokoro_svc</code> to <code>champi_tts</code>.</p>
+<hr />
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p><code>champi_tts</code> is a modular, multi-provider text-to-speech library that replaces the
+tightly-coupled <code>mcp_champi.kokoro_svc</code> with a clean provider/adapter architecture.</p>
+<p>Key improvements:</p>
+<ul>
+<li><strong>Multi-provider support</strong>: Kokoro today, OpenAI and ElevenLabs coming soon</li>
+<li><strong>Unified interface</strong>: <code>BaseTTSProvider</code> contract across all backends</li>
+<li><strong>Full reader service</strong>: pause, resume, stop, queue management, and interruption</li>
+<li><strong>Async context manager</strong>: automatic lifecycle management</li>
+<li><strong>Streaming synthesis</strong>: chunk-by-chunk audio generation</li>
+<li><strong>Visual UI indicator</strong>: optional GLFW/ImGui overlay for reading status</li>
+<li><strong>CLI tool</strong>: <code>champi-tts</code> command for synthesis and file reading</li>
+<li><strong>Lazy loading</strong>: heavy dependencies (torch, kokoro) loaded on first use</li>
+</ul>
+<hr />
+<h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
+<h3 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>champi-tts
+</code></pre></div>
+<h3 id="minimal-migration">Minimal migration<a class="headerlink" href="#minimal-migration" title="Permanent link">&para;</a></h3>
+<p><strong>Before (<code>mcp_champi.kokoro_svc</code>):</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">mcp_champi.kokoro_svc</span><span class="w"> </span><span class="kn">import</span> <span class="n">KokoroService</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">service</span> <span class="o">=</span> <span class="n">KokoroService</span><span class="p">()</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="k">await</span> <span class="n">service</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="n">audio</span> <span class="o">=</span> <span class="k">await</span> <span class="n">service</span><span class="o">.</span><span class="n">synthesize</span><span class="p">(</span><span class="s2">&quot;Hello, world!&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>After (<code>champi_tts</code>):</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">champi_tts</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_provider</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">provider</span> <span class="o">=</span> <span class="n">get_provider</span><span class="p">()</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="k">await</span> <span class="n">provider</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="n">audio</span> <span class="o">=</span> <span class="k">await</span> <span class="n">provider</span><span class="o">.</span><span class="n">synthesize</span><span class="p">(</span><span class="s2">&quot;Hello, world!&quot;</span><span class="p">)</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="k">await</span> <span class="n">provider</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+</code></pre></div>
+<p>Or with automatic lifecycle management:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">champi_tts</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_provider</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="k">async</span> <span class="k">with</span> <span class="n">get_provider</span><span class="p">()</span> <span class="k">as</span> <span class="n">provider</span><span class="p">:</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="n">audio</span> <span class="o">=</span> <span class="k">await</span> <span class="n">provider</span><span class="o">.</span><span class="n">synthesize</span><span class="p">(</span><span class="s2">&quot;Hello, world!&quot;</span><span class="p">)</span>
+</code></pre></div>
+<hr />
+<h2 id="installation-guide">Installation Guide<a class="headerlink" href="#installation-guide" title="Permanent link">&para;</a></h2>
+<h3 id="requirements">Requirements<a class="headerlink" href="#requirements" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Python 3.12+</li>
+<li>GPU (optional, for faster synthesis)</li>
+</ul>
+<h3 id="install-options">Install options<a class="headerlink" href="#install-options" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Basic installation</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>pip<span class="w"> </span>install<span class="w"> </span>champi-tts
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="c1"># With development dependencies</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;champi-tts[dev]&quot;</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="c1"># With UI support (GLFW/ImGui)</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;champi-tts[ui]&quot;</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="c1"># Development install from source</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/champi-ai/champi-tts.git
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="nb">cd</span><span class="w"> </span>champi-tts
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>uv<span class="w"> </span>sync<span class="w"> </span>--extra<span class="w"> </span>dev
+</code></pre></div>
+<hr />
+<h2 id="api-migration">API Migration<a class="headerlink" href="#api-migration" title="Permanent link">&para;</a></h2>
+<h3 id="provider-instantiation">Provider instantiation<a class="headerlink" href="#provider-instantiation" title="Permanent link">&para;</a></h3>
+<p><strong>Before:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">mcp_champi.kokoro_svc</span><span class="w"> </span><span class="kn">import</span> <span class="n">KokoroService</span><span class="p">,</span> <span class="n">KokoroConfig</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">config</span> <span class="o">=</span> <span class="n">KokoroConfig</span><span class="p">(</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="n">default_voice</span><span class="o">=</span><span class="s2">&quot;af_bella&quot;</span><span class="p">,</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="n">default_speed</span><span class="o">=</span><span class="mf">1.1</span><span class="p">,</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    <span class="n">model_path</span><span class="o">=</span><span class="s2">&quot;./models/kokoro&quot;</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="p">)</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="n">service</span> <span class="o">=</span> <span class="n">KokoroService</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="k">await</span> <span class="n">service</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
+</code></pre></div>
+<p><strong>After:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">champi_tts</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_provider</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">champi_tts.providers.kokoro</span><span class="w"> </span><span class="kn">import</span> <span class="n">KokoroConfig</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="n">config</span> <span class="o">=</span> <span class="n">KokoroConfig</span><span class="p">(</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="n">default_voice</span><span class="o">=</span><span class="s2">&quot;am_adam&quot;</span><span class="p">,</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    <span class="n">default_speed</span><span class="o">=</span><span class="mf">1.1</span><span class="p">,</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    <span class="n">use_gpu</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>    <span class="n">model_dir</span><span class="o">=</span><span class="s2">&quot;./models/kokoro&quot;</span>   <span class="c1"># was model_path</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="p">)</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="n">provider</span> <span class="o">=</span> <span class="n">get_provider</span><span class="p">(</span><span class="s2">&quot;kokoro&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="k">await</span> <span class="n">provider</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
+</code></pre></div>
+<p>Config fields can also be passed directly as kwargs:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">provider</span> <span class="o">=</span> <span class="n">get_provider</span><span class="p">(</span><span class="s2">&quot;kokoro&quot;</span><span class="p">,</span> <span class="n">default_voice</span><span class="o">=</span><span class="s2">&quot;am_adam&quot;</span><span class="p">,</span> <span class="n">use_gpu</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="synthesis">Synthesis<a class="headerlink" href="#synthesis" title="Permanent link">&para;</a></h3>
+<p><strong>Before:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">audio</span> <span class="o">=</span> <span class="k">await</span> <span class="n">service</span><span class="o">.</span><span class="n">synthesize</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;Hello, world!&quot;</span><span class="p">,</span> <span class="n">voice</span><span class="o">=</span><span class="s2">&quot;af_bella&quot;</span><span class="p">,</span> <span class="n">speed</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>After:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">audio</span> <span class="o">=</span> <span class="k">await</span> <span class="n">provider</span><span class="o">.</span><span class="n">synthesize</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;Hello, world!&quot;</span><span class="p">,</span> <span class="n">voice</span><span class="o">=</span><span class="s2">&quot;am_adam&quot;</span><span class="p">,</span> <span class="n">speed</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+</code></pre></div>
+<p>The method signature is identical. The return type is a <code>numpy.ndarray</code> in both cases.</p>
+<h3 id="streaming-synthesis-new">Streaming synthesis (new)<a class="headerlink" href="#streaming-synthesis-new" title="Permanent link">&para;</a></h3>
+<p><code>mcp_champi.kokoro_svc</code> did not support streaming. <code>champi_tts</code> adds
+<code>synthesize_streaming</code> which yields audio chunks as they are generated:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">async</span> <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">provider</span><span class="o">.</span><span class="n">synthesize_streaming</span><span class="p">(</span><span class="s2">&quot;A long piece of text...&quot;</span><span class="p">):</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>    <span class="c1"># process or play each chunk immediately</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>    <span class="k">pass</span>
+</code></pre></div>
+<h3 id="listing-voices">Listing voices<a class="headerlink" href="#listing-voices" title="Permanent link">&para;</a></h3>
+<p><strong>Before:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">voices</span> <span class="o">=</span> <span class="k">await</span> <span class="n">service</span><span class="o">.</span><span class="n">list_voices</span><span class="p">()</span>
+</code></pre></div>
+<p><strong>After:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="n">voices</span> <span class="o">=</span> <span class="k">await</span> <span class="n">provider</span><span class="o">.</span><span class="n">list_voices</span><span class="p">()</span>
+</code></pre></div>
+<p>The return type is <code>list[str]</code>. Voice names follow the <code>&lt;language_gender&gt;_&lt;name&gt;</code> pattern:</p>
+<table>
+<thead>
+<tr>
+<th>Prefix</th>
+<th>Language / Gender</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>af_</code></td>
+<td>American English, Female</td>
+</tr>
+<tr>
+<td><code>am_</code></td>
+<td>American English, Male</td>
+</tr>
+<tr>
+<td><code>bf_</code></td>
+<td>British English, Female</td>
+</tr>
+<tr>
+<td><code>bm_</code></td>
+<td>British English, Male</td>
+</tr>
+<tr>
+<td><code>ef_</code></td>
+<td>Spanish, Female</td>
+</tr>
+<tr>
+<td><code>em_</code></td>
+<td>Spanish, Male</td>
+</tr>
+<tr>
+<td><code>ff_</code></td>
+<td>French, Female</td>
+</tr>
+</tbody>
+</table>
+<p>Default voice changed from <code>af_bella</code> to <code>am_adam</code>.</p>
+<h3 id="interruption">Interruption<a class="headerlink" href="#interruption" title="Permanent link">&para;</a></h3>
+<p><strong>Before:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">await</span> <span class="n">service</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
+</code></pre></div>
+<p><strong>After:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="k">await</span> <span class="n">provider</span><span class="o">.</span><span class="n">interrupt</span><span class="p">()</span>
+</code></pre></div>
+<h3 id="shutdown">Shutdown<a class="headerlink" href="#shutdown" title="Permanent link">&para;</a></h3>
+<p><strong>Before:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="k">await</span> <span class="n">service</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+</code></pre></div>
+<p><strong>After:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="k">await</span> <span class="n">provider</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="c1"># or use the async context manager for automatic shutdown</span>
+</code></pre></div>
+<hr />
+<h2 id="reader-service-migration">Reader Service Migration<a class="headerlink" href="#reader-service-migration" title="Permanent link">&para;</a></h2>
+<p><code>mcp_champi.kokoro_svc</code> provided basic <code>read_text</code> and <code>read_file</code> methods on
+<code>KokoroService</code>. <code>champi_tts</code> separates this concern into <code>TextReaderService</code> with
+full queue management and event signals.</p>
+<h3 id="reading-text">Reading text<a class="headerlink" href="#reading-text" title="Permanent link">&para;</a></h3>
+<p><strong>Before:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">mcp_champi.kokoro_svc</span><span class="w"> </span><span class="kn">import</span> <span class="n">KokoroService</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="n">service</span> <span class="o">=</span> <span class="n">KokoroService</span><span class="p">()</span>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="k">await</span> <span class="n">service</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="k">await</span> <span class="n">service</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="s2">&quot;Hello world&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>After:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">champi_tts</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_reader</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="n">reader</span> <span class="o">=</span> <span class="n">get_reader</span><span class="p">(</span><span class="s2">&quot;kokoro&quot;</span><span class="p">)</span>
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="k">await</span> <span class="n">reader</span><span class="o">.</span><span class="n">provider</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="k">await</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="s2">&quot;Hello world&quot;</span><span class="p">)</span>
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a><span class="k">await</span> <span class="n">reader</span><span class="o">.</span><span class="n">provider</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+</code></pre></div>
+<p>Or with automatic lifecycle via the async context manager:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">champi_tts</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_reader</span>
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="k">async</span> <span class="k">with</span> <span class="n">get_reader</span><span class="p">(</span><span class="s2">&quot;kokoro&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">reader</span><span class="p">:</span>
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>    <span class="k">await</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="s2">&quot;Hello world&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="reading-files">Reading files<a class="headerlink" href="#reading-files" title="Permanent link">&para;</a></h3>
+<p><strong>Before:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="k">await</span> <span class="n">service</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="s2">&quot;document.txt&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>After:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="k">await</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="s2">&quot;document.txt&quot;</span><span class="p">,</span> <span class="n">voice</span><span class="o">=</span><span class="s2">&quot;am_adam&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>Files are split on double newlines and read paragraph by paragraph, with a 0.5 s
+pause between paragraphs.</p>
+<h3 id="playback-control">Playback control<a class="headerlink" href="#playback-control" title="Permanent link">&para;</a></h3>
+<p><strong>Before:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="k">await</span> <span class="n">service</span><span class="o">.</span><span class="n">pause</span><span class="p">()</span>
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="k">await</span> <span class="n">service</span><span class="o">.</span><span class="n">resume</span><span class="p">()</span>
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a><span class="k">await</span> <span class="n">service</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+</code></pre></div>
+<p><strong>After:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="k">await</span> <span class="n">reader</span><span class="o">.</span><span class="n">pause</span><span class="p">()</span>
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="k">await</span> <span class="n">reader</span><span class="o">.</span><span class="n">resume</span><span class="p">()</span>
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="k">await</span> <span class="n">reader</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+</code></pre></div>
+<h3 id="queue-management-new">Queue management (new)<a class="headerlink" href="#queue-management-new" title="Permanent link">&para;</a></h3>
+<p><code>mcp_champi.kokoro_svc</code> had no queue. <code>champi_tts</code> adds a text queue:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="n">reader</span><span class="o">.</span><span class="n">add_to_queue</span><span class="p">(</span><span class="s2">&quot;First paragraph&quot;</span><span class="p">)</span>
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="n">reader</span><span class="o">.</span><span class="n">add_to_queue</span><span class="p">(</span><span class="s2">&quot;Second paragraph&quot;</span><span class="p">)</span>
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a><span class="k">await</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_queue</span><span class="p">(</span><span class="n">voice</span><span class="o">=</span><span class="s2">&quot;am_adam&quot;</span><span class="p">)</span>
+<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>
+<a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a><span class="c1"># Clear the queue at any time</span>
+<a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a><span class="n">reader</span><span class="o">.</span><span class="n">clear_queue</span><span class="p">()</span>
+</code></pre></div>
+<h3 id="reader-state">Reader state<a class="headerlink" href="#reader-state" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">champi_tts</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReaderState</span>
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="k">if</span> <span class="n">reader</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="n">ReaderState</span><span class="o">.</span><span class="n">READING</span><span class="p">:</span>
+<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Currently reading&quot;</span><span class="p">)</span>
+<a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a><span class="k">elif</span> <span class="n">reader</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="n">ReaderState</span><span class="o">.</span><span class="n">PAUSED</span><span class="p">:</span>
+<a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Paused&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>Available states: <code>IDLE</code>, <code>READING</code>, <code>PAUSED</code>, <code>STOPPED</code>.</p>
+<hr />
+<h2 id="event-handling-migration">Event Handling Migration<a class="headerlink" href="#event-handling-migration" title="Permanent link">&para;</a></h2>
+<p><code>mcp_champi.kokoro_svc</code> used decorator-based callbacks. <code>champi_tts</code> uses
+<a href="https://blinker.readthedocs.io/">blinker</a> signals.</p>
+<p><strong>Before:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="nd">@service</span><span class="o">.</span><span class="n">on_started</span>
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">on_started</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Started: </span><span class="si">{</span><span class="n">text</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a>
+<a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a><span class="nd">@service</span><span class="o">.</span><span class="n">on_completed</span>
+<a id="__codelineno-26-6" name="__codelineno-26-6" href="#__codelineno-26-6"></a><span class="k">def</span><span class="w"> </span><span class="nf">on_completed</span><span class="p">():</span>
+<a id="__codelineno-26-7" name="__codelineno-26-7" href="#__codelineno-26-7"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Completed&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>After:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">champi_tts</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_reader</span>
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a>
+<a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a><span class="n">reader</span> <span class="o">=</span> <span class="n">get_reader</span><span class="p">(</span><span class="s2">&quot;kokoro&quot;</span><span class="p">)</span>
+<a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a>
+<a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a><span class="k">def</span><span class="w"> </span><span class="nf">on_started</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+<a id="__codelineno-27-6" name="__codelineno-27-6" href="#__codelineno-27-6"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Started: </span><span class="si">{</span><span class="n">kw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;text&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-27-7" name="__codelineno-27-7" href="#__codelineno-27-7"></a>
+<a id="__codelineno-27-8" name="__codelineno-27-8" href="#__codelineno-27-8"></a><span class="k">def</span><span class="w"> </span><span class="nf">on_completed</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+<a id="__codelineno-27-9" name="__codelineno-27-9" href="#__codelineno-27-9"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Completed&quot;</span><span class="p">)</span>
+<a id="__codelineno-27-10" name="__codelineno-27-10" href="#__codelineno-27-10"></a>
+<a id="__codelineno-27-11" name="__codelineno-27-11" href="#__codelineno-27-11"></a><span class="k">def</span><span class="w"> </span><span class="nf">on_error</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+<a id="__codelineno-27-12" name="__codelineno-27-12" href="#__codelineno-27-12"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error: </span><span class="si">{</span><span class="n">kw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;error&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-27-13" name="__codelineno-27-13" href="#__codelineno-27-13"></a>
+<a id="__codelineno-27-14" name="__codelineno-27-14" href="#__codelineno-27-14"></a><span class="n">reader</span><span class="o">.</span><span class="n">on_reading_started</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">on_started</span><span class="p">)</span>
+<a id="__codelineno-27-15" name="__codelineno-27-15" href="#__codelineno-27-15"></a><span class="n">reader</span><span class="o">.</span><span class="n">on_reading_completed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">on_completed</span><span class="p">)</span>
+<a id="__codelineno-27-16" name="__codelineno-27-16" href="#__codelineno-27-16"></a><span class="n">reader</span><span class="o">.</span><span class="n">on_error</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">on_error</span><span class="p">)</span>
+</code></pre></div>
+<p>All available signals on <code>TextReaderService</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Signal</th>
+<th>Kwargs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>on_reading_started</code></td>
+<td><code>text</code></td>
+</tr>
+<tr>
+<td><code>on_reading_paused</code></td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>on_reading_resumed</code></td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>on_reading_stopped</code></td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>on_reading_completed</code></td>
+<td><code>text</code></td>
+</tr>
+<tr>
+<td><code>on_state_changed</code></td>
+<td><code>old_state</code>, <code>new_state</code></td>
+</tr>
+<tr>
+<td><code>on_error</code></td>
+<td><code>error</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="configuration-migration">Configuration Migration<a class="headerlink" href="#configuration-migration" title="Permanent link">&para;</a></h2>
+<h3 id="environment-variables">Environment variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h3>
+<p><strong>Before (<code>mcp_champi.kokoro_svc</code>):</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>KOKORO_DEFAULT_VOICE=af_bella
+<a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a>KOKORO_DEFAULT_SPEED=1.1
+<a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a>KOKORO_USE_GPU=true
+<a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a>KOKORO_MODEL_PATH=/models
+<a id="__codelineno-28-5" name="__codelineno-28-5" href="#__codelineno-28-5"></a>KOKORO_CACHE_PATH=/cache
+</code></pre></div>
+<p><strong>After (<code>champi_tts</code>):</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>KOKORO_DEFAULT_VOICE=am_adam
+<a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a>KOKORO_DEFAULT_SPEED=1.1
+<a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a>KOKORO_USE_GPU=true
+<a id="__codelineno-29-4" name="__codelineno-29-4" href="#__codelineno-29-4"></a>KOKORO_FORCE_CPU=false
+<a id="__codelineno-29-5" name="__codelineno-29-5" href="#__codelineno-29-5"></a>KOKORO_DEFAULT_LANGUAGE=a
+<a id="__codelineno-29-6" name="__codelineno-29-6" href="#__codelineno-29-6"></a>KOKORO_MODEL_DIR=/models
+<a id="__codelineno-29-7" name="__codelineno-29-7" href="#__codelineno-29-7"></a>KOKORO_VOICE_DIR=/voices
+<a id="__codelineno-29-8" name="__codelineno-29-8" href="#__codelineno-29-8"></a>KOKORO_CACHE_DIR=/cache
+<a id="__codelineno-29-9" name="__codelineno-29-9" href="#__codelineno-29-9"></a>KOKORO_NORMALIZE_TEXT=true
+<a id="__codelineno-29-10" name="__codelineno-29-10" href="#__codelineno-29-10"></a>KOKORO_WARMUP_ON_INIT=true
+<a id="__codelineno-29-11" name="__codelineno-29-11" href="#__codelineno-29-11"></a>KOKORO_AUTO_DOWNLOAD=true
+</code></pre></div>
+<p>Load from environment explicitly:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">champi_tts.providers.kokoro</span><span class="w"> </span><span class="kn">import</span> <span class="n">KokoroConfig</span>
+<a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a>
+<a id="__codelineno-30-3" name="__codelineno-30-3" href="#__codelineno-30-3"></a><span class="n">config</span> <span class="o">=</span> <span class="n">KokoroConfig</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span>
+<a id="__codelineno-30-4" name="__codelineno-30-4" href="#__codelineno-30-4"></a><span class="n">provider</span> <span class="o">=</span> <span class="n">get_provider</span><span class="p">(</span><span class="s2">&quot;kokoro&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="config-class-changes">Config class changes<a class="headerlink" href="#config-class-changes" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Old field (<code>KokoroConfig</code>)</th>
+<th>New field (<code>KokoroConfig</code>)</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>model_path</code></td>
+<td><code>model_dir</code></td>
+<td>Directory, not file path</td>
+</tr>
+<tr>
+<td><code>cache_path</code></td>
+<td><code>cache_dir</code></td>
+<td>Directory, not file path</td>
+</tr>
+<tr>
+<td><code>voice_path</code></td>
+<td><code>voice_dir</code></td>
+<td>Directory for <code>.pt</code> files</td>
+</tr>
+<tr>
+<td>—</td>
+<td><code>default_language</code></td>
+<td>Language code, default <code>"a"</code> (US English)</td>
+</tr>
+<tr>
+<td>—</td>
+<td><code>force_cpu</code></td>
+<td>Explicitly disable GPU even if available</td>
+</tr>
+<tr>
+<td>—</td>
+<td><code>advanced_normalization</code></td>
+<td>Extended text normalization pipeline</td>
+</tr>
+<tr>
+<td>—</td>
+<td><code>memory_management</code></td>
+<td>Enable memory management optimisations</td>
+</tr>
+<tr>
+<td>—</td>
+<td><code>max_text_length</code></td>
+<td>Maximum characters per synthesis call</td>
+</tr>
+</tbody>
+</table>
+<p>Language codes for <code>default_language</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Language</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>a</code></td>
+<td>American English (default)</td>
+</tr>
+<tr>
+<td><code>b</code></td>
+<td>British English</td>
+</tr>
+<tr>
+<td><code>e</code></td>
+<td>Spanish</td>
+</tr>
+<tr>
+<td><code>f</code></td>
+<td>French</td>
+</tr>
+<tr>
+<td><code>h</code></td>
+<td>Hindi</td>
+</tr>
+<tr>
+<td><code>i</code></td>
+<td>Italian</td>
+</tr>
+<tr>
+<td><code>j</code></td>
+<td>Japanese</td>
+</tr>
+<tr>
+<td><code>p</code></td>
+<td>Brazilian Portuguese</td>
+</tr>
+<tr>
+<td><code>z</code></td>
+<td>Mandarin Chinese</td>
+</tr>
+</tbody>
+</table>
+<h3 id="configuration-presets-new">Configuration presets (new)<a class="headerlink" href="#configuration-presets-new" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">champi_tts.providers.kokoro</span><span class="w"> </span><span class="kn">import</span> <span class="n">KokoroConfig</span>
+<a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a>
+<a id="__codelineno-31-3" name="__codelineno-31-3" href="#__codelineno-31-3"></a><span class="c1"># High performance (GPU, warmup, advanced normalization)</span>
+<a id="__codelineno-31-4" name="__codelineno-31-4" href="#__codelineno-31-4"></a><span class="n">config</span> <span class="o">=</span> <span class="n">KokoroConfig</span><span class="o">.</span><span class="n">performance</span><span class="p">()</span>
+<a id="__codelineno-31-5" name="__codelineno-31-5" href="#__codelineno-31-5"></a>
+<a id="__codelineno-31-6" name="__codelineno-31-6" href="#__codelineno-31-6"></a><span class="c1"># High quality (GPU, longer chunks, retry on failure)</span>
+<a id="__codelineno-31-7" name="__codelineno-31-7" href="#__codelineno-31-7"></a><span class="n">config</span> <span class="o">=</span> <span class="n">KokoroConfig</span><span class="o">.</span><span class="n">quality</span><span class="p">()</span>
+<a id="__codelineno-31-8" name="__codelineno-31-8" href="#__codelineno-31-8"></a>
+<a id="__codelineno-31-9" name="__codelineno-31-9" href="#__codelineno-31-9"></a><span class="c1"># CPU only (no GPU, no warmup, smaller chunks)</span>
+<a id="__codelineno-31-10" name="__codelineno-31-10" href="#__codelineno-31-10"></a><span class="n">config</span> <span class="o">=</span> <span class="n">KokoroConfig</span><span class="o">.</span><span class="n">cpu_only</span><span class="p">()</span>
+<a id="__codelineno-31-11" name="__codelineno-31-11" href="#__codelineno-31-11"></a>
+<a id="__codelineno-31-12" name="__codelineno-31-12" href="#__codelineno-31-12"></a><span class="c1"># Minimal resources (CPU, no normalization, no auto-download)</span>
+<a id="__codelineno-31-13" name="__codelineno-31-13" href="#__codelineno-31-13"></a><span class="n">config</span> <span class="o">=</span> <span class="n">KokoroConfig</span><span class="o">.</span><span class="n">minimal</span><span class="p">()</span>
+</code></pre></div>
+<hr />
+<h2 id="audio-processing-migration">Audio Processing Migration<a class="headerlink" href="#audio-processing-migration" title="Permanent link">&para;</a></h2>
+<h3 id="saving-audio">Saving audio<a class="headerlink" href="#saving-audio" title="Permanent link">&para;</a></h3>
+<p><strong>Before:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">mcp_champi.kokoro_svc</span><span class="w"> </span><span class="kn">import</span> <span class="n">AudioPlayer</span>
+<a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a>
+<a id="__codelineno-32-3" name="__codelineno-32-3" href="#__codelineno-32-3"></a><span class="n">player</span> <span class="o">=</span> <span class="n">AudioPlayer</span><span class="p">(</span><span class="n">sample_rate</span><span class="o">=</span><span class="mi">22050</span><span class="p">)</span>
+<a id="__codelineno-32-4" name="__codelineno-32-4" href="#__codelineno-32-4"></a><span class="k">await</span> <span class="n">player</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="n">audio</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>After:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">champi_tts.core.audio</span><span class="w"> </span><span class="kn">import</span> <span class="n">AudioPlayer</span>
+<a id="__codelineno-33-2" name="__codelineno-33-2" href="#__codelineno-33-2"></a>
+<a id="__codelineno-33-3" name="__codelineno-33-3" href="#__codelineno-33-3"></a><span class="n">player</span> <span class="o">=</span> <span class="n">AudioPlayer</span><span class="p">(</span><span class="n">sample_rate</span><span class="o">=</span><span class="mi">24000</span><span class="p">)</span>  <span class="c1"># Kokoro outputs at 24 kHz</span>
+<a id="__codelineno-33-4" name="__codelineno-33-4" href="#__codelineno-33-4"></a><span class="k">await</span> <span class="n">player</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="n">audio</span><span class="p">,</span> <span class="n">blocking</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
+<p>The default sample rate changed from 22050 Hz to 24000 Hz.</p>
+<h3 id="saving-audio-to-file">Saving audio to file<a class="headerlink" href="#saving-audio-to-file" title="Permanent link">&para;</a></h3>
+<p><strong>Before:</strong></p>
+<p>There was no built-in save function.</p>
+<p><strong>After:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">champi_tts.core.audio</span><span class="w"> </span><span class="kn">import</span> <span class="n">save_audio</span>
+<a id="__codelineno-34-2" name="__codelineno-34-2" href="#__codelineno-34-2"></a>
+<a id="__codelineno-34-3" name="__codelineno-34-3" href="#__codelineno-34-3"></a><span class="k">await</span> <span class="n">save_audio</span><span class="p">(</span><span class="n">audio</span><span class="p">,</span> <span class="s2">&quot;output.wav&quot;</span><span class="p">,</span> <span class="n">sample_rate</span><span class="o">=</span><span class="n">provider</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">sample_rate</span><span class="p">)</span>
+</code></pre></div>
+<p>Supported formats: <code>wav</code>, <code>mp3</code>, <code>opus</code>, <code>flac</code>, <code>pcm</code>.</p>
+<hr />
+<h2 id="complete-migration-example">Complete Migration Example<a class="headerlink" href="#complete-migration-example" title="Permanent link">&para;</a></h2>
+<p><strong>Before (<code>mcp_champi.kokoro_svc</code>):</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<a id="__codelineno-35-2" name="__codelineno-35-2" href="#__codelineno-35-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">mcp_champi.kokoro_svc</span><span class="w"> </span><span class="kn">import</span> <span class="n">KokoroService</span><span class="p">,</span> <span class="n">KokoroConfig</span>
+<a id="__codelineno-35-3" name="__codelineno-35-3" href="#__codelineno-35-3"></a>
+<a id="__codelineno-35-4" name="__codelineno-35-4" href="#__codelineno-35-4"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<a id="__codelineno-35-5" name="__codelineno-35-5" href="#__codelineno-35-5"></a>    <span class="n">config</span> <span class="o">=</span> <span class="n">KokoroConfig</span><span class="p">(</span>
+<a id="__codelineno-35-6" name="__codelineno-35-6" href="#__codelineno-35-6"></a>        <span class="n">default_voice</span><span class="o">=</span><span class="s2">&quot;af_bella&quot;</span><span class="p">,</span>
+<a id="__codelineno-35-7" name="__codelineno-35-7" href="#__codelineno-35-7"></a>        <span class="n">default_speed</span><span class="o">=</span><span class="mf">1.1</span>
+<a id="__codelineno-35-8" name="__codelineno-35-8" href="#__codelineno-35-8"></a>    <span class="p">)</span>
+<a id="__codelineno-35-9" name="__codelineno-35-9" href="#__codelineno-35-9"></a>    <span class="n">service</span> <span class="o">=</span> <span class="n">KokoroService</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+<a id="__codelineno-35-10" name="__codelineno-35-10" href="#__codelineno-35-10"></a>    <span class="k">await</span> <span class="n">service</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
+<a id="__codelineno-35-11" name="__codelineno-35-11" href="#__codelineno-35-11"></a>
+<a id="__codelineno-35-12" name="__codelineno-35-12" href="#__codelineno-35-12"></a>    <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-35-13" name="__codelineno-35-13" href="#__codelineno-35-13"></a>        <span class="n">audio</span> <span class="o">=</span> <span class="k">await</span> <span class="n">service</span><span class="o">.</span><span class="n">synthesize</span><span class="p">(</span><span class="s2">&quot;Hello, world!&quot;</span><span class="p">)</span>
+<a id="__codelineno-35-14" name="__codelineno-35-14" href="#__codelineno-35-14"></a>        <span class="k">await</span> <span class="n">service</span><span class="o">.</span><span class="n">play_audio</span><span class="p">(</span><span class="n">audio</span><span class="p">)</span>
+<a id="__codelineno-35-15" name="__codelineno-35-15" href="#__codelineno-35-15"></a>        <span class="k">await</span> <span class="n">service</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="s2">&quot;document.txt&quot;</span><span class="p">)</span>
+<a id="__codelineno-35-16" name="__codelineno-35-16" href="#__codelineno-35-16"></a>
+<a id="__codelineno-35-17" name="__codelineno-35-17" href="#__codelineno-35-17"></a>        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">service</span><span class="o">.</span><span class="n">on_events</span><span class="p">():</span>
+<a id="__codelineno-35-18" name="__codelineno-35-18" href="#__codelineno-35-18"></a>            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;completed&quot;</span><span class="p">:</span>
+<a id="__codelineno-35-19" name="__codelineno-35-19" href="#__codelineno-35-19"></a>                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Done&quot;</span><span class="p">)</span>
+<a id="__codelineno-35-20" name="__codelineno-35-20" href="#__codelineno-35-20"></a>    <span class="k">finally</span><span class="p">:</span>
+<a id="__codelineno-35-21" name="__codelineno-35-21" href="#__codelineno-35-21"></a>        <span class="k">await</span> <span class="n">service</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+<a id="__codelineno-35-22" name="__codelineno-35-22" href="#__codelineno-35-22"></a>
+<a id="__codelineno-35-23" name="__codelineno-35-23" href="#__codelineno-35-23"></a><span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</code></pre></div>
+<p><strong>After (<code>champi_tts</code>):</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<a id="__codelineno-36-2" name="__codelineno-36-2" href="#__codelineno-36-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">champi_tts</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_provider</span><span class="p">,</span> <span class="n">get_reader</span>
+<a id="__codelineno-36-3" name="__codelineno-36-3" href="#__codelineno-36-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">champi_tts.core.audio</span><span class="w"> </span><span class="kn">import</span> <span class="n">save_audio</span>
+<a id="__codelineno-36-4" name="__codelineno-36-4" href="#__codelineno-36-4"></a>
+<a id="__codelineno-36-5" name="__codelineno-36-5" href="#__codelineno-36-5"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<a id="__codelineno-36-6" name="__codelineno-36-6" href="#__codelineno-36-6"></a>    <span class="c1"># Synthesize and save</span>
+<a id="__codelineno-36-7" name="__codelineno-36-7" href="#__codelineno-36-7"></a>    <span class="k">async</span> <span class="k">with</span> <span class="n">get_provider</span><span class="p">()</span> <span class="k">as</span> <span class="n">provider</span><span class="p">:</span>
+<a id="__codelineno-36-8" name="__codelineno-36-8" href="#__codelineno-36-8"></a>        <span class="n">audio</span> <span class="o">=</span> <span class="k">await</span> <span class="n">provider</span><span class="o">.</span><span class="n">synthesize</span><span class="p">(</span><span class="s2">&quot;Hello, world!&quot;</span><span class="p">)</span>
+<a id="__codelineno-36-9" name="__codelineno-36-9" href="#__codelineno-36-9"></a>        <span class="k">await</span> <span class="n">save_audio</span><span class="p">(</span><span class="n">audio</span><span class="p">,</span> <span class="s2">&quot;hello.wav&quot;</span><span class="p">,</span> <span class="n">sample_rate</span><span class="o">=</span><span class="n">provider</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">sample_rate</span><span class="p">)</span>
+<a id="__codelineno-36-10" name="__codelineno-36-10" href="#__codelineno-36-10"></a>
+<a id="__codelineno-36-11" name="__codelineno-36-11" href="#__codelineno-36-11"></a>    <span class="c1"># Read a file with event callbacks</span>
+<a id="__codelineno-36-12" name="__codelineno-36-12" href="#__codelineno-36-12"></a>    <span class="k">async</span> <span class="k">with</span> <span class="n">get_reader</span><span class="p">(</span><span class="s2">&quot;kokoro&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">reader</span><span class="p">:</span>
+<a id="__codelineno-36-13" name="__codelineno-36-13" href="#__codelineno-36-13"></a>        <span class="k">def</span><span class="w"> </span><span class="nf">on_started</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+<a id="__codelineno-36-14" name="__codelineno-36-14" href="#__codelineno-36-14"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Started: </span><span class="si">{</span><span class="n">kw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;text&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">)[:</span><span class="mi">50</span><span class="p">]</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
+<a id="__codelineno-36-15" name="__codelineno-36-15" href="#__codelineno-36-15"></a>
+<a id="__codelineno-36-16" name="__codelineno-36-16" href="#__codelineno-36-16"></a>        <span class="k">def</span><span class="w"> </span><span class="nf">on_completed</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+<a id="__codelineno-36-17" name="__codelineno-36-17" href="#__codelineno-36-17"></a>            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Reading completed&quot;</span><span class="p">)</span>
+<a id="__codelineno-36-18" name="__codelineno-36-18" href="#__codelineno-36-18"></a>
+<a id="__codelineno-36-19" name="__codelineno-36-19" href="#__codelineno-36-19"></a>        <span class="k">def</span><span class="w"> </span><span class="nf">on_error</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+<a id="__codelineno-36-20" name="__codelineno-36-20" href="#__codelineno-36-20"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error: </span><span class="si">{</span><span class="n">kw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;error&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-36-21" name="__codelineno-36-21" href="#__codelineno-36-21"></a>
+<a id="__codelineno-36-22" name="__codelineno-36-22" href="#__codelineno-36-22"></a>        <span class="n">reader</span><span class="o">.</span><span class="n">on_reading_started</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">on_started</span><span class="p">)</span>
+<a id="__codelineno-36-23" name="__codelineno-36-23" href="#__codelineno-36-23"></a>        <span class="n">reader</span><span class="o">.</span><span class="n">on_reading_completed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">on_completed</span><span class="p">)</span>
+<a id="__codelineno-36-24" name="__codelineno-36-24" href="#__codelineno-36-24"></a>        <span class="n">reader</span><span class="o">.</span><span class="n">on_error</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">on_error</span><span class="p">)</span>
+<a id="__codelineno-36-25" name="__codelineno-36-25" href="#__codelineno-36-25"></a>
+<a id="__codelineno-36-26" name="__codelineno-36-26" href="#__codelineno-36-26"></a>        <span class="k">await</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="s2">&quot;document.txt&quot;</span><span class="p">,</span> <span class="n">voice</span><span class="o">=</span><span class="s2">&quot;am_adam&quot;</span><span class="p">)</span>
+<a id="__codelineno-36-27" name="__codelineno-36-27" href="#__codelineno-36-27"></a>
+<a id="__codelineno-36-28" name="__codelineno-36-28" href="#__codelineno-36-28"></a><span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</code></pre></div>
+<hr />
+<h2 id="cli-migration">CLI Migration<a class="headerlink" href="#cli-migration" title="Permanent link">&para;</a></h2>
+<p><code>mcp_champi.kokoro_svc</code> had no CLI. <code>champi_tts</code> ships the <code>champi-tts</code> command:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a><span class="c1"># Synthesize and play</span>
+<a id="__codelineno-37-2" name="__codelineno-37-2" href="#__codelineno-37-2"></a>champi-tts<span class="w"> </span>synthesize<span class="w"> </span><span class="s2">&quot;Hello, world!&quot;</span><span class="w"> </span>--voice<span class="w"> </span>am_adam
+<a id="__codelineno-37-3" name="__codelineno-37-3" href="#__codelineno-37-3"></a>
+<a id="__codelineno-37-4" name="__codelineno-37-4" href="#__codelineno-37-4"></a><span class="c1"># Synthesize and save to file (no playback)</span>
+<a id="__codelineno-37-5" name="__codelineno-37-5" href="#__codelineno-37-5"></a>champi-tts<span class="w"> </span>synthesize<span class="w"> </span><span class="s2">&quot;Hello, world!&quot;</span><span class="w"> </span>--output<span class="w"> </span>hello.wav<span class="w"> </span>--no-play
+<a id="__codelineno-37-6" name="__codelineno-37-6" href="#__codelineno-37-6"></a>
+<a id="__codelineno-37-7" name="__codelineno-37-7" href="#__codelineno-37-7"></a><span class="c1"># Read a text file</span>
+<a id="__codelineno-37-8" name="__codelineno-37-8" href="#__codelineno-37-8"></a>champi-tts<span class="w"> </span><span class="nb">read</span><span class="w"> </span>document.txt<span class="w"> </span>--voice<span class="w"> </span>am_adam
+<a id="__codelineno-37-9" name="__codelineno-37-9" href="#__codelineno-37-9"></a>
+<a id="__codelineno-37-10" name="__codelineno-37-10" href="#__codelineno-37-10"></a><span class="c1"># Read with visual UI indicator</span>
+<a id="__codelineno-37-11" name="__codelineno-37-11" href="#__codelineno-37-11"></a>champi-tts<span class="w"> </span><span class="nb">read</span><span class="w"> </span>document.txt<span class="w"> </span>--show-ui
+<a id="__codelineno-37-12" name="__codelineno-37-12" href="#__codelineno-37-12"></a>
+<a id="__codelineno-37-13" name="__codelineno-37-13" href="#__codelineno-37-13"></a><span class="c1"># Read inline text</span>
+<a id="__codelineno-37-14" name="__codelineno-37-14" href="#__codelineno-37-14"></a>champi-tts<span class="w"> </span><span class="nb">read</span><span class="w"> </span>--text<span class="w"> </span><span class="s2">&quot;This is a test&quot;</span><span class="w"> </span>--voice<span class="w"> </span>am_adam
+<a id="__codelineno-37-15" name="__codelineno-37-15" href="#__codelineno-37-15"></a>
+<a id="__codelineno-37-16" name="__codelineno-37-16" href="#__codelineno-37-16"></a><span class="c1"># Interactive mode (SPACE to pause/resume, S to stop, Q to quit)</span>
+<a id="__codelineno-37-17" name="__codelineno-37-17" href="#__codelineno-37-17"></a>champi-tts<span class="w"> </span><span class="nb">read</span><span class="w"> </span>document.txt<span class="w"> </span>--interactive<span class="w"> </span>--show-ui
+<a id="__codelineno-37-18" name="__codelineno-37-18" href="#__codelineno-37-18"></a>
+<a id="__codelineno-37-19" name="__codelineno-37-19" href="#__codelineno-37-19"></a><span class="c1"># List available voices</span>
+<a id="__codelineno-37-20" name="__codelineno-37-20" href="#__codelineno-37-20"></a>champi-tts<span class="w"> </span>list-voices
+<a id="__codelineno-37-21" name="__codelineno-37-21" href="#__codelineno-37-21"></a>
+<a id="__codelineno-37-22" name="__codelineno-37-22" href="#__codelineno-37-22"></a><span class="c1"># Show version</span>
+<a id="__codelineno-37-23" name="__codelineno-37-23" href="#__codelineno-37-23"></a>champi-tts<span class="w"> </span>version
+<a id="__codelineno-37-24" name="__codelineno-37-24" href="#__codelineno-37-24"></a>
+<a id="__codelineno-37-25" name="__codelineno-37-25" href="#__codelineno-37-25"></a><span class="c1"># Test the UI indicator</span>
+<a id="__codelineno-37-26" name="__codelineno-37-26" href="#__codelineno-37-26"></a>champi-tts<span class="w"> </span>test-ui
+</code></pre></div>
+<hr />
+<h2 id="breaking-changes">Breaking Changes<a class="headerlink" href="#breaking-changes" title="Permanent link">&para;</a></h2>
+<h3 id="1-import-path">1. Import path<a class="headerlink" href="#1-import-path" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a><span class="c1"># Before</span>
+<a id="__codelineno-38-2" name="__codelineno-38-2" href="#__codelineno-38-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">mcp_champi.kokoro_svc</span><span class="w"> </span><span class="kn">import</span> <span class="n">KokoroService</span>
+<a id="__codelineno-38-3" name="__codelineno-38-3" href="#__codelineno-38-3"></a>
+<a id="__codelineno-38-4" name="__codelineno-38-4" href="#__codelineno-38-4"></a><span class="c1"># After</span>
+<a id="__codelineno-38-5" name="__codelineno-38-5" href="#__codelineno-38-5"></a><span class="kn">from</span><span class="w"> </span><span class="nn">champi_tts</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_provider</span>
+</code></pre></div>
+<h3 id="2-class-name">2. Class name<a class="headerlink" href="#2-class-name" title="Permanent link">&para;</a></h3>
+<p><code>KokoroService</code> is replaced by <code>KokoroProvider</code> (accessed via <code>get_provider()</code>).
+Direct instantiation is possible but the factory function is recommended:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a><span class="c1"># Factory (recommended)</span>
+<a id="__codelineno-39-2" name="__codelineno-39-2" href="#__codelineno-39-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">champi_tts</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_provider</span>
+<a id="__codelineno-39-3" name="__codelineno-39-3" href="#__codelineno-39-3"></a><span class="n">provider</span> <span class="o">=</span> <span class="n">get_provider</span><span class="p">(</span><span class="s2">&quot;kokoro&quot;</span><span class="p">)</span>
+<a id="__codelineno-39-4" name="__codelineno-39-4" href="#__codelineno-39-4"></a>
+<a id="__codelineno-39-5" name="__codelineno-39-5" href="#__codelineno-39-5"></a><span class="c1"># Direct (not recommended for user code)</span>
+<a id="__codelineno-39-6" name="__codelineno-39-6" href="#__codelineno-39-6"></a><span class="kn">from</span><span class="w"> </span><span class="nn">champi_tts.providers.kokoro</span><span class="w"> </span><span class="kn">import</span> <span class="n">KokoroProvider</span>
+<a id="__codelineno-39-7" name="__codelineno-39-7" href="#__codelineno-39-7"></a><span class="kn">from</span><span class="w"> </span><span class="nn">champi_tts.providers.kokoro.adapter</span><span class="w"> </span><span class="kn">import</span> <span class="n">KokoroProviderAdapter</span>
+</code></pre></div>
+<h3 id="3-config-field-names">3. Config field names<a class="headerlink" href="#3-config-field-names" title="Permanent link">&para;</a></h3>
+<p><code>model_path</code> and <code>cache_path</code> are renamed to <code>model_dir</code> and <code>cache_dir</code> to
+reflect that they are directory paths, not file paths.</p>
+<h3 id="4-default-voice">4. Default voice<a class="headerlink" href="#4-default-voice" title="Permanent link">&para;</a></h3>
+<p>The default voice changed from <code>af_bella</code> to <code>am_adam</code>. Set <code>default_voice</code>
+explicitly if you rely on a specific voice:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a><span class="n">config</span> <span class="o">=</span> <span class="n">KokoroConfig</span><span class="p">(</span><span class="n">default_voice</span><span class="o">=</span><span class="s2">&quot;af_bella&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="5-default-sample-rate">5. Default sample rate<a class="headerlink" href="#5-default-sample-rate" title="Permanent link">&para;</a></h3>
+<p>Sample rate changed from 22050 Hz to 24000 Hz. Update any downstream audio
+processing that assumed the old rate.</p>
+<h3 id="6-event-system">6. Event system<a class="headerlink" href="#6-event-system" title="Permanent link">&para;</a></h3>
+<p>Decorator-based callbacks (<code>@service.on_started</code>) are replaced by blinker
+signals (<code>.connect(handler)</code>). Signal handlers receive <code>sender</code> as their first
+positional argument plus keyword arguments:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">handler</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<a id="__codelineno-41-2" name="__codelineno-41-2" href="#__codelineno-41-2"></a>    <span class="o">...</span>
+<a id="__codelineno-41-3" name="__codelineno-41-3" href="#__codelineno-41-3"></a>
+<a id="__codelineno-41-4" name="__codelineno-41-4" href="#__codelineno-41-4"></a><span class="n">reader</span><span class="o">.</span><span class="n">on_reading_started</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="7-explicit-provider-initialization">7. Explicit provider initialization<a class="headerlink" href="#7-explicit-provider-initialization" title="Permanent link">&para;</a></h3>
+<p><code>get_reader()</code> does not auto-initialize the provider. Call
+<code>await reader.provider.initialize()</code> before reading, or use the async context
+manager which handles this automatically:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a><span class="k">async</span> <span class="k">with</span> <span class="n">get_reader</span><span class="p">(</span><span class="s2">&quot;kokoro&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">reader</span><span class="p">:</span>
+<a id="__codelineno-42-2" name="__codelineno-42-2" href="#__codelineno-42-2"></a>    <span class="k">await</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="s2">&quot;Hello&quot;</span><span class="p">)</span>
+</code></pre></div>
+<hr />
+<h2 id="model-and-voice-setup">Model and Voice Setup<a class="headerlink" href="#model-and-voice-setup" title="Permanent link">&para;</a></h2>
+<p>Kokoro model files are downloaded automatically on first use when
+<code>auto_download_model=True</code> (the default). To download manually:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">champi_tts.providers.kokoro</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelDownloader</span>
+<a id="__codelineno-43-2" name="__codelineno-43-2" href="#__codelineno-43-2"></a>
+<a id="__codelineno-43-3" name="__codelineno-43-3" href="#__codelineno-43-3"></a><span class="n">model_path</span><span class="p">,</span> <span class="n">config_path</span> <span class="o">=</span> <span class="n">ModelDownloader</span><span class="o">.</span><span class="n">download_model</span><span class="p">(</span><span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;./models/kokoro&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>Voice files (<code>.pt</code> tensors) live in the voice directory. Set it explicitly or
+let the provider use its default:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">champi_tts.providers.kokoro</span><span class="w"> </span><span class="kn">import</span> <span class="n">KokoroConfig</span><span class="p">,</span> <span class="n">VoiceManager</span>
+<a id="__codelineno-44-2" name="__codelineno-44-2" href="#__codelineno-44-2"></a>
+<a id="__codelineno-44-3" name="__codelineno-44-3" href="#__codelineno-44-3"></a><span class="n">config</span> <span class="o">=</span> <span class="n">KokoroConfig</span><span class="p">(</span><span class="n">voice_dir</span><span class="o">=</span><span class="s2">&quot;./voices&quot;</span><span class="p">)</span>
+<a id="__codelineno-44-4" name="__codelineno-44-4" href="#__codelineno-44-4"></a><span class="n">VoiceManager</span><span class="o">.</span><span class="n">setup_voice_directory</span><span class="p">(</span><span class="s2">&quot;./voices&quot;</span><span class="p">)</span>
+<a id="__codelineno-44-5" name="__codelineno-44-5" href="#__codelineno-44-5"></a>
+<a id="__codelineno-44-6" name="__codelineno-44-6" href="#__codelineno-44-6"></a><span class="c1"># List voices in a directory</span>
+<a id="__codelineno-44-7" name="__codelineno-44-7" href="#__codelineno-44-7"></a><span class="n">voices</span> <span class="o">=</span> <span class="n">VoiceManager</span><span class="o">.</span><span class="n">list_voices</span><span class="p">(</span><span class="s2">&quot;./voices&quot;</span><span class="p">)</span>
+</code></pre></div>
+<hr />
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="modulenotfounderror-no-module-named-champi_tts">ModuleNotFoundError: No module named 'champi_tts'<a class="headerlink" href="#modulenotfounderror-no-module-named-champi_tts" title="Permanent link">&para;</a></h3>
+<p>Install the package:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-45-1" name="__codelineno-45-1" href="#__codelineno-45-1"></a>pip<span class="w"> </span>install<span class="w"> </span>champi-tts
+<a id="__codelineno-45-2" name="__codelineno-45-2" href="#__codelineno-45-2"></a><span class="c1"># or for development</span>
+<a id="__codelineno-45-3" name="__codelineno-45-3" href="#__codelineno-45-3"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[dev]&quot;</span>
+</code></pre></div>
+<h3 id="voice-not-found">Voice not found<a class="headerlink" href="#voice-not-found" title="Permanent link">&para;</a></h3>
+<p>List the voices that are available to your provider:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-46-1" name="__codelineno-46-1" href="#__codelineno-46-1"></a>champi-tts<span class="w"> </span>list-voices
+</code></pre></div>
+<p>Or programmatically:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-47-1" name="__codelineno-47-1" href="#__codelineno-47-1"></a><span class="n">voices</span> <span class="o">=</span> <span class="k">await</span> <span class="n">provider</span><span class="o">.</span><span class="n">list_voices</span><span class="p">()</span>
+<a id="__codelineno-47-2" name="__codelineno-47-2" href="#__codelineno-47-2"></a><span class="nb">print</span><span class="p">(</span><span class="n">voices</span><span class="p">)</span>
+</code></pre></div>
+<p>If the voice directory is empty, download model files first:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-48-1" name="__codelineno-48-1" href="#__codelineno-48-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">champi_tts.providers.kokoro</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelDownloader</span>
+<a id="__codelineno-48-2" name="__codelineno-48-2" href="#__codelineno-48-2"></a><span class="n">ModelDownloader</span><span class="o">.</span><span class="n">download_model</span><span class="p">(</span><span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;./models/kokoro&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="cuda-out-of-memory">CUDA out of memory<a class="headerlink" href="#cuda-out-of-memory" title="Permanent link">&para;</a></h3>
+<p>Disable GPU acceleration:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-49-1" name="__codelineno-49-1" href="#__codelineno-49-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">champi_tts.providers.kokoro</span><span class="w"> </span><span class="kn">import</span> <span class="n">KokoroConfig</span>
+<a id="__codelineno-49-2" name="__codelineno-49-2" href="#__codelineno-49-2"></a><span class="n">config</span> <span class="o">=</span> <span class="n">KokoroConfig</span><span class="p">(</span><span class="n">use_gpu</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">force_cpu</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-49-3" name="__codelineno-49-3" href="#__codelineno-49-3"></a><span class="n">provider</span> <span class="o">=</span> <span class="n">get_provider</span><span class="p">(</span><span class="s2">&quot;kokoro&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+</code></pre></div>
+<p>Or use the <code>cpu_only</code> preset:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-50-1" name="__codelineno-50-1" href="#__codelineno-50-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">champi_tts.providers.kokoro</span><span class="w"> </span><span class="kn">import</span> <span class="n">KokoroConfigPresets</span>
+<a id="__codelineno-50-2" name="__codelineno-50-2" href="#__codelineno-50-2"></a><span class="n">config</span> <span class="o">=</span> <span class="n">KokoroConfigPresets</span><span class="o">.</span><span class="n">cpu_only</span><span class="p">()</span>
+</code></pre></div>
+<h3 id="ui-not-showing">UI not showing<a class="headerlink" href="#ui-not-showing" title="Permanent link">&para;</a></h3>
+<p>Install optional UI dependencies:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-51-1" name="__codelineno-51-1" href="#__codelineno-51-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;champi-tts[ui]&quot;</span>
+</code></pre></div>
+<p>Or disable UI entirely:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-52-1" name="__codelineno-52-1" href="#__codelineno-52-1"></a><span class="n">reader</span> <span class="o">=</span> <span class="n">get_reader</span><span class="p">(</span><span class="s2">&quot;kokoro&quot;</span><span class="p">,</span> <span class="n">show_ui</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="attributeerror-on-kokoroconfig-fields">AttributeError on KokoroConfig fields<a class="headerlink" href="#attributeerror-on-kokoroconfig-fields" title="Permanent link">&para;</a></h3>
+<p>Check that you are using the new field names:</p>
+<table>
+<thead>
+<tr>
+<th>Old field</th>
+<th>New field</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>model_path</code></td>
+<td><code>model_dir</code></td>
+</tr>
+<tr>
+<td><code>cache_path</code></td>
+<td><code>cache_dir</code></td>
+</tr>
+<tr>
+<td><code>voice_path</code></td>
+<td><code>voice_dir</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="resources">Resources<a class="headerlink" href="#resources" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>API Reference</strong>: <code>docs/api.md</code></li>
+<li><strong>User Guide</strong>: <code>docs/USER_GUIDE.md</code></li>
+<li><strong>Troubleshooting</strong>: <code>docs/TROUBLESHOOTING.md</code></li>
+<li><strong>Examples</strong>: <code>examples/</code> directory</li>
+<li><strong>GitHub</strong>: https://github.com/champi-ai/champi-tts</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "search.highlight", "content.code.copy"], "search": "../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      
+    
+  </body>
+</html>
