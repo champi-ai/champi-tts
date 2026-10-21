@@ -22,6 +22,7 @@ def provider():
     """KokoroProvider built without touching the singleton or loading models."""
     instance = object.__new__(provider_module.KokoroProvider)
     instance.config = KokoroConfig(sample_rate=22050)
+    instance.audio_operation_lock = asyncio.Lock()
     return instance
 
 
@@ -112,3 +113,25 @@ class TestKokoroPlayAudio:
             await play_task
 
         assert fake_sd.stop_calls == 1
+
+    @pytest.mark.asyncio
+    async def test_concurrent_playback_is_serialised(
+        self, provider, fake_sd: FakeSoundDevice, audio: np.ndarray
+    ) -> None:
+        """A second call waits for the first instead of playing over it."""
+        first = asyncio.create_task(provider._play_audio(audio))
+        await fake_sd.wait_started()
+        second = asyncio.create_task(provider._play_audio(audio))
+        await asyncio.sleep(0.05)
+
+        assert len(fake_sd.play_calls) == 1
+        assert not second.done()
+
+        fake_sd.played.clear()
+        fake_sd.stop()
+        await asyncio.wait_for(first, timeout=2.0)
+        await fake_sd.wait_started()
+        assert len(fake_sd.play_calls) == 2
+
+        fake_sd.stop()
+        await asyncio.wait_for(second, timeout=2.0)

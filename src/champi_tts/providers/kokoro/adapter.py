@@ -24,6 +24,14 @@ class KokoroProviderAdapter(BaseTTSProvider):
         super().__init__(config)
         self._kokoro = OriginalKokoroProvider(config)
 
+    def _check_text_length(self, text: str) -> None:
+        """Reject text longer than ``config.max_text_length``."""
+        limit = self.config.max_text_length
+        if len(text) > limit:
+            raise ValueError(
+                f"text is {len(text)} characters; max_text_length is {limit}"
+            )
+
     async def initialize(self) -> None:
         """Initialize the Kokoro TTS provider."""
         try:
@@ -62,7 +70,11 @@ class KokoroProviderAdapter(BaseTTSProvider):
 
         Returns:
             Audio data as numpy array
+
+        Raises:
+            ValueError: If ``text`` exceeds ``config.max_text_length``
         """
+        self._check_text_length(text)
         if not self._initialized:
             raise RuntimeError("Provider not initialized. Call initialize() first.")
 
@@ -99,7 +111,11 @@ class KokoroProviderAdapter(BaseTTSProvider):
 
         Yields:
             Audio chunks as numpy arrays
+
+        Raises:
+            ValueError: If ``text`` exceeds ``config.max_text_length``
         """
+        self._check_text_length(text)
         if not self._initialized:
             raise RuntimeError("Provider not initialized. Call initialize() first.")
 
