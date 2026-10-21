@@ -117,8 +117,14 @@ class KokoroProviderAdapter(BaseTTSProvider):
             self._is_speaking = False
 
     async def list_voices(self) -> list[str]:
-        """List available voices."""
+        """List voices available on disk; does not require initialize()."""
         return self._kokoro.list_voices()
+
+    async def get_model_info(self) -> dict[str, Any]:
+        """Get provider status plus Kokoro model details; safe before initialize()."""
+        info = await super().get_model_info()
+        info.update(await self._kokoro.get_info())
+        return info
 
     async def interrupt(self) -> None:
         """Interrupt current synthesis/playback."""

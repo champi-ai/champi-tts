@@ -93,6 +93,18 @@ class BaseTTSProvider(ABC):
         """Interrupt current synthesis/playback."""
         pass
 
+    async def get_model_info(self) -> dict[str, Any]:
+        """
+        Get information about the loaded model/provider.
+
+        Default implementation returns basic status.
+        Providers can override for detailed info.
+        """
+        return {
+            "status": "loaded" if self._initialized else "not_initialized",
+            "provider": self.__class__.__name__,
+        }
+
     @property
     def is_initialized(self) -> bool:
         """Check if provider is initialized."""

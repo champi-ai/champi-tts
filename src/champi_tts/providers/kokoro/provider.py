@@ -120,6 +120,13 @@ class KokoroProvider:
 
         # Setup instance
         self.config = config or KokoroConfig()
+        # Resolve default paths (without creating them) so voice listing and
+        # get_info() work before the model is loaded.
+        if self.config.model_dir is None:
+            self.config.model_dir = self.get_default_model_dir()
+        if self.config.voice_dir is None:
+            self.config.voice_dir = self.get_default_voice_dir()
+        self.inference_engine: KokoroInference | None = None
         self.signals_manager = TTSSignalManager()
         self._initialized = False
         self._tts_status: LifecycleEvents = LifecycleEvents.UNINITIALIZED.value
@@ -319,7 +326,7 @@ class KokoroProvider:
 
     async def is_initialized(self) -> bool:
         """Check if provider is initialized"""
-        return (
+        return bool(
             self._initialized
             and self.inference_engine
             and self.inference_engine.is_loaded
