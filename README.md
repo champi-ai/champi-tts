@@ -170,6 +170,56 @@ champi-tts test-ui
 
 ---
 
+## 🤖 MCP Server
+
+Champi TTS exposes its speech tools over the
+[Model Context Protocol (MCP)](https://modelcontextprotocol.io/), so LLM hosts
+such as Claude Desktop and Claude Code can speak text aloud or write it to an
+audio file.
+
+Run it from a release wheel (replace `X.Y.Z` with the
+[latest release](https://github.com/champi-ai/champi-tts/releases/latest)):
+
+```bash
+uvx --python 3.12 --from "champi-tts[mcp,kokoro] @ https://github.com/champi-ai/champi-tts/releases/download/vX.Y.Z/champi_tts-X.Y.Z-py3-none-any.whl" champi-tts mcp serve
+```
+
+From a source checkout: `uv sync --extra mcp --extra kokoro`, then
+`uv run champi-tts mcp serve`.
+
+Add it to `claude_desktop_config.json` (Claude Desktop) or a project
+`.mcp.json` (Claude Code):
+
+```json
+{
+  "mcpServers": {
+    "champi-tts": {
+      "command": "uvx",
+      "args": [
+        "--python",
+        "3.12",
+        "--from",
+        "champi-tts[mcp,kokoro] @ https://github.com/champi-ai/champi-tts/releases/download/vX.Y.Z/champi_tts-X.Y.Z-py3-none-any.whl",
+        "champi-tts",
+        "mcp",
+        "serve"
+      ]
+    }
+  }
+}
+```
+
+Tools: `speak_tool`, `speak_streaming_tool`, `stop_speaking_tool`,
+`synthesize_to_file`, `list_voices`, `list_audio_devices_tool`,
+`list_providers` and `get_provider_status`. Speaker playback needs PortAudio
+(`sudo apt install portaudio19-dev` on Debian/Ubuntu). Run
+`champi-tts mcp serve --help` for the SSE transport options.
+
+See [docs/mcp-integration.md](docs/mcp-integration.md) for prerequisites,
+environment variables, a smoke test and the full tool reference.
+
+---
+
 ## 📚 Documentation
 
 ### Architecture

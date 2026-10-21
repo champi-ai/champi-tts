@@ -51,6 +51,7 @@ nav:
       - CLI Guide: user/cli-guide.md
       - Python API: user/python-api.md
       - Text Reading: user/text-reading.md
+      - MCP (Claude Desktop): mcp-integration.md
       - Troubleshooting: user/troubleshooting.md
   - Tutorials: TUTORIALS.md
   - API Reference: api.md
