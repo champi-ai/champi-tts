@@ -11,6 +11,7 @@ from loguru import logger
 
 from champi_tts.providers.kokoro.enums import ModelEvents
 from champi_tts.providers.kokoro.events import TTSSignalManager
+from champi_tts.providers.kokoro.exceptions import KokoroFileError
 
 
 class ModelDownloader:
@@ -108,63 +109,85 @@ class ModelDownloader:
         logger.debug(f"Download completed: {filepath}")
 
     @classmethod
-    def download_model(cls, output_dir: str, force: bool = False) -> tuple[str, str]:
+    def download_model(
+        cls, output_dir: str, force: bool = False, allow_download: bool = True
+    ) -> tuple[str, str]:
         """Download Kokoro model files
+
+        Files are downloaded to temporary ``.part`` paths and only moved into
+        place once every file has been verified, so a failed download never
+        touches model files that existed before the call.
 
         Args:
             output_dir: Directory to save model files
             force: Force re-download even if files exist
+            allow_download: When False, never download; raise if the files are
+                missing or invalid
 
         Returns:
             Tuple of (model_path, config_path)
+
+        Raises:
+            KokoroFileError: If downloading is not allowed and the files are
+                missing or invalid
         """
-        # Define file paths
         model_path = os.path.join(output_dir, "kokoro-v1_0.pth")
         config_path = os.path.join(output_dir, "config.json")
 
-        try:
-            # Create output directory
-            os.makedirs(output_dir, exist_ok=True)
-
-            # Check if files already exist and are valid
-            if not force and cls.verify_files(model_path, config_path):
+        if not allow_download:
+            if cls.verify_files(model_path, config_path):
                 logger.debug("Model files already exist and are valid")
                 return model_path, config_path
+            raise KokoroFileError(
+                f"Model files missing or invalid in {output_dir} "
+                "and downloading is disabled"
+            )
 
-            logger.debug("Downloading Kokoro v1.0 model files...")
+        os.makedirs(output_dir, exist_ok=True)
 
-            # Download model file
-            if force or not os.path.exists(model_path):
-                logger.debug("Downloading model file (this may take a few minutes)...")
-                cls.download_with_progress(
-                    cls.MODEL_FILES["kokoro-v1_0.pth"]["url"], model_path
-                )
+        if not force and cls.verify_files(model_path, config_path):
+            logger.debug("Model files already exist and are valid")
+            return model_path, config_path
 
-            # Download config file
-            if force or not os.path.exists(config_path):
-                logger.debug("Downloading config file...")
-                cls.download_with_progress(
-                    cls.MODEL_FILES["config.json"]["url"], config_path
-                )
+        logger.debug("Downloading Kokoro v1.0 model files...")
 
-            # Verify downloaded files
-            if not cls.verify_files(model_path, config_path):
+        sources = {
+            model_path: cls.MODEL_FILES["kokoro-v1_0.pth"]["url"],
+            config_path: cls.MODEL_FILES["config.json"]["url"],
+        }
+        part_paths = {
+            path: f"{path}.part"
+            for path in sources
+            if force or not os.path.exists(path)
+        }
+
+        try:
+            for path, part_path in part_paths.items():
+                logger.debug(f"Downloading {os.path.basename(path)}...")
+                cls.download_with_progress(sources[path], part_path)
+
+            if not cls.verify_files(
+                part_paths.get(model_path, model_path),
+                part_paths.get(config_path, config_path),
+            ):
                 raise RuntimeError("Downloaded files failed verification")
+
+            for path, part_path in part_paths.items():
+                os.replace(part_path, path)
 
             logger.debug(f"✓ Model files ready in {output_dir}")
             return model_path, config_path
 
         except Exception as e:
             logger.error(f"Failed to download model: {e}")
-            # Clean up partial downloads
-            for path in [model_path, config_path]:
-                if os.path.exists(path):
+            for part_path in part_paths.values():
+                if os.path.exists(part_path):
                     try:
-                        os.remove(path)
-                        logger.debug(f"Cleaned up partial download: {path}")
+                        os.remove(part_path)
+                        logger.debug(f"Cleaned up partial download: {part_path}")
                     except Exception as _err:
                         logger.debug(
-                            f"Could not remove partial download {path}: {_err}"
+                            f"Could not remove partial download {part_path}: {_err}"
                         )
             raise
 
