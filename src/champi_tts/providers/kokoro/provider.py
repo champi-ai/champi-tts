@@ -35,7 +35,11 @@ from champi_tts.providers.kokoro.exceptions import (
     KokoroVoiceError,
 )
 from champi_tts.providers.kokoro.inference import KokoroInference
-from champi_tts.providers.kokoro.models import ModelDownloader, VoiceManager
+from champi_tts.providers.kokoro.models import (
+    ModelDownloader,
+    VoiceManager,
+    default_voice_dir,
+)
 
 
 class VoiceCache:
@@ -178,6 +182,9 @@ class KokoroProvider:
                     self.config.model_dir, self.config.voice_dir
                 )
 
+            if download_model and self.config.auto_download_model:
+                self._ensure_default_voice()
+
             # Check cache
             cache_key = await self._get_cache_key()
             cache_file = (
@@ -294,6 +301,25 @@ class KokoroProvider:
                 f"Provider initialization failed: {e}"
             ) from e
 
+    def _ensure_default_voice(self) -> None:
+        """Download the configured default voice if it is not on disk yet."""
+        voice = self.config.default_voice
+        if not voice or voice in self.list_voices():
+            return
+        try:
+            VoiceManager.download_voice(voice, self.config.voice_dir)
+            logger.info(f"Downloaded default voice {voice}")
+        except KokoroVoiceError as e:
+            logger.warning(f"Could not download default voice: {e}")
+
+    def download_voice(self, voice_name: str, force: bool = False) -> str:
+        """Download a voice from hexgrad/Kokoro-82M into the voice directory.
+
+        Returns:
+            Path to the downloaded voice file
+        """
+        return VoiceManager.download_voice(voice_name, self.config.voice_dir, force)
+
     async def _warmup(self) -> None:
         """Warm up the model with a default voice"""
         try:
@@ -336,7 +362,10 @@ class KokoroProvider:
         voice_path = os.path.join(self.config.voice_dir, voice_name)
 
         if not os.path.exists(voice_path):
-            raise FileNotFoundError(f"Voice file not found: {voice_path}")
+            raise FileNotFoundError(
+                f"{voice_path}. Run 'champi-tts voices download "
+                f"{voice_name[:-3]}' to fetch it"
+            )
 
         return voice_path
 
@@ -976,19 +1005,8 @@ class KokoroProvider:
         return model_dir
 
     def get_default_voice_dir(self) -> str:
-        """Get default voice directory path"""
-        import os
-        from pathlib import Path
-
-        home_dir = Path.home()
-
-        if os.name == "nt":  # Windows
-            app_data = os.environ.get("APPDATA", home_dir)
-            voice_dir = os.path.join(app_data, "mcp_champi", "kokoro", "voices")
-        else:  # Unix-like
-            voice_dir = os.path.join(home_dir, ".mcp_champi", "kokoro", "voices")
-
-        return voice_dir
+        """Get default voice directory path (honours ``KOKORO_VOICE_DIR``)"""
+        return default_voice_dir()
 
     def get_default_cache_dir(self) -> str:
         """Get default cache directory path"""
