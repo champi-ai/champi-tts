@@ -123,9 +123,7 @@ class KokoroProviderAdapter(BaseTTSProvider):
     async def interrupt(self) -> None:
         """Interrupt current synthesis/playback."""
         self._is_speaking = False
-        # Kokoro provider should implement interrupt logic
-        if hasattr(self._kokoro, "interrupt"):
-            await self._kokoro.interrupt()
+        await self._kokoro.interrupt()
         logger.info("Synthesis interrupted")
 
     async def __aenter__(self):
