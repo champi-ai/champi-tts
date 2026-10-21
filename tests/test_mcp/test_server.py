@@ -638,6 +638,7 @@ _EXPECTED_TOOLS = {
     "speak_streaming_tool",
     "stop_speaking_tool",
     "list_audio_devices_tool",
+    "get_speaking_state",
 }
 
 
@@ -719,8 +720,8 @@ class TestStdioTools:
     def test_exact_tool_set_registered(self, listed_tools: dict[str, Any]) -> None:
         assert set(listed_tools) == _EXPECTED_TOOLS
 
-    def test_exactly_eight_tools(self, listed_tools: dict[str, Any]) -> None:
-        assert len(listed_tools) == 8
+    def test_exactly_nine_tools(self, listed_tools: dict[str, Any]) -> None:
+        assert len(listed_tools) == 9
 
     @pytest.mark.parametrize("tool", sorted(_EXPECTED_TOOLS))
     def test_input_schema_matches_contract(

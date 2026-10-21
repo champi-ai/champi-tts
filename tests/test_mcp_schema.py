@@ -87,6 +87,7 @@ EXPECTED_SCHEMAS: dict[str, dict[str, Any]] = {
     ),
     "stop_speaking_tool": _object("stop_speaking_tool", {}),
     "list_audio_devices_tool": _object("list_audio_devices_tool", {}),
+    "get_speaking_state": _object("get_speaking_state", {}),
 }
 
 _TOOL_NAMES = sorted(EXPECTED_SCHEMAS)
@@ -116,8 +117,8 @@ class TestToolSet:
     def test_exact_tool_set_registered(self, tools: dict[str, Any]) -> None:
         assert set(tools) == set(EXPECTED_SCHEMAS)
 
-    def test_exactly_eight_tools(self, tools: dict[str, Any]) -> None:
-        assert len(tools) == 8
+    def test_exactly_nine_tools(self, tools: dict[str, Any]) -> None:
+        assert len(tools) == 9
 
 
 @pytest.mark.parametrize("tool", _TOOL_NAMES)

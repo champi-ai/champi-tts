@@ -33,6 +33,7 @@ _EXPECTED_TOOLS = {
     "speak_streaming_tool",
     "stop_speaking_tool",
     "list_audio_devices_tool",
+    "get_speaking_state",
 }
 
 
