@@ -6,22 +6,15 @@ Handles normalization, phonemization, and tokenization with non-blocking operati
 import asyncio
 import re
 
-from loguru import logger
-
 from champi_tts.providers.kokoro.events import TTSSignalManager
-
-try:
-    import inflect
-    import phonemizer
-except ImportError:
-    logger.error("Missing dependencies. Install with: pip install phonemizer inflect")
-    raise
 
 
 class AsyncTextNormalizer:
     """Async text normalization for TTS processing"""
 
     def __init__(self):
+        import inflect
+
         self.inflect_engine = inflect.engine()
 
         # Symbol replacements
@@ -406,13 +399,15 @@ class AsyncPhonemizerBackend:
     async def _ensure_backend(self):
         """Lazy initialize backend"""
         if self._backend is None:
+            from phonemizer.backend import EspeakBackend
+
             loop = asyncio.get_event_loop()
 
             # Spanish-specific configuration for better accentuation
             if self.language == "es":
                 self._backend = await loop.run_in_executor(
                     None,
-                    lambda: phonemizer.backend.EspeakBackend(
+                    lambda: EspeakBackend(
                         language="es",
                         preserve_punctuation=True,
                         with_stress=True,
@@ -425,7 +420,7 @@ class AsyncPhonemizerBackend:
                 # Default configuration for other languages
                 self._backend = await loop.run_in_executor(
                     None,
-                    lambda: phonemizer.backend.EspeakBackend(
+                    lambda: EspeakBackend(
                         language=self.language,
                         preserve_punctuation=True,
                         with_stress=True,

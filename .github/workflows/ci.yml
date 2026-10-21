@@ -80,6 +80,49 @@ jobs:
         git diff --staged --quiet || git commit -m "chore: update coverage badge and threshold"
         git push origin HEAD:${{ github.head_ref }}
 
+  import-check:
+    name: Import every module with declared extras only
+    runs-on: self-hosted
+
+    steps:
+    - name: Check out
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      with:
+        persist-credentials: false
+
+    - name: Clean up virtualenv
+      run: rm -rf .venv
+
+    - name: Install uv
+      run: curl -LsSf https://astral.sh/uv/install.sh | sh && echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+    - name: Set up Python
+      run: uv python install 3.12
+
+    - name: Install package with the "all" extra only
+      run: uv sync --python 3.12 --extra all
+
+    - name: Import every module
+      run: |
+        uv run --no-sync python - <<'EOF'
+        import importlib
+        import pkgutil
+
+        import champi_tts
+
+        failures = []
+        for module in pkgutil.walk_packages(champi_tts.__path__, "champi_tts."):
+            try:
+                importlib.import_module(module.name)
+            except Exception as exc:
+                failures.append(f"{module.name}: {exc!r}")
+
+        from champi_tts.providers.kokoro import *  # noqa: F403
+
+        if failures:
+            raise SystemExit("\n".join(failures))
+        EOF
+
   security:
     name: Security Scan
     runs-on: self-hosted

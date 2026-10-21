@@ -46,11 +46,11 @@ __all__ = [
     "KokoroVoiceError",
     "LifecycleEvents",
     "ModelDownloader",
-    "ProcessingEvents",
     "TTSEventTypes",
     # Event system
     "TTSSignalManager",
     "TelemetryEvents",
+    "TextProcessingEvents",
     # Enums
     "VoiceLanguage",
     # Model management
