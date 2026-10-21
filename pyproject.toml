@@ -71,9 +71,14 @@ cli = [
     "click>=8.0.0",
 ]
 
+# MCP server (Model Context Protocol)
+mcp = [
+    "mcp[cli]>=1.0,<2.0",
+]
+
 # All features (default for installation)
 all = [
-    "champi-tts[kokoro,ui,cli]",
+    "champi-tts[kokoro,ui,cli,mcp]",
 ]
 
 # Development tools
@@ -118,6 +123,7 @@ docs = [
 
 [project.scripts]
 champi-tts = "champi_tts.cli:main"
+champi-tts-mcp = "champi_tts.mcp.server:main"
 
 [build-system]
 requires = ["hatchling>=1.22.0"]
@@ -294,6 +300,7 @@ module = [
     "requests.*",
     "PyPDF2.*",
     "fitz.*",
+    "mcp.*",
 ]
 ignore_missing_imports = true
 
