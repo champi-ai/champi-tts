@@ -9,6 +9,7 @@ from __future__ import annotations
 import asyncio
 import importlib.abc
 import os
+import queue
 import sys
 import threading
 from collections.abc import AsyncGenerator, Iterator
@@ -431,3 +432,71 @@ class TestStopSpeaking:
     def test_safe_without_sounddevice(self) -> None:
         with patch.dict(sys.modules, {"sounddevice": None}):
             assert spk.stop_speaking() == {"stopped": False}
+
+
+class TestPlaybackHelpers:
+    """Direct tests for the blocking helpers run in the executor."""
+
+    def test_play_and_wait_skips_playback_when_already_stopped(
+        self, fake_sd: FakeSoundDevice
+    ) -> None:
+        spk._stop_event.set()
+        assert spk._play_and_wait(np.zeros(10, np.float32), 24000, None) is True
+        assert fake_sd.played == []
+
+    def test_play_queue_keeps_polling_while_queue_is_empty(
+        self, fake_sd: FakeSoundDevice
+    ) -> None:
+        chunks = MagicMock()
+        chunks.get.side_effect = [queue.Empty(), np.ones(4, np.float32), None]
+        assert spk._play_queue(chunks, 24000, None) is False
+        assert chunks.get.call_count == 3
+        assert sum(len(f) for f in fake_sd.streams[0].frames) == 4
+        assert fake_sd.streams[0].stopped is True
+
+    def test_play_queue_stops_mid_chunk(
+        self, fake_sd: FakeSoundDevice, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.setattr(spk, "_STREAM_BLOCK_FRAMES", 2)
+        chunks: queue.Queue[np.ndarray | None] = queue.Queue()
+        chunks.put(np.ones(10, np.float32))
+        chunks.put(None)
+        real_output_stream = fake_sd.OutputStream
+
+        def _stream_that_stops(**kwargs: Any) -> FakeOutputStream:
+            stream = real_output_stream(**kwargs)
+            original_write = stream.write
+
+            def _write(data: np.ndarray) -> None:
+                original_write(data)
+                spk._stop_event.set()
+
+            stream.write = _write  # type: ignore[method-assign]
+            return stream
+
+        fake_sd.OutputStream = _stream_that_stops  # type: ignore[method-assign]
+
+        assert spk._play_queue(chunks, 24000, None) is True
+        stream = fake_sd.streams[0]
+        assert len(stream.frames) == 1
+        assert stream.aborted is True
+        assert stream.stopped is False
+
+
+class TestSpeakStopDuringSynthesis:
+    @pytest.mark.asyncio
+    async def test_wait_false_skips_playback_when_stopped_during_synthesis(
+        self, fake_sd: FakeSoundDevice
+    ) -> None:
+        prov = _make_provider()
+
+        async def _synth(*_: Any, **__: Any) -> np.ndarray:
+            spk.stop_speaking()
+            return np.zeros(2400, np.float32)
+
+        prov.synthesize = AsyncMock(side_effect=_synth)
+        result = await spk.speak("hi", provider=prov, wait=False)
+
+        assert isinstance(result, dict)
+        assert result["interrupted"] is True
+        assert fake_sd.played == []
