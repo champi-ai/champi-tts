@@ -175,6 +175,80 @@ def create_mcp_server() -> Any:
         except Exception as exc:
             return [f"error: {type(exc).__name__}: {exc}"]
 
+    from champi_tts.mcp import speaker_tools as _speaker
+
+    @mcp.tool()
+    async def speak_tool(
+        text: str,
+        voice: str | None = None,
+        speed: float | None = None,
+        provider: str | None = None,
+        device_index: int | None = None,
+        wait: bool = True,
+    ) -> dict[str, Any] | str:
+        """Synthesize text and play it on a speaker; return playback metrics.
+
+        Args:
+            text: Text to speak.
+            voice: Voice name (``None`` = provider default).
+            speed: Speech speed multiplier (``None`` = provider default).
+            provider: Provider key. Falls back to ``CHAMPI_TTS_PROVIDER``
+                env var, then ``"kokoro"``.
+            device_index: Output device index. Falls back to
+                ``CHAMPI_OUTPUT_DEVICE_INDEX`` env var, then the system default.
+            wait: Block until playback finishes (``False`` = return once
+                playback has started).
+        """
+        if not text.strip():
+            return "error: text is empty"
+        try:
+            _speaker._check_sounddevice()
+            p = await _get_provider(_effective_provider(provider))
+        except Exception as exc:
+            return f"error: {type(exc).__name__}: {exc}"
+        return await _speaker.speak(text, voice, speed, p, device_index, wait)
+
+    @mcp.tool()
+    async def speak_streaming_tool(
+        text: str,
+        voice: str | None = None,
+        speed: float | None = None,
+        provider: str | None = None,
+        device_index: int | None = None,
+    ) -> dict[str, Any] | str:
+        """Synthesize text in chunks and play each as it arrives (low latency).
+
+        Args:
+            text: Text to speak.
+            voice: Voice name (``None`` = provider default).
+            speed: Speech speed multiplier (``None`` = provider default).
+            provider: Provider key. Falls back to ``CHAMPI_TTS_PROVIDER``
+                env var, then ``"kokoro"``.
+            device_index: Output device index. Falls back to
+                ``CHAMPI_OUTPUT_DEVICE_INDEX`` env var, then the system default.
+        """
+        if not text.strip():
+            return "error: text is empty"
+        try:
+            _speaker._check_sounddevice()
+            p = await _get_provider(_effective_provider(provider))
+        except Exception as exc:
+            return f"error: {type(exc).__name__}: {exc}"
+        return await _speaker.speak_streaming(text, voice, speed, p, device_index)
+
+    @mcp.tool()
+    def stop_speaking_tool() -> dict[str, bool]:
+        """Stop any active speaker playback."""
+        return _speaker.stop_speaking()
+
+    @mcp.tool()
+    def list_audio_devices_tool() -> list[dict[str, object]]:
+        """List available audio output devices."""
+        try:
+            return _speaker.list_audio_devices()
+        except ImportError as exc:
+            return [{"error": str(exc)}]
+
     return mcp
 
 
