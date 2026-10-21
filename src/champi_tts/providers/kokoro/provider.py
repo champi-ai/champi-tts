@@ -695,24 +695,40 @@ class KokoroProvider:
                 "Audio playback unavailable: PortAudio library not found"
             )
 
+        loop = asyncio.get_running_loop()
+        try:
+            await loop.run_in_executor(
+                None, self._play_blocking, audio_data, self.config.sample_rate
+            )
+        except asyncio.CancelledError:
+            sd.stop()
+            raise
+
+        return time.perf_counter() - playback_start
+
+    @staticmethod
+    def _play_blocking(audio_data: np.ndarray, sample_rate: int) -> None:
+        """Play audio and wait for completion; runs in a worker thread.
+
+        Raises:
+            KokoroAudioError: If neither the PulseAudio nor default device works
+        """
         # Play audio using sounddevice with PulseAudio mixing support
         try:
             # Try PulseAudio device first (allows mixing with other apps)
-            sd.play(audio_data, samplerate=24000, device="pulse")
-            sd.wait()  # Wait for playback to complete
+            sd.play(audio_data, samplerate=sample_rate, device="pulse")
+            sd.wait()
         except Exception as pulse_error:
             logger.error(f"PulseAudio device failed: {pulse_error}, trying default")
             try:
                 # Fallback to default device
-                sd.play(audio_data, samplerate=24000)
+                sd.play(audio_data, samplerate=sample_rate)
                 sd.wait()
             except Exception as default_error:
                 logger.error(f"Audio playback failed: {default_error}")
                 raise KokoroAudioError(
                     f"Could not play audio: {default_error}"
                 ) from default_error
-
-        return time.perf_counter() - playback_start
 
     @EventProcessor.emits_event(data=["_tts_status"])
     async def text_to_speech(
@@ -796,7 +812,7 @@ class KokoroProvider:
                 return False, {"error": "Empty audio generated"}
 
             # Calculate audio metrics
-            audio_duration = len(audio_data) / 24000
+            audio_duration = len(audio_data) / self.config.sample_rate
             ttfa = generation_time  # For non-streaming, this is the same as generation time
 
             # Play audio if requested

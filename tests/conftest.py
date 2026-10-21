@@ -2,6 +2,9 @@
 Pytest configuration and fixtures for champi-tts tests.
 """
 
+import asyncio
+import threading
+import time
 from unittest.mock import MagicMock, patch
 
 import numpy as np
@@ -61,6 +64,47 @@ class MockTTSProvider(BaseTTSProvider):
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         await self.shutdown()
         return False
+
+
+class FakeSoundDevice:
+    """sounddevice stand-in whose wait() blocks like real playback."""
+
+    def __init__(self, playback_seconds: float = 5.0) -> None:
+        self.playback_seconds = playback_seconds
+        self.played = threading.Event()
+        self._finished = threading.Event()
+        self.play_calls: list[tuple] = []
+        self.stop_calls = 0
+
+    def play(self, data: np.ndarray, samplerate: int, **kwargs) -> None:
+        """Record the call and start the fake stream."""
+        self.play_calls.append((data, samplerate, kwargs))
+        self._finished.clear()
+        self.played.set()
+
+    def wait(self) -> None:
+        """Block the calling thread until playback ends or stop() is called."""
+        self._finished.wait(self.playback_seconds)
+
+    def stop(self) -> None:
+        """End the fake stream, releasing any wait()."""
+        self.stop_calls += 1
+        self._finished.set()
+
+    async def wait_started(self, timeout: float = 2.0) -> None:
+        """Yield to the event loop until a worker thread has called play()."""
+        deadline = time.monotonic() + timeout
+        while not self.played.is_set():
+            assert time.monotonic() < deadline, "playback never started"
+            await asyncio.sleep(0.005)
+
+
+@pytest.fixture
+def blocking_sd():
+    """Unpatched FakeSoundDevice, released at teardown so no worker hangs."""
+    fake = FakeSoundDevice()
+    yield fake
+    fake.stop()
 
 
 @pytest.fixture
