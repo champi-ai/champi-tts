@@ -306,6 +306,124 @@ class TestToolListVoices:
         assert result["result"][0].startswith("error: ValueError:")
 
 
+class TestSpeakerTools:
+    """Server wiring for the speaker tools; playback itself is covered in
+    ``test_speaker_tools.py``."""
+
+    def test_registers_speaker_tools_with_tool_suffix(self, server: MagicMock) -> None:
+        tools = set(server._tool_manager._tools.keys())
+        assert {
+            "speak_tool",
+            "speak_streaming_tool",
+            "stop_speaking_tool",
+            "list_audio_devices_tool",
+        } <= tools
+
+    @pytest.mark.asyncio
+    async def test_speak_tool_reuses_cached_provider(self, server: MagicMock) -> None:
+        prov = _make_provider()
+        metrics = {"duration_seconds": 0.1, "voice": "af_bella"}
+        with (
+            patch("champi_tts.get_provider", return_value=prov) as mock_get,
+            patch("champi_tts.mcp.speaker_tools._check_sounddevice"),
+            patch(
+                "champi_tts.mcp.speaker_tools.speak",
+                AsyncMock(return_value=metrics),
+            ) as mock_speak,
+        ):
+            for _ in range(2):
+                result = _raw(
+                    await server.call_tool(
+                        "speak_tool", {"text": "hi", "voice": "af_bella"}
+                    )
+                )
+        assert result["result"] == metrics
+        mock_get.assert_called_once_with("kokoro")
+        prov.initialize.assert_awaited_once()
+        mock_speak.assert_awaited_with("hi", "af_bella", None, prov, None, True)
+
+    @pytest.mark.asyncio
+    async def test_speak_tool_missing_portaudio_returns_error_without_loading(
+        self, server: MagicMock
+    ) -> None:
+        with (
+            patch.dict(sys.modules, {"sounddevice": None}),
+            patch("champi_tts.get_provider") as mock_get,
+        ):
+            result = _raw(await server.call_tool("speak_tool", {"text": "hi"}))
+        assert result["result"].startswith("error: ImportError:")
+        mock_get.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_speak_tool_empty_text_returns_error(self, server: MagicMock) -> None:
+        with patch("champi_tts.get_provider") as mock_get:
+            result = _raw(await server.call_tool("speak_tool", {"text": " "}))
+        assert result["result"] == "error: text is empty"
+        mock_get.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_speak_streaming_tool_passes_provider(
+        self, server: MagicMock
+    ) -> None:
+        prov = _make_provider()
+        with (
+            patch("champi_tts.get_provider", return_value=prov),
+            patch("champi_tts.mcp.speaker_tools._check_sounddevice"),
+            patch(
+                "champi_tts.mcp.speaker_tools.speak_streaming",
+                AsyncMock(return_value={"chunks": 3}),
+            ) as mock_stream,
+        ):
+            result = _raw(
+                await server.call_tool(
+                    "speak_streaming_tool", {"text": "hi", "device_index": 2}
+                )
+            )
+        assert result["result"] == {"chunks": 3}
+        mock_stream.assert_awaited_once_with("hi", None, None, prov, 2)
+
+    @pytest.mark.asyncio
+    async def test_speak_tool_initialize_failure_returns_error(
+        self, server: MagicMock
+    ) -> None:
+        prov = _make_provider(initialize_raises=RuntimeError("no model"))
+        with (
+            patch("champi_tts.get_provider", return_value=prov),
+            patch("champi_tts.mcp.speaker_tools._check_sounddevice"),
+        ):
+            result = _raw(await server.call_tool("speak_tool", {"text": "hi"}))
+        assert result["result"] == "error: RuntimeError: no model"
+
+    @pytest.mark.asyncio
+    async def test_stop_speaking_tool(self, server: MagicMock) -> None:
+        with patch(
+            "champi_tts.mcp.speaker_tools.stop_speaking",
+            return_value={"stopped": True},
+        ):
+            result = _raw(await server.call_tool("stop_speaking_tool", {}))
+        assert result == {"stopped": True}
+
+    @pytest.mark.asyncio
+    async def test_list_audio_devices_tool_returns_error_entry_when_unavailable(
+        self, server: MagicMock
+    ) -> None:
+        with patch.dict(sys.modules, {"sounddevice": None}):
+            result = _raw(await server.call_tool("list_audio_devices_tool", {}))
+        assert len(result["result"]) == 1
+        assert "error" in result["result"][0]
+
+    @pytest.mark.asyncio
+    async def test_list_audio_devices_tool_returns_devices(
+        self, server: MagicMock
+    ) -> None:
+        devices = [{"index": 1, "name": "speakers"}]
+        with patch(
+            "champi_tts.mcp.speaker_tools.list_audio_devices", return_value=devices
+        ):
+            result = _raw(await server.call_tool("list_audio_devices_tool", {}))
+        assert result["result"] == devices
+
+
 class TestMain:
     def test_redirects_loguru_to_stderr(self) -> None:
         mock_mcp = MagicMock()
