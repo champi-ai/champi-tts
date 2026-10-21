@@ -4,7 +4,7 @@ Command-line interface for champi-tts.
 
 import asyncio
 import sys
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
 
 import typer
@@ -346,7 +346,7 @@ def voices_download(
     console.print(f"✓ Voice saved to: [cyan]{path}[/cyan]")
 
 
-class MCPTransport(str, Enum):
+class MCPTransport(StrEnum):
     """Transports supported by the MCP server."""
 
     stdio = "stdio"
