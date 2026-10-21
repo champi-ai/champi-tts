@@ -3,6 +3,7 @@ Generic audio utilities for TTS playback and file operations.
 """
 
 import asyncio
+import threading
 from pathlib import Path
 
 import numpy as np
@@ -23,10 +24,15 @@ class AudioPlayer:
         self._stream: object | None = None
         self._is_playing = False
         self._stop_event = asyncio.Event()
+        self._halted = False
+        self._device_lock = threading.Lock()
 
     async def play(self, audio: np.ndarray, blocking: bool = True) -> None:
         """
         Play audio data.
+
+        Blocking playback waits in a worker thread so the event loop stays free
+        to run other coroutines, including ``stop()``.
 
         Args:
             audio: Audio data as numpy array
@@ -37,10 +43,16 @@ class AudioPlayer:
         try:
             self._is_playing = True
             self._stop_event.clear()
+            with self._device_lock:
+                self._halted = False
 
             if blocking:
-                sd.play(audio, self.sample_rate)
-                sd.wait()
+                loop = asyncio.get_running_loop()
+                try:
+                    await loop.run_in_executor(None, self._play_and_wait, audio)
+                except asyncio.CancelledError:
+                    self.stop()
+                    raise
             else:
                 sd.play(audio, self.sample_rate)
 
@@ -49,6 +61,16 @@ class AudioPlayer:
             raise
         finally:
             self._is_playing = False
+
+    def _play_and_wait(self, audio: np.ndarray) -> None:
+        """Start playback and block until it finishes or ``stop()`` is called."""
+        # The lock makes a stop() that lands before sd.play() skip playback
+        # instead of racing it.
+        with self._device_lock:
+            if self._halted:
+                return
+            sd.play(audio, self.sample_rate)
+        sd.wait()
 
     async def play_streaming(self, audio_chunks: list[np.ndarray]) -> None:
         """
@@ -65,8 +87,10 @@ class AudioPlayer:
     def stop(self) -> None:
         """Stop current playback."""
         self._stop_event.set()
-        if sd is not None:
-            sd.stop()
+        with self._device_lock:
+            self._halted = True
+            if sd is not None:
+                sd.stop()
         self._is_playing = False
 
     @property
