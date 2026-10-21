@@ -124,6 +124,7 @@ class KokoroProvider:
         self._initialized = False
         self._tts_status: LifecycleEvents = LifecycleEvents.UNINITIALIZED.value
         self.audio_operation_lock = asyncio.Lock()
+        self._interrupt_event = asyncio.Event()
 
         # Mark singleton as setup
         self._singleton_setup_done = True
@@ -444,6 +445,8 @@ class KokoroProvider:
             # Get voice path
             voice_path = await self.get_voice_path(voice)
 
+            self._interrupt_event.clear()
+
             # Generate streaming audio
             async for chunk in self.inference_engine.generate_stream(
                 text=text,
@@ -453,6 +456,9 @@ class KokoroProvider:
                 chunk_size=chunk_size,
                 use_phoneme=use_phoneme,
             ):
+                if self._interrupt_event.is_set():
+                    logger.debug("Streaming synthesis interrupted")
+                    break
                 yield chunk.audio
 
         except Exception as e:
@@ -550,6 +556,24 @@ class KokoroProvider:
             sub_event="unload_complete",
             data={"initialized": self._initialized},
         )
+
+    async def shutdown(self) -> None:
+        """Shut down the provider, stopping playback and freeing resources.
+
+        Safe to call when the provider was never initialized.
+        """
+        await self.interrupt()
+        await self.unload()
+        self._tts_status = LifecycleEvents.UNINITIALIZED.value
+
+    async def interrupt(self) -> None:
+        """Stop active playback and cancel in-flight streaming synthesis."""
+        self._interrupt_event.set()
+        if sd is not None:
+            sd.stop()
+        if self._initialized:
+            self._tts_status = LifecycleEvents.READY.value
+        logger.debug("Kokoro provider interrupted")
 
     @EventProcessor.emits_event(data=["_initialized"])
     async def reload(self) -> None:
