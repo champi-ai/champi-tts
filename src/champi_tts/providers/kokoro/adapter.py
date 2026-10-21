@@ -118,7 +118,7 @@ class KokoroProviderAdapter(BaseTTSProvider):
 
     async def list_voices(self) -> list[str]:
         """List available voices."""
-        return await self._kokoro.list_voices()
+        return self._kokoro.list_voices()
 
     async def interrupt(self) -> None:
         """Interrupt current synthesis/playback."""
