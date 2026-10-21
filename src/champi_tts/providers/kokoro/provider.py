@@ -83,29 +83,18 @@ class VoiceCache:
 
 
 class KokoroProvider:
-    """TTS provider interface for mcp_champi with async singleton"""
+    """TTS provider interface for mcp_champi.
+
+    Each instance owns its own ``KokoroConfig``. Loaded inference engines are
+    shared through the class-level ``_model_cache`` so model weights are only
+    loaded once per process for a given model/voice directory.
+    """
 
     class Meta:
         event_type = "lifecycle"
         signal_manager = TTSSignalManager()
 
-    _instance = None
-    _instance_lock = asyncio.Lock()
-    _model_cache = {}  # Class-level cache
-
-    def __new__(
-        cls,
-        config: KokoroConfig | None = None,
-        model_dir: str | None = None,
-        voice_dir: str | None = None,
-    ):
-        """Singleton pattern implementation - creates instance only once"""
-        if cls._instance is None:
-            instance = super().__new__(cls)
-            # Initialize instance attributes that should only be set once
-            instance._singleton_setup_done = False
-            cls._instance = instance
-        return cls._instance
+    _model_cache: dict[str, KokoroInference] = {}
 
     def __init__(
         self,
@@ -113,22 +102,15 @@ class KokoroProvider:
         model_dir: str | None = None,
         voice_dir: str | None = None,
     ):
-        """Initialize singleton instance - only runs setup once"""
-        # Skip if already setup to prevent re-initialization
-        if self._singleton_setup_done:
-            return
+        """Create a provider bound to ``config``.
 
-        # Setup instance
+        Manual initialization is required via ``await provider.initialize()``.
+        """
         self.config = config or KokoroConfig()
         self.signals_manager = TTSSignalManager()
         self._initialized = False
         self._tts_status: LifecycleEvents = LifecycleEvents.UNINITIALIZED.value
         self.audio_operation_lock = asyncio.Lock()
-
-        # Mark singleton as setup
-        self._singleton_setup_done = True
-
-        # Note: Manual initialization required via await provider.initialize()
 
     @classmethod
     async def get_instance(
@@ -137,9 +119,8 @@ class KokoroProvider:
         model_dir: str | None = None,
         voice_dir: str | None = None,
     ) -> "KokoroProvider":
-        """Get singleton instance with async-safe access"""
-        async with cls._instance_lock:
-            return cls(config, model_dir, voice_dir)
+        """Create a provider for ``config``; model weights come from the shared cache."""
+        return cls(config, model_dir, voice_dir)
 
     async def _get_cache_key(self) -> str:
         """Generate cache key from model/voice directories and timestamps."""
@@ -190,7 +171,8 @@ class KokoroProvider:
                 Path(self.config.cache_dir) / f"kokoro_inference_{cache_key}.pkl"
             )
 
-            if cache_file.exists() and cache_key in self._model_cache:
+            cached_engine = self._model_cache.get(cache_key)
+            if cached_engine is not None and cached_engine.is_loaded:
                 logger.info("🚀 Loading Kokoro from memory cache...")
                 self.signals_manager.model.send(
                     self,
@@ -198,7 +180,7 @@ class KokoroProvider:
                     sub_event="cache_hit",
                     data={"cache_type": "memory", "cache_key": cache_key},
                 )
-                self.inference_engine = self._model_cache[cache_key]
+                self.inference_engine = cached_engine
                 self._initialized = True
                 return
 
@@ -245,10 +227,10 @@ class KokoroProvider:
             VoiceManager.setup_voice_directory(self.config.voice_dir)
 
             # Cache the loaded model
+            self._model_cache[cache_key] = self.inference_engine
             try:
                 with open(cache_file, "wb") as f:
                     pickle.dump(self.inference_engine, f)
-                self._model_cache[cache_key] = self.inference_engine
                 logger.info(f"💾 Cached Kokoro model to {cache_file}")
             except Exception as e:
                 logger.warning(f"Failed to cache model: {e}")
@@ -537,7 +519,10 @@ class KokoroProvider:
         )
 
         if hasattr(self, "inference_engine") and self.inference_engine:
-            self.inference_engine.unload()
+            engine = self.inference_engine
+            for key in [k for k, v in self._model_cache.items() if v is engine]:
+                del self._model_cache[key]
+            engine.unload()
             self.inference_engine = None
 
         self._initialized = False
