@@ -23,6 +23,7 @@ CORE_TOOLS = (
     "get_provider_status",
     "synthesize_to_file",
     "list_voices",
+    "get_speaking_state",
 )
 SPEAKER_TOOLS = (
     "speak_tool",
@@ -74,6 +75,7 @@ EXPECTED_SCHEMAS: dict[str, tuple[list[str], dict[str, tuple[dict, Any]]]] = {
     ),
     "stop_speaking_tool": ([], {}),
     "list_audio_devices_tool": ([], {}),
+    "get_speaking_state": ([], {}),
 }
 
 

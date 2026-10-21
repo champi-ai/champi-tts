@@ -258,11 +258,96 @@ voice, then plays the sentence and returns playback metrics such as
 | `speak_streaming_tool` | Synthesize text in chunks and play each as it arrives (lower time-to-first-audio) |
 | `stop_speaking_tool` | Stop any active speaker playback |
 | `list_audio_devices_tool` | List available audio output devices and their indexes |
+| `get_speaking_state` | Return the current speaking state (`idle`, `synthesizing`, `speaking`) |
 
 Tools report failures as an `"error: <ExceptionType>: <message>"` string (or
 an error entry/dict) instead of raising, so the host always gets a readable
 result. `synthesize_to_file` refuses to overwrite an existing file unless
 `overwrite` is `true`.
+
+## Speaking state and progress notifications
+
+The champi-tts MCP server tracks what it is saying so that hosts and sibling
+services can react to it — champi-stt can ignore the microphone while TTS is
+speaking (echo suppression) and champi-imgui can show a speaking indicator.
+
+### States
+
+| State          | Meaning                                         |
+|----------------|-------------------------------------------------|
+| `idle`         | Nothing is being synthesized or played          |
+| `synthesizing` | Text is being turned into audio                 |
+| `speaking`     | Audio is playing on the output device           |
+
+### `get_speaking_state` tool
+
+Returns the current state:
+
+```json
+{
+  "state": "synthesizing",
+  "text": "Hello there",
+  "voice": "af_bella",
+  "updated_at": 1761040000.12
+}
+```
+
+`text` and `voice` are `null` when `idle`; `updated_at` is the UNIX time of
+the last transition.
+
+### Progress notifications
+
+Tools that synthesize or play audio send a `notifications/progress` message
+(when the client supplied a `progressToken`) and a `notifications/message`
+log entry on every transition:
+
+| Transition     | `progress` / `total` | message                    |
+|----------------|----------------------|----------------------------|
+| `synthesizing` | 1 / 3                | `champi-tts: synthesizing` |
+| `speaking`     | 2 / 3                | `champi-tts: speaking`     |
+| `idle`         | 3 / 3                | `champi-tts: idle`         |
+
+`synthesize_to_file` reports `synthesizing` then `idle`. Playback tools also
+report `speaking` right before audio starts. Notifications are best-effort:
+a client that does not request progress still gets the tool result.
+
+### Gating champi-stt while TTS speaks
+
+**Separate processes (typical MCP host setup).** Poll `get_speaking_state` on
+the champi-tts server and skip `listen_*` calls on champi-stt while the state
+is `synthesizing` or `speaking`, or call it after the speak tool returns.
+
+**Same process.** Subscribe to the in-process blinker signal instead of
+polling:
+
+```python
+from champi_tts.mcp.speaking_state import speaking_state_changed
+
+
+def on_speaking_state(sender, state):
+    mic_muted = state["state"] != "idle"
+
+
+speaking_state_changed.connect(on_speaking_state)
+```
+
+The signal is sent with `sender=<SpeakingStateTracker>` and `state=<dict>`
+(the same shape `get_speaking_state` returns).
+
+### Adding a tool that speaks
+
+Tools registered in `create_mcp_server()` share the tracker in
+`state["speaking"]`. Take a `ctx: Context | None = None` parameter and wrap
+the work in a session:
+
+```python
+async with state["speaking"].session(text, voice, ctx) as speaking:
+    audio = await provider.synthesize(text, voice=voice)
+    await speaking.set_phase(SpeakingPhase.SPEAKING, ctx)
+    await play(audio)
+```
+
+The session always returns to `idle`, including on errors and interrupts.
 
 ## SSE Transport
 

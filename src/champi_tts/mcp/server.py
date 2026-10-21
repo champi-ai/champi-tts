@@ -29,10 +29,12 @@ from typing import Any
 from loguru import logger as _logger
 
 try:
+    from mcp.server.fastmcp import Context
     from mcp.server.fastmcp import FastMCP as _FastMCP
 
     MCP_AVAILABLE = True
 except ImportError:
+    Context = Any  # type: ignore[assignment,misc]
     _FastMCP = None  # type: ignore[assignment,misc]
     MCP_AVAILABLE = False
 
@@ -69,10 +71,17 @@ def create_mcp_server() -> Any:
     import champi_tts
     from champi_tts.core.audio import save_audio
     from champi_tts.mcp.guards import SpeechGate, resolve_output_path
+    from champi_tts.mcp.speaking_state import SpeakingStateTracker
 
     # Shared mutable state — avoids module-level globals. ``speech`` serialises
     # playback for the speaker tools so concurrent calls never talk over each other.
-    state: dict[str, Any] = {"provider": None, "lock": None, "speech": SpeechGate()}
+    # ``speaking`` tracks idle/synthesizing/speaking and notifies clients.
+    state: dict[str, Any] = {
+        "provider": None,
+        "lock": None,
+        "speech": SpeechGate(),
+        "speaking": SpeakingStateTracker(),
+    }
 
     async def _get_provider(provider_name: str) -> Any:
         if state["lock"] is None:
@@ -134,8 +143,12 @@ def create_mcp_server() -> Any:
         speed: float | None = None,
         provider: str | None = None,
         overwrite: bool = False,
+        ctx: Context | None = None,
     ) -> str:
         """Synthesize text to an audio file and return the written file path.
+
+        Sends progress notifications while synthesizing; the speaking state
+        is ``synthesizing`` for the duration of the call.
 
         Args:
             text: Text to synthesize.
@@ -153,17 +166,28 @@ def create_mcp_server() -> Any:
 
         try:
             path, fmt = resolve_output_path(output_path, overwrite=overwrite)
-            p = await _get_provider(_effective_provider(provider))
-            audio = await p.synthesize(text, voice=voice, speed=speed)
-            await save_audio(
-                audio,
-                path,
-                sample_rate=getattr(p.config, "sample_rate", 24000),
-                format=fmt,
-            )
+            async with state["speaking"].session(text, voice, ctx):
+                p = await _get_provider(_effective_provider(provider))
+                audio = await p.synthesize(text, voice=voice, speed=speed)
+                await save_audio(
+                    audio,
+                    path,
+                    sample_rate=getattr(p.config, "sample_rate", 24000),
+                    format=fmt,
+                )
             return str(path)
         except Exception as exc:
             return f"error: {type(exc).__name__}: {exc}"
+
+    @mcp.tool()
+    def get_speaking_state() -> dict[str, Any]:
+        """Return what the server is saying right now.
+
+        ``state`` is ``"idle"``, ``"synthesizing"`` or ``"speaking"``;
+        ``text`` and ``voice`` describe the active utterance (``None`` when
+        idle) and ``updated_at`` is the UNIX time of the last transition.
+        """
+        return state["speaking"].snapshot()
 
     @mcp.tool()
     async def list_voices(provider: str | None = None) -> list[str]:
