@@ -12,10 +12,8 @@ from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
 from champi_tts import get_provider, get_reader
-from champi_tts.providers.kokoro.voice_manager import (
-    VOICES_CACHE_DIR,
-    list_cached_voices,
-)
+from champi_tts.providers.kokoro.exceptions import KokoroVoiceError
+from champi_tts.providers.kokoro.models import VoiceManager, default_voice_dir
 
 app = typer.Typer(
     name="champi-tts",
@@ -24,7 +22,7 @@ app = typer.Typer(
 )
 console = Console()
 
-voices_app = typer.Typer(help="Manage cached voice files.")
+voices_app = typer.Typer(help="Manage Kokoro voice files.")
 app.add_typer(voices_app, name="voices")
 
 
@@ -293,31 +291,51 @@ def version():
     console.print(f"champi-tts version [cyan]{__version__}[/cyan]")
 
 
+VOICE_DIR_OPTION = typer.Option(
+    None,
+    "--voice-dir",
+    "--cache-dir",
+    help="Override the voice directory (default: $KOKORO_VOICE_DIR or "
+    "~/.mcp_champi/kokoro/voices).",
+)
+
+
 @voices_app.command("list")
-def voices_list(
-    cache_dir: Path | None = typer.Option(
-        None, "--cache-dir", help="Override the voice cache directory."
-    ),
-) -> None:
-    """List voice files available in the cache directory."""
-    voices = list_cached_voices(cache_dir)
+def voices_list(voice_dir: Path | None = VOICE_DIR_OPTION) -> None:
+    """List voice files available in the voice directory."""
+    voices = VoiceManager.list_voices(str(voice_dir or default_voice_dir()))
     if not voices:
-        console.print("[yellow]No cached voices found.[/yellow]")
+        console.print(
+            "[yellow]No voices found.[/yellow] "
+            "Run 'champi-tts voices download <name>' to fetch one."
+        )
         raise typer.Exit(0)
-    console.print("[bold]Cached voices:[/bold]")
+    console.print("[bold]Available voices:[/bold]")
     for voice in voices:
         console.print(f"  • {voice}")
 
 
 @voices_app.command("cache-dir")
-def voices_cache_dir(
-    cache_dir: Path | None = typer.Option(
-        None, "--cache-dir", help="Override the voice cache directory."
-    ),
+def voices_cache_dir(voice_dir: Path | None = VOICE_DIR_OPTION) -> None:
+    """Print the voice directory path."""
+    console.print(str(voice_dir or default_voice_dir()))
+
+
+@voices_app.command("download")
+def voices_download(
+    name: str = typer.Argument(..., help="Voice name, e.g. am_adam"),
+    voice_dir: Path | None = VOICE_DIR_OPTION,
+    force: bool = typer.Option(False, "--force", help="Re-download if present."),
 ) -> None:
-    """Print the voice cache directory path."""
-    directory = cache_dir if cache_dir is not None else VOICES_CACHE_DIR
-    console.print(str(directory))
+    """Download a voice from hexgrad/Kokoro-82M into the voice directory."""
+    try:
+        path = VoiceManager.download_voice(
+            name, str(voice_dir or default_voice_dir()), force=force
+        )
+    except KokoroVoiceError as e:
+        console.print(f"[red]{e}[/red]")
+        raise typer.Exit(1) from e
+    console.print(f"✓ Voice saved to: [cyan]{path}[/cyan]")
 
 
 def main():

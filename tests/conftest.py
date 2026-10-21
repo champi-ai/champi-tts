@@ -15,6 +15,16 @@ from champi_tts.core.base_config import BaseTTSConfig
 from champi_tts.core.base_provider import BaseTTSProvider
 
 
+@pytest.fixture(autouse=True)
+def _no_voice_downloads():
+    """Keep provider initialize() from fetching voices over the network."""
+    with patch(
+        "champi_tts.providers.kokoro.models.urlretrieve",
+        side_effect=OSError("network disabled in tests"),
+    ):
+        yield
+
+
 class MockTTSConfig(BaseTTSConfig):
     """Mock configuration for testing."""
 
