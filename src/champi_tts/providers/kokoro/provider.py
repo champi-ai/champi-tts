@@ -728,7 +728,10 @@ class KokoroProvider:
         return audio_data, generation_time
 
     async def _play_audio(self, audio_data: np.ndarray) -> float:
-        """Play audio using sounddevice.
+        """Play audio using sounddevice, one buffer at a time.
+
+        Calls are serialised on ``audio_operation_lock`` so overlapping
+        requests queue instead of playing over each other.
 
         Args:
             audio_data: Audio array to play
@@ -739,8 +742,6 @@ class KokoroProvider:
         Raises:
             KokoroAudioError: If audio playback fails
         """
-        playback_start = time.perf_counter()
-
         # Ensure audio is in correct format for playback
         if audio_data.dtype != np.int16:
             # Kokoro typically returns float32, convert to int16 for playback
@@ -755,15 +756,16 @@ class KokoroProvider:
             )
 
         loop = asyncio.get_running_loop()
-        try:
-            await loop.run_in_executor(
-                None, self._play_blocking, audio_data, self.config.sample_rate
-            )
-        except asyncio.CancelledError:
-            sd.stop()
-            raise
-
-        return time.perf_counter() - playback_start
+        async with self.audio_operation_lock:
+            playback_start = time.perf_counter()
+            try:
+                await loop.run_in_executor(
+                    None, self._play_blocking, audio_data, self.config.sample_rate
+                )
+            except asyncio.CancelledError:
+                sd.stop()
+                raise
+            return time.perf_counter() - playback_start
 
     @staticmethod
     def _play_blocking(audio_data: np.ndarray, sample_rate: int) -> None:

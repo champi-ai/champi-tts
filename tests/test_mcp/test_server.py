@@ -90,7 +90,10 @@ class TestCreateMcpServer:
         } <= tools
 
     def test_exposes_state_for_test_injection(self, server: MagicMock) -> None:
+        from champi_tts.mcp.guards import SpeechGate
+
         assert server._state["provider"] is None
+        assert isinstance(server._state["speech"], SpeechGate)
 
     def test_servers_do_not_share_state(self) -> None:
         from champi_tts.mcp.server import create_mcp_server
@@ -238,6 +241,110 @@ class TestToolSynthesizeToFile:
             )
         )
         assert result["result"].startswith("error:")
+
+    @pytest.mark.asyncio
+    async def test_bad_extension_returns_error_without_loading_model(
+        self, server: MagicMock, tmp_path: Path
+    ) -> None:
+        prov = _make_provider()
+        with patch("champi_tts.get_provider", return_value=prov):
+            result = _raw(
+                await server.call_tool(
+                    "synthesize_to_file",
+                    {"text": "hi", "output_path": str(tmp_path / "o.exe")},
+                )
+            )
+        assert result["result"].startswith("error: ValueError: unsupported")
+        prov.initialize.assert_not_awaited()
+
+    @pytest.mark.asyncio
+    async def test_existing_file_returns_error_and_is_kept(
+        self, server: MagicMock, tmp_path: Path
+    ) -> None:
+        out = tmp_path / "o.wav"
+        out.write_bytes(b"keep")
+        prov = _make_provider()
+        with patch("champi_tts.get_provider", return_value=prov):
+            result = _raw(
+                await server.call_tool(
+                    "synthesize_to_file", {"text": "hi", "output_path": str(out)}
+                )
+            )
+        assert result["result"].startswith("error: FileExistsError:")
+        assert out.read_bytes() == b"keep"
+        prov.synthesize.assert_not_awaited()
+
+    @pytest.mark.asyncio
+    async def test_overwrite_replaces_existing_file(
+        self, server: MagicMock, tmp_path: Path
+    ) -> None:
+        out = tmp_path / "o.wav"
+        out.write_bytes(b"old")
+        prov = _make_provider()
+        with patch("champi_tts.get_provider", return_value=prov):
+            result = _raw(
+                await server.call_tool(
+                    "synthesize_to_file",
+                    {"text": "hi", "output_path": str(out), "overwrite": True},
+                )
+            )
+        assert result["result"] == str(out.resolve())
+        assert out.read_bytes() != b"old"
+
+    @pytest.mark.asyncio
+    async def test_writes_flac_for_flac_extension(
+        self, server: MagicMock, tmp_path: Path
+    ) -> None:
+        import soundfile as sf
+
+        out = tmp_path / "o.flac"
+        prov = _make_provider()
+        with patch("champi_tts.get_provider", return_value=prov):
+            await server.call_tool(
+                "synthesize_to_file", {"text": "hi", "output_path": str(out)}
+            )
+        assert sf.info(str(out)).format == "FLAC"
+
+    @pytest.mark.asyncio
+    async def test_output_root_confines_writes(
+        self, server: MagicMock, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        root = tmp_path / "root"
+        root.mkdir()
+        monkeypatch.setenv("CHAMPI_TTS_OUTPUT_DIR", str(root))
+        prov = _make_provider()
+        with patch("champi_tts.get_provider", return_value=prov):
+            inside = _raw(
+                await server.call_tool(
+                    "synthesize_to_file", {"text": "hi", "output_path": "a.wav"}
+                )
+            )
+            outside = _raw(
+                await server.call_tool(
+                    "synthesize_to_file",
+                    {"text": "hi", "output_path": str(tmp_path / "b.wav")},
+                )
+            )
+        assert inside["result"] == str((root / "a.wav").resolve())
+        assert outside["result"].startswith("error: ValueError:")
+        assert not (tmp_path / "b.wav").exists()
+
+    @pytest.mark.asyncio
+    async def test_oversized_text_returns_value_error(
+        self, server: MagicMock, tmp_path: Path
+    ) -> None:
+        prov = _make_provider(
+            synthesize_raises=ValueError("text is 9 characters; max_text_length is 5")
+        )
+        with patch("champi_tts.get_provider", return_value=prov):
+            result = _raw(
+                await server.call_tool(
+                    "synthesize_to_file",
+                    {"text": "too long!", "output_path": str(tmp_path / "o.wav")},
+                )
+            )
+        assert result["result"].startswith("error: ValueError:")
+        assert "max_text_length" in result["result"]
 
     @pytest.mark.asyncio
     async def test_synthesis_failure_returns_error_string(

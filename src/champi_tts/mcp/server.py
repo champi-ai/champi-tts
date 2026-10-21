@@ -24,7 +24,6 @@ import os
 import sys
 from contextlib import asynccontextmanager
 from importlib.metadata import version as _pkg_version
-from pathlib import Path
 from typing import Any
 
 from loguru import logger as _logger
@@ -69,9 +68,11 @@ def create_mcp_server() -> Any:
     """
     import champi_tts
     from champi_tts.core.audio import save_audio
+    from champi_tts.mcp.guards import SpeechGate, resolve_output_path
 
-    # Shared mutable state — avoids module-level globals
-    state: dict[str, Any] = {"provider": None, "lock": None}
+    # Shared mutable state — avoids module-level globals. ``speech`` serialises
+    # playback for the speaker tools so concurrent calls never talk over each other.
+    state: dict[str, Any] = {"provider": None, "lock": None, "speech": SpeechGate()}
 
     async def _get_provider(provider_name: str) -> Any:
         if state["lock"] is None:
@@ -132,28 +133,35 @@ def create_mcp_server() -> Any:
         voice: str | None = None,
         speed: float | None = None,
         provider: str | None = None,
+        overwrite: bool = False,
     ) -> str:
-        """Synthesize text to a WAV file and return the written file path.
+        """Synthesize text to an audio file and return the written file path.
 
         Args:
             text: Text to synthesize.
-            output_path: Destination WAV path; parent directories are created.
+            output_path: Destination ``.wav``, ``.flac`` or ``.ogg`` path; parent
+                directories are created. Relative to and confined to
+                ``CHAMPI_TTS_OUTPUT_DIR`` when that env var is set.
             voice: Voice name (``None`` = provider default).
             speed: Speech speed multiplier (``None`` = provider default).
             provider: Provider key. Falls back to ``CHAMPI_TTS_PROVIDER``
                 env var, then ``"kokoro"``.
+            overwrite: Replace ``output_path`` if it already exists.
         """
         if not text.strip():
             return "error: text is empty"
 
         try:
+            path, fmt = resolve_output_path(output_path, overwrite=overwrite)
             p = await _get_provider(_effective_provider(provider))
             audio = await p.synthesize(text, voice=voice, speed=speed)
-            path = Path(output_path).expanduser()
             await save_audio(
-                audio, path, sample_rate=getattr(p.config, "sample_rate", 24000)
+                audio,
+                path,
+                sample_rate=getattr(p.config, "sample_rate", 24000),
+                format=fmt,
             )
-            return str(path.resolve())
+            return str(path)
         except Exception as exc:
             return f"error: {type(exc).__name__}: {exc}"
 

@@ -68,3 +68,35 @@ async def test_list_voices_empty(patched_kokoro) -> None:
     patched_kokoro.list_voices.return_value = []
 
     assert await get_provider("kokoro").list_voices() == []
+
+
+@pytest.mark.asyncio
+async def test_synthesize_rejects_text_over_max_length(patched_kokoro) -> None:
+    """Oversized text raises ValueError before reaching the model."""
+    from champi_tts.providers.kokoro.adapter import KokoroProviderAdapter
+    from champi_tts.providers.kokoro.config import KokoroConfig
+
+    adapter = KokoroProviderAdapter(KokoroConfig(max_text_length=5))
+    adapter._initialized = True
+
+    with pytest.raises(ValueError, match="max_text_length is 5"):
+        await adapter.synthesize("too long")
+    with pytest.raises(ValueError, match="max_text_length is 5"):
+        async for _ in adapter.synthesize_streaming("too long"):
+            pass
+    patched_kokoro.synthesize.assert_not_called()
+    patched_kokoro.synthesize_streaming.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_synthesize_accepts_text_at_max_length(patched_kokoro) -> None:
+    """Text exactly at the limit is passed through."""
+    from champi_tts.providers.kokoro.adapter import KokoroProviderAdapter
+    from champi_tts.providers.kokoro.config import KokoroConfig
+
+    adapter = KokoroProviderAdapter(KokoroConfig(max_text_length=5))
+    adapter._initialized = True
+
+    await adapter.synthesize("hello")
+
+    patched_kokoro.synthesize.assert_awaited_once()
