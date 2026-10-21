@@ -66,6 +66,32 @@ cd champi-tts
 uv sync --extra dev
 ```
 
+### Kokoro on Python 3.13
+
+The `kokoro` extra pulls in `misaki[en]` → `spacy-curated-transformers` 0.3.x,
+which caps `curated-tokenizers` below 0.1.0. Its only such release (0.0.9) has no
+Python 3.13 wheels and its source build fails on 3.13. `curated-tokenizers` 2.x
+keeps the same tokenizer API and ships 3.12/3.13 wheels, so this project
+overrides it in `pyproject.toml`:
+
+```toml
+[tool.uv]
+override-dependencies = ["curated-tokenizers>=2.0.1,<3.0.0"]
+```
+
+`uv sync --extra kokoro` therefore works on Python 3.12 and 3.13. The override
+is only used by uv project commands (`uv sync`, `uv run`, `uv lock`); it is not
+part of the published package metadata. When installing the wheel elsewhere
+(`uvx`, `uv tool install`, `pip`) on Python 3.13, pass the same override, or use
+Python 3.12:
+
+```bash
+echo "curated-tokenizers>=2.0.1,<3.0.0" > overrides.txt
+uvx --overrides overrides.txt --from "champi-tts[kokoro] @ <wheel-url>" champi-tts
+# or
+uvx --python 3.12 --from "champi-tts[kokoro] @ <wheel-url>" champi-tts
+```
+
 ---
 
 ## 🚀 Quick Start

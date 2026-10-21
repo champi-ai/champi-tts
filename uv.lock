@@ -6,6 +6,9 @@ resolution-markers = [
     "platform_machine == 'aarch64' and sys_platform == 'linux'",
 ]
 
+[manifest]
+overrides = [{ name = "curated-tokenizers", specifier = ">=2.0.1,<3.0.0" }]
+
 [[package]]
 name = "addict"
 version = "2.4.0"
@@ -280,7 +283,7 @@ provides-extras = ["dev"]
 
 [[package]]
 name = "champi-tts"
-version = "1.3.0"
+version = "1.3.2"
 source = { editable = "." }
 dependencies = [
     { name = "blinker" },
@@ -662,18 +665,49 @@ wheels = [
 
 [[package]]
 name = "curated-tokenizers"
-version = "0.0.9"
+version = "2.0.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "regex" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/fc/fa/b2d55f0d53c7c7f5dc0b6dbb48cc4344ee84fb572f23de28040bf2cde89d/curated-tokenizers-0.0.9.tar.gz", hash = "sha256:c93d47e54ab3528a6db2796eeb4bdce5d44e8226c671e42c2f23522ab1d0ce25", size = 2237055, upload-time = "2024-01-18T13:45:52.36Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/7a/6f/2b14b842387028e50135957aa15d9c1c31edce620264a7587636d30b55ab/curated_tokenizers-2.0.1.tar.gz", hash = "sha256:1c752df124f01961b734137adc316b354e5fa07a20696ef709e97b8ada1bd70f", size = 2262993, upload-time = "2026-08-24T10:05:17.379Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/10/3e/c10474a21ed0166f94cebb46fe96cf07fdf7f399d84e6157ec4dfbd97b53/curated_tokenizers-0.0.9-cp312-cp312-macosx_10_9_x86_64.whl", hash = "sha256:e66aedfeae0c91f3f3e2980b17933b3d08f3fba6c8ba7057b9b05d596e8a0b27", size = 734544, upload-time = "2024-01-18T13:45:18.864Z" },
-    { url = "https://files.pythonhosted.org/packages/34/fb/d6e57b1155bee398f43de58ecdcdda44957e9635183312ac0820a19fc94d/curated_tokenizers-0.0.9-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:2abbb571666a9c9b3a15f9df022e25ed1137e9fa8346788aaa747c00f940a3c6", size = 703466, upload-time = "2024-01-18T13:45:20.051Z" },
-    { url = "https://files.pythonhosted.org/packages/1b/7c/2d24633275f2854c144652ee6ef97ae85d444855b6da5aa1203678541fa5/curated_tokenizers-0.0.9-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:64b9991a9720a0ce8cc72d29791fd73f2cc2bef0241b002fd2a756ec8a629143", size = 706194, upload-time = "2024-01-18T13:45:21.844Z" },
-    { url = "https://files.pythonhosted.org/packages/21/24/12ae8f92d0e319ed07dd9c3ee5d24e71dd6ff3dd8d4dbe2126a6e5cbf7a1/curated_tokenizers-0.0.9-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:35fb208a01f2b3f22172596915d229859549a2d76e484be976dd728b1ca3bdec", size = 734029, upload-time = "2024-01-18T13:45:23.628Z" },
-    { url = "https://files.pythonhosted.org/packages/0f/fc/776b7464029ea126bf55df2a5edd437178ad8e5c0126f953891dfa603f9c/curated_tokenizers-0.0.9-cp312-cp312-win_amd64.whl", hash = "sha256:209d756694c7fb000a0b642016eb6e71c740cfce293adcbf3384aa2a1e701eb2", size = 731507, upload-time = "2024-01-18T13:45:25.416Z" },
+    { url = "https://files.pythonhosted.org/packages/d0/82/d3a1f34f151e60fc3b7813b14322840bd70289049c93d7cd24e3e83620ca/curated_tokenizers-2.0.1-cp312-cp312-macosx_10_13_x86_64.whl", hash = "sha256:4eb57dbac9fc41126bf03417d46958c53ad660d5bb1b6f712519a09deef18605", size = 742647, upload-time = "2026-08-24T10:03:43.434Z" },
+    { url = "https://files.pythonhosted.org/packages/f9/7b/2fbb7ad331311f3662b4550796897664df8a75eff050968e9d74622e4542/curated_tokenizers-2.0.1-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:e641c05f0ad21dc9afb16bb504afacf8ca7b1382cce14a5e765071b6bc9d82e2", size = 720958, upload-time = "2026-08-24T10:03:45.557Z" },
+    { url = "https://files.pythonhosted.org/packages/07/4f/859cf454766c34c1178e7e31464bd4a780279d462dd8d67188f89fbbab14/curated_tokenizers-2.0.1-cp312-cp312-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:0b805ee63b19024462081930f6081728698d9c85dafa2236ae577f079d1c5bd4", size = 6402973, upload-time = "2026-08-24T10:03:47.836Z" },
+    { url = "https://files.pythonhosted.org/packages/d9/0a/9a31545fef7ba91b128dd31f7b43a55fe7fc78ed0a647665ff5b72aac397/curated_tokenizers-2.0.1-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:e7175a85a0962e0c2c28fd560a5f0a9cbb55d6e048328c6b5be21be0cb0c97bf", size = 6506094, upload-time = "2026-08-24T10:03:50.234Z" },
+    { url = "https://files.pythonhosted.org/packages/8a/c7/f3e83377ab976a4639cb6d99ca8f0d4585c8d9a803bc79ddd7c795940f34/curated_tokenizers-2.0.1-cp312-cp312-musllinux_1_2_aarch64.whl", hash = "sha256:a82466f554547ed810d76db5c4cde80504c182ebc87928483140a2f911a5ee8b", size = 7104122, upload-time = "2026-08-24T10:03:52.317Z" },
+    { url = "https://files.pythonhosted.org/packages/36/f1/b97e1f7b5484739d69cfaaebb07a42211a0c4399b0445e571b52ad862494/curated_tokenizers-2.0.1-cp312-cp312-musllinux_1_2_x86_64.whl", hash = "sha256:87dd484d8e1d26bbde91d457ad22bfe0cb7865cdc23c2502433bd3ac81c2a104", size = 7306327, upload-time = "2026-08-24T10:03:54.447Z" },
+    { url = "https://files.pythonhosted.org/packages/21/54/167120450517d725930c8e72330b890648f6abbb7a88f9b18b39778153b5/curated_tokenizers-2.0.1-cp312-cp312-win32.whl", hash = "sha256:da7971fdde90aa6e3d63ba6833ad0b12aa910fc37d4d6e0b144ac8470620a9cd", size = 729149, upload-time = "2026-08-24T10:03:56.407Z" },
+    { url = "https://files.pythonhosted.org/packages/da/b7/0740d259b030b43ed9023be85c442b51564cf0d8568e4fbf367ade63d4cf/curated_tokenizers-2.0.1-cp312-cp312-win_amd64.whl", hash = "sha256:f844077b971be998faf6265a4adfdd4045227e4a2ff23e04a49c2aa52949317e", size = 778622, upload-time = "2026-08-24T10:03:58.249Z" },
+    { url = "https://files.pythonhosted.org/packages/e8/82/c42c28b60de518910e7a55c8d03a2cf45f90c9442dc0319326e39a067e34/curated_tokenizers-2.0.1-cp312-cp312-win_arm64.whl", hash = "sha256:16f7de55c3d12766bcd42ba8310f1cb36bfddc51a2a65b4f7e046e580853ea2f", size = 745196, upload-time = "2026-08-24T10:04:00.064Z" },
+    { url = "https://files.pythonhosted.org/packages/6e/a2/b8914384d83d1283c39622139878d842df6b3539c411f263709f34ee1188/curated_tokenizers-2.0.1-cp313-cp313-macosx_10_13_x86_64.whl", hash = "sha256:42267a6dd559623023b633089f028d9100e6a417ddfa87a9563a560d972d00bd", size = 740455, upload-time = "2026-08-24T10:04:02.085Z" },
+    { url = "https://files.pythonhosted.org/packages/db/5b/5f262c2fbc178891e0e7d911bdb0730078c4203e2d99800f466e6fc326b5/curated_tokenizers-2.0.1-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:e049b698e927bb5de2fc888f21b6c71a3d085320d28de4ae6e18e32c976213e7", size = 718955, upload-time = "2026-08-24T10:04:04.112Z" },
+    { url = "https://files.pythonhosted.org/packages/5c/ee/0785b06009f2aec1c813e7d8db6b5a8bf53996782368676d569f200ad92a/curated_tokenizers-2.0.1-cp313-cp313-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:1fd64f41a4ead5718874ec1eb145793faae14ca504d67b0d4ab94c97b54c2c06", size = 6387572, upload-time = "2026-08-24T10:04:06.332Z" },
+    { url = "https://files.pythonhosted.org/packages/73/bf/6513f35b8c63d642d936218222ba38aa7a406f02aa072e0ecb687cfc8ce5/curated_tokenizers-2.0.1-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:89d39b7d11184d2dba86fe4e714b64dcb0d327e23282eab17e727a75f3bd5928", size = 6497648, upload-time = "2026-08-24T10:04:08.558Z" },
+    { url = "https://files.pythonhosted.org/packages/74/7e/7bece05f3531730bf7a1894d829dc32e433367cba43dd23207cb48f9e30a/curated_tokenizers-2.0.1-cp313-cp313-musllinux_1_2_aarch64.whl", hash = "sha256:291025c620fc106bc510b28bdc78c5365d55068cb8a00086cbfe1d391decf42e", size = 7092359, upload-time = "2026-08-24T10:04:10.717Z" },
+    { url = "https://files.pythonhosted.org/packages/ff/32/59f1430105223379397ae3e9833f940bd710701b327bfcfccf8c4ab8e587/curated_tokenizers-2.0.1-cp313-cp313-musllinux_1_2_x86_64.whl", hash = "sha256:9fca8b097a7f8fe0d863fde4e881ea517a4db66b3636adbaf3086eafd19e2cec", size = 7299798, upload-time = "2026-08-24T10:04:12.846Z" },
+    { url = "https://files.pythonhosted.org/packages/ef/dd/3b7668a7e803c6b074acbf5fbb34c246f61627af9aa4abaf26d2e7efb723/curated_tokenizers-2.0.1-cp313-cp313-win32.whl", hash = "sha256:65250849b6632f1f1337c2f6b7cdea6414c07f5b811390173ed8cf781a2656f5", size = 728757, upload-time = "2026-08-24T10:04:14.651Z" },
+    { url = "https://files.pythonhosted.org/packages/7b/59/403b8bf80c91efa5c359bab0b547ccd7b2be93b357a347c2ac1ffc604fdd/curated_tokenizers-2.0.1-cp313-cp313-win_amd64.whl", hash = "sha256:72f9c4c7fabd7697d0e803e8c9297705a1a50ccce3f39ea289bd787b88d4a0e1", size = 777950, upload-time = "2026-08-24T10:04:16.732Z" },
+    { url = "https://files.pythonhosted.org/packages/65/b2/d28fabf3b241b84c72d70bf060a662feb9e664c61d349e0682d7b4383bdd/curated_tokenizers-2.0.1-cp313-cp313-win_arm64.whl", hash = "sha256:b71aca522166c65e287419790ce6d76cbee15231a921b8b763f58691dc76dc6d", size = 745076, upload-time = "2026-08-24T10:04:18.585Z" },
+    { url = "https://files.pythonhosted.org/packages/8f/3c/9ea694eb62642e146000252682447457e9e2db80abf2bee31b3af705dd9e/curated_tokenizers-2.0.1-cp314-cp314-macosx_10_15_x86_64.whl", hash = "sha256:8d914c17fad2472b46f893b2df857a6084dcb0f2f753cd9b0a5ef25a35667cf3", size = 740341, upload-time = "2026-08-24T10:04:20.687Z" },
+    { url = "https://files.pythonhosted.org/packages/ae/77/0a13fed6caac80efea77adabebde49b4e282ddd6cdc49dc194dcaf007096/curated_tokenizers-2.0.1-cp314-cp314-macosx_11_0_arm64.whl", hash = "sha256:4f73640e86f6481665f0bc3748d45553b0fa3c0ca1207ef1bf25c1c79216de29", size = 718933, upload-time = "2026-08-24T10:04:22.927Z" },
+    { url = "https://files.pythonhosted.org/packages/e1/9d/35368c280f3a50646d44bc16db791f306b3c8fcdfb334060b28d68e0b8d3/curated_tokenizers-2.0.1-cp314-cp314-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:dde2d378c5740d5342c0f9d8a275a4f20a72d874fbdeaa47c4d74fb939606370", size = 6385826, upload-time = "2026-08-24T10:04:25.416Z" },
+    { url = "https://files.pythonhosted.org/packages/7b/53/c8fd21ba0fc58141da5ac91947998b2d9e8423333463229a1b578016aa11/curated_tokenizers-2.0.1-cp314-cp314-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:7611067b644ab312b8517ed294657425f23f7d7bf6c62a706252da3518b3c24a", size = 6487256, upload-time = "2026-08-24T10:04:27.68Z" },
+    { url = "https://files.pythonhosted.org/packages/f7/27/128272dadfef3fae9976ec3b24a7fd9e663ce6e2851e0f02ec6900f84b0e/curated_tokenizers-2.0.1-cp314-cp314-musllinux_1_2_aarch64.whl", hash = "sha256:a211920905d6ad3e0f92fc6357c2343d50862ea20fbc8152289817e57138f919", size = 7091810, upload-time = "2026-08-24T10:04:29.953Z" },
+    { url = "https://files.pythonhosted.org/packages/b6/05/3194f52244ecf7f29cb789f22e3ef3bc3ed3caf96f7264678d4f9ea7886d/curated_tokenizers-2.0.1-cp314-cp314-musllinux_1_2_x86_64.whl", hash = "sha256:7682e52fc26fd64c5e1e0f6e99e68eabd7fcf82eb93ff6f6cfd302414d6b87e2", size = 7292452, upload-time = "2026-08-24T10:04:32.252Z" },
+    { url = "https://files.pythonhosted.org/packages/5e/76/658dbd14aa0bdcd89bbbc932ae51ad9151e94b3f63c3b9ff127f0e11befc/curated_tokenizers-2.0.1-cp314-cp314-win32.whl", hash = "sha256:e5accb76712baf79f117a2eb9c72434462c706c271b59b3e08af1bdca5be9143", size = 755780, upload-time = "2026-08-24T10:04:34.081Z" },
+    { url = "https://files.pythonhosted.org/packages/15/84/eb2b1ce6f574ce1c4f97fd2d6d2c746d71dc009c0229758445a8ea1d79fe/curated_tokenizers-2.0.1-cp314-cp314-win_amd64.whl", hash = "sha256:d593c8da7ba0a1511d6daf27ce3a17f545877a6073835141b035c6f686809f1e", size = 806265, upload-time = "2026-08-24T10:04:35.891Z" },
+    { url = "https://files.pythonhosted.org/packages/d1/70/50a39c54a2e109b552f3adedf323c6a33ceca68a3ba1810173ea47119cf1/curated_tokenizers-2.0.1-cp314-cp314-win_arm64.whl", hash = "sha256:7794529ef5028e142a5a4919cad7a911a3e59cf8a2d9df3f7806dead3d4c8f4b", size = 773789, upload-time = "2026-08-24T10:04:37.925Z" },
+    { url = "https://files.pythonhosted.org/packages/c8/5a/37ecdf957c4d7d2d9212d28dccbc0d75f42fb9d6bfecc03020366e253ad1/curated_tokenizers-2.0.1-cp314-cp314t-macosx_10_15_x86_64.whl", hash = "sha256:ecc2e938419c3a348ecdafafe8be4b8c6a841ae83c9a43ef964f50e3133a983c", size = 747526, upload-time = "2026-08-24T10:04:39.849Z" },
+    { url = "https://files.pythonhosted.org/packages/14/8f/0d9c6857424d635e5473de7b94c051ed9f0372d44ed25a59cd21c65dc6ac/curated_tokenizers-2.0.1-cp314-cp314t-macosx_11_0_arm64.whl", hash = "sha256:56c4f53bfa00df960633f2636b87d1747cba09290898952321ba4b3d8d8963dd", size = 728386, upload-time = "2026-08-24T10:04:41.936Z" },
+    { url = "https://files.pythonhosted.org/packages/b6/4e/06fff13b49f77fbc003cba261d010cb7b3f8fc0a8e5e7d1531cf35c2523d/curated_tokenizers-2.0.1-cp314-cp314t-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:ec72243cfdc3a91ac196d264f89795839aefada288e6d5edb3078daf9d21a157", size = 6506580, upload-time = "2026-08-24T10:04:44.138Z" },
+    { url = "https://files.pythonhosted.org/packages/cd/cf/49859808d2b19cc65125b90377e6de2a6028544237d35aa2fb47a3d51b95/curated_tokenizers-2.0.1-cp314-cp314t-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:f14391709d147dba771e2f5cdfed7c5a8e405e0d1bc54213bb43d79d0ca5981a", size = 6569750, upload-time = "2026-08-24T10:04:46.374Z" },
+    { url = "https://files.pythonhosted.org/packages/52/34/047ab2cbccbcb2e3c0de260fa8ca5224682485f3ff776d63b063b18392bc/curated_tokenizers-2.0.1-cp314-cp314t-musllinux_1_2_aarch64.whl", hash = "sha256:f405d06f524986d18d7c7b485ab5ba9e55f9290590930892c509da5176ca6d4f", size = 7192300, upload-time = "2026-08-24T10:04:48.599Z" },
+    { url = "https://files.pythonhosted.org/packages/53/69/ccd6414a237c526c867b1b1d248ac24f291bf2a3f88e8c6f0e8961bd9e9e/curated_tokenizers-2.0.1-cp314-cp314t-musllinux_1_2_x86_64.whl", hash = "sha256:4dc9bb94ace03a596c1346f2d1e1c0cb8f5e4e778f0646f4b6f2b257595156bf", size = 7372678, upload-time = "2026-08-24T10:04:51.137Z" },
+    { url = "https://files.pythonhosted.org/packages/e3/bc/b3914cb1a73451587ccc6f8faf277261d9d8324d829ebf2e2e8c620afe45/curated_tokenizers-2.0.1-cp314-cp314t-win32.whl", hash = "sha256:ef28f530ec0cf439f8ccbaaa85867f41ea05c6d33c65abea648c5823de8d828e", size = 766364, upload-time = "2026-08-24T10:04:53.123Z" },
+    { url = "https://files.pythonhosted.org/packages/1f/84/e5eb92d9b0a4aec9c92dc24219fc07034d3d25c1b721d26fa03f80576daf/curated_tokenizers-2.0.1-cp314-cp314t-win_amd64.whl", hash = "sha256:d2e0c1198cd97c738060aebbe583936ddd5d2481943e5b08955db9b4162b3385", size = 816007, upload-time = "2026-08-24T10:04:54.901Z" },
+    { url = "https://files.pythonhosted.org/packages/4f/4e/8410cc54c63a5bdfac48d83608391127b27c35a598e7b3c6665ab6fd673a/curated_tokenizers-2.0.1-cp314-cp314t-win_arm64.whl", hash = "sha256:4b76e119bbd086325b0b15ecba9c17ce5ca37f7e2ff15320439b5c7cb66453a2", size = 782140, upload-time = "2026-08-24T10:04:56.664Z" },
 ]
 
 [[package]]
@@ -3322,8 +3356,9 @@ wheels = [
 name = "typing-extensions"
 version = "4.12.2"
 source = { registry = "https://download.pytorch.org/whl/cu129" }
+sdist = { url = "https://files.pythonhosted.org/packages/df/db/f35a00659bc03fec321ba8bce9420de607a1d37f8342eee1863174c69557/typing_extensions-4.12.2.tar.gz", hash = "sha256:1a7ead55c7e559dd4dee8856e3a88b41225abfe1ce8df57b7c13915fe121ffb8" }
 wheels = [
-    { url = "https://download.pytorch.org/whl/typing_extensions-4.12.2-py3-none-any.whl" },
+    { url = "https://files.pythonhosted.org/packages/26/9f/ad63fc0248c5379346306f8668cda6e2e2e9c95e01216d2b8ffd9ff037d0/typing_extensions-4.12.2-py3-none-any.whl", hash = "sha256:04e5ca0351e0f3f85c6853954072df659d0d13fac324d0072316b67d7794700d" },
 ]
 
 [[package]]
