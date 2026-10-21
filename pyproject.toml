@@ -69,6 +69,19 @@ cli = [
     "typer>=0.16.0",
     "rich>=14.0.0",
     "click>=8.0.0",
+    "textual>=0.80.0",
+    "python-dotenv>=1.0.0",
+]
+
+# HTML / URL reading (read_html, read_url)
+web = [
+    "beautifulsoup4>=4.12.0",
+    "requests",
+]
+
+# PDF reading (read_pdf)
+pdf = [
+    "pymupdf>=1.24.3",
 ]
 
 # MCP server (Model Context Protocol)
@@ -78,7 +91,7 @@ mcp = [
 
 # All features (default for installation)
 all = [
-    "champi-tts[kokoro,ui,cli,mcp]",
+    "champi-tts[kokoro,ui,cli,web,pdf,mcp]",
 ]
 
 # Development tools
@@ -298,8 +311,7 @@ module = [
     "dotenv.*",
     "bs4.*",
     "requests.*",
-    "PyPDF2.*",
-    "fitz.*",
+    "pymupdf.*",
     "mcp.*",
 ]
 ignore_missing_imports = true

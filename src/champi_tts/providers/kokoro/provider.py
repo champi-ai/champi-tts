@@ -1069,11 +1069,10 @@ class KokoroProvider:
             raise FileNotFoundError(f"PDF file not found: {pdf_path}")
 
         try:
-            # Try PyMuPDF (fitz) first - best for text extraction
             try:
-                import fitz  # PyMuPDF
+                import pymupdf
 
-                doc = fitz.open(pdf_path)
+                doc = pymupdf.open(pdf_path)
                 extracted_text = []
 
                 start_page = 0
@@ -1107,50 +1106,11 @@ class KokoroProvider:
                 )
                 return full_text
 
-            except ImportError:
-                logger.debug("PyMuPDF not available, trying PyPDF2...")
-
-                # Fallback to PyPDF2
-                try:
-                    from PyPDF2 import PdfReader
-
-                    reader = PdfReader(pdf_path)
-                    extracted_text = []
-
-                    start_page = 0
-                    end_page = len(reader.pages)
-
-                    if page_range:
-                        start_page = max(0, page_range[0] - 1)
-                        end_page = min(len(reader.pages), page_range[1])
-
-                    logger.debug(
-                        f"Extracting text from PDF with PyPDF2: {pdf_path} (pages {start_page + 1}-{end_page})"
-                    )
-
-                    for page_num in range(start_page, end_page):
-                        page = reader.pages[page_num]
-                        text = page.extract_text()
-                        if text.strip():
-                            extracted_text.append(
-                                f"--- Page {page_num + 1} ---\n{text.strip()}"
-                            )
-
-                    if not extracted_text:
-                        logger.warning("No text content found in PDF")
-                        return ""
-
-                    full_text = "\n\n".join(extracted_text)
-                    logger.info(
-                        f"Successfully extracted {len(full_text)} characters from {len(extracted_text)} pages"
-                    )
-                    return full_text
-
-                except ImportError as e:
-                    raise RuntimeError(
-                        "No PDF library available. Install with: "
-                        "pip install PyMuPDF (recommended) or pip install PyPDF2"
-                    ) from e
+            except ImportError as e:
+                raise RuntimeError(
+                    "PyMuPDF is required for PDF reading. "
+                    "Install with: pip install 'champi-tts[pdf]'"
+                ) from e
 
         except Exception as e:
             logger.error(f"Failed to extract text from PDF: {e}")
@@ -1339,7 +1299,8 @@ class KokoroProvider:
                     )
                 except ImportError as e:
                     raise RuntimeError(
-                        "requests library required for URL fetching. Install with: pip install requests"
+                        "requests is required for URL fetching. "
+                        "Install with: pip install 'champi-tts[web]'"
                     ) from e
                 except Exception as e:
                     raise RuntimeError(f"Failed to fetch URL: {e}") from e
@@ -1694,17 +1655,6 @@ if __name__ == "__main__":
     async def test_html_synthesis():
         """Test HTML/Web page synthesis functionality"""
         print("🌐 Testing Kokoro HTML/Web Page Synthesis")
-
-        # Load environment from .env.kokoro if it exists
-        env_file = Path(__file__).parent.parent.parent / ".env.kokoro"
-        if env_file.exists():
-            try:
-                from dotenv import load_dotenv
-
-                load_dotenv(env_file)
-                print(f"📁 Loaded config from {env_file}")
-            except ImportError:
-                print("⚠️  python-dotenv not available, using system environment")
 
         # Create config
         config = KokoroConfig()
