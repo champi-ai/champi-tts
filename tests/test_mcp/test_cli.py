@@ -86,3 +86,24 @@ def test_serve_exits_when_server_import_fails() -> None:
         result = runner.invoke(app, ["mcp", "serve"])
     assert result.exit_code == 1
     assert "champi-tts[mcp]" in result.stderr
+
+
+@pytest.mark.parametrize("transport", ["stdio", "sse"])
+def test_serve_starts_real_server(transport: str) -> None:
+    pytest.importorskip("mcp")
+    from champi_tts.mcp import server as mcp_server
+
+    settings = mcp_server.mcp.settings
+    with (
+        patch.object(mcp_server.mcp, "run") as mock_run,
+        patch.object(settings, "host", settings.host),
+        patch.object(settings, "port", settings.port),
+        patch("loguru.logger.remove"),
+        patch("loguru.logger.add"),
+    ):
+        result = runner.invoke(app, ["mcp", "serve", "--transport", transport])
+        port = mcp_server.mcp.settings.port
+    assert result.exit_code == 0, result.output
+    mock_run.assert_called_once_with(transport=transport)
+    if transport == "sse":
+        assert port == 8766

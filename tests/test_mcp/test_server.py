@@ -502,6 +502,34 @@ class TestSpeakerTools:
         assert result["result"] == "error: RuntimeError: no model"
 
     @pytest.mark.asyncio
+    async def test_speak_streaming_tool_empty_text_returns_error(
+        self, server: MagicMock
+    ) -> None:
+        with patch("champi_tts.get_provider") as mock_get:
+            result = _raw(
+                await server.call_tool("speak_streaming_tool", {"text": "\n"})
+            )
+        assert result["result"] == "error: text is empty"
+        mock_get.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_speak_streaming_tool_initialize_failure_returns_error(
+        self, server: MagicMock
+    ) -> None:
+        prov = _make_provider(initialize_raises=RuntimeError("no model"))
+        with (
+            patch("champi_tts.get_provider", return_value=prov),
+            patch("champi_tts.mcp.speaker_tools._check_sounddevice"),
+            patch("champi_tts.mcp.speaker_tools.speak_streaming") as mock_stream,
+        ):
+            result = _raw(
+                await server.call_tool("speak_streaming_tool", {"text": "hi"})
+            )
+        assert result["result"] == "error: RuntimeError: no model"
+        mock_stream.assert_not_called()
+        assert server._state["provider"] is None
+
+    @pytest.mark.asyncio
     async def test_stop_speaking_tool(self, server: MagicMock) -> None:
         with patch(
             "champi_tts.mcp.speaker_tools.stop_speaking",
