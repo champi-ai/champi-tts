@@ -161,7 +161,12 @@ class KokoroProvider:
 
     @EventProcessor.emits_event(data=["_tts_status"])
     async def initialize(self, download_model: bool = True) -> None:
-        """Initialize the provider"""
+        """Initialize the provider
+
+        Args:
+            download_model: When False, never download model files; raise
+                KokoroFileError if they are missing or invalid
+        """
         try:
             self._tts_status = LifecycleEvents.INITIALIZING.value
             # Emit initialization start signal
@@ -234,7 +239,7 @@ class KokoroProvider:
 
             # Setup model files
             self._model_path, self._config_path = ModelDownloader.download_model(
-                self.config.model_dir, force=not download_model
+                self.config.model_dir, allow_download=download_model
             )
 
             # Initialize inference engine
@@ -277,6 +282,15 @@ class KokoroProvider:
                 data={"error": str(e)},
             )
             raise KokoroFileError(f"Model files not found: {e}") from e
+        except KokoroFileError as e:
+            logger.error(f"Model files unavailable: {e}")
+            self.signals_manager.lifecycle.send(
+                self,
+                event_type="lifecycle",
+                sub_event="initialization_error",
+                data={"error": str(e)},
+            )
+            raise
         except Exception as e:
             logger.error(f"Failed to initialize Kokoro provider: {e}")
             # Emit initialization error signal
