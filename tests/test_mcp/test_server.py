@@ -1,9 +1,10 @@
-"""Tests for the MCP server — factory, lifespan, tools, and main()."""
+"""Tests for the MCP server — factory, lifespan, tools, main() and stdio handshake."""
 
 from __future__ import annotations
 
 import sys
 from pathlib import Path
+from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import numpy as np
@@ -589,3 +590,120 @@ class TestMCPInit:
         assert callable(create_mcp_server)
         assert callable(main)
         assert mcp is not None
+
+
+# ---------------------------------------------------------------------------
+# End-to-end stdio tests: spawn ``champi-tts-mcp`` with the official ``mcp``
+# client. The server is spawned at most twice for this module — once for the
+# handshake and once for ``list_tools`` — and each connection runs in its own
+# event loop so anyio cancel scopes never cross pytest-asyncio's loop.
+# ---------------------------------------------------------------------------
+
+_STDIO_TIMEOUT = 30  # seconds per spawned session
+
+_EXPECTED_TOOLS = {
+    "list_providers",
+    "get_provider_status",
+    "synthesize_to_file",
+    "list_voices",
+    "speak_tool",
+    "speak_streaming_tool",
+    "stop_speaking_tool",
+    "list_audio_devices_tool",
+}
+
+
+def _stdio_params() -> Any:
+    """Point ``StdioServerParameters`` at the active venv's ``champi-tts-mcp``."""
+    from mcp.client.stdio import StdioServerParameters
+
+    entry = Path(sys.executable).parent / "champi-tts-mcp"
+    command = str(entry) if entry.exists() else "champi-tts-mcp"
+    return StdioServerParameters(command=command, args=[])
+
+
+def _run_session(action: Any) -> Any:
+    """Spawn the server, initialize a session, and return ``action(session)``."""
+    import asyncio
+
+    from mcp.client.session import ClientSession
+    from mcp.client.stdio import stdio_client
+
+    async def _connect() -> Any:
+        async with (
+            stdio_client(_stdio_params()) as (read, write),
+            ClientSession(read, write) as session,
+        ):
+            return await action(session)
+
+    loop = asyncio.new_event_loop()
+    try:
+        return loop.run_until_complete(
+            asyncio.wait_for(_connect(), timeout=_STDIO_TIMEOUT)
+        )
+    finally:
+        loop.close()
+
+
+@pytest.fixture(scope="module")
+def init_result() -> Any:
+    """``InitializeResult`` from a real ``champi-tts-mcp`` subprocess."""
+
+    async def _initialize(session: Any) -> Any:
+        return await session.initialize()
+
+    return _run_session(_initialize)
+
+
+@pytest.fixture(scope="module")
+def listed_tools() -> dict[str, Any]:
+    """Tools reported by ``list_tools`` on a real subprocess, keyed by name."""
+
+    async def _list(session: Any) -> Any:
+        await session.initialize()
+        return await session.list_tools()
+
+    return {tool.name: tool for tool in _run_session(_list).tools}
+
+
+class TestStdioHandshake:
+    def test_initialize_returns_result(self, init_result: Any) -> None:
+        assert init_result is not None
+
+    def test_server_info_name_is_champi_tts(self, init_result: Any) -> None:
+        assert init_result.serverInfo.name == "champi-tts"
+
+    def test_server_info_version_is_non_empty(self, init_result: Any) -> None:
+        assert isinstance(init_result.serverInfo.version, str)
+        assert init_result.serverInfo.version
+
+    def test_protocol_version_is_supported(self, init_result: Any) -> None:
+        from mcp.shared.version import SUPPORTED_PROTOCOL_VERSIONS
+
+        assert init_result.protocolVersion in SUPPORTED_PROTOCOL_VERSIONS
+
+    def test_capabilities_advertise_tools(self, init_result: Any) -> None:
+        assert init_result.capabilities is not None
+        assert init_result.capabilities.tools is not None
+
+
+class TestStdioTools:
+    def test_exact_tool_set_registered(self, listed_tools: dict[str, Any]) -> None:
+        assert set(listed_tools) == _EXPECTED_TOOLS
+
+    def test_exactly_eight_tools(self, listed_tools: dict[str, Any]) -> None:
+        assert len(listed_tools) == 8
+
+    @pytest.mark.parametrize("tool", sorted(_EXPECTED_TOOLS))
+    def test_input_schema_matches_contract(
+        self, listed_tools: dict[str, Any], tool: str
+    ) -> None:
+        from tests.test_mcp_schema import EXPECTED_SCHEMAS
+
+        assert listed_tools[tool].inputSchema == EXPECTED_SCHEMAS[tool]
+
+    @pytest.mark.parametrize("tool", sorted(_EXPECTED_TOOLS))
+    def test_tool_has_description(
+        self, listed_tools: dict[str, Any], tool: str
+    ) -> None:
+        assert listed_tools[tool].description
