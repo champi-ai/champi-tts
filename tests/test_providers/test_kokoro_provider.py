@@ -82,7 +82,10 @@ class TestPerConfigInstances:
     def test_default_config_when_none(self) -> None:
         provider = KokoroProvider()
 
-        assert provider.config == KokoroConfig()
+        assert provider.config == KokoroConfig(
+            model_dir=provider.get_default_model_dir(),
+            voice_dir=provider.get_default_voice_dir(),
+        )
 
     @pytest.mark.asyncio
     async def test_get_instance_applies_config(self) -> None:
