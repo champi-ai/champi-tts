@@ -4,6 +4,7 @@ Command-line interface for champi-tts.
 
 import asyncio
 import sys
+from enum import StrEnum
 from pathlib import Path
 
 import typer
@@ -24,6 +25,13 @@ console = Console()
 
 voices_app = typer.Typer(help="Manage Kokoro voice files.")
 app.add_typer(voices_app, name="voices")
+
+mcp_app = typer.Typer(help="MCP (Model Context Protocol) server commands.")
+app.add_typer(mcp_app, name="mcp")
+
+_MCP_INSTALL_HINT = (
+    "Error: mcp package is not installed. Install with: pip install 'champi-tts[mcp]'"
+)
 
 
 @app.command()
@@ -336,6 +344,64 @@ def voices_download(
         console.print(f"[red]{e}[/red]")
         raise typer.Exit(1) from e
     console.print(f"✓ Voice saved to: [cyan]{path}[/cyan]")
+
+
+class MCPTransport(StrEnum):
+    """Transports supported by the MCP server."""
+
+    stdio = "stdio"
+    sse = "sse"
+
+
+@mcp_app.command("serve")
+def mcp_serve(
+    transport: MCPTransport = typer.Option(
+        MCPTransport.stdio,
+        "--transport",
+        help="Transport protocol: stdio for MCP hosts (Claude Desktop) or sse "
+        "for HTTP clients.",
+    ),
+    host: str = typer.Option(
+        "localhost",
+        "--host",
+        help="Bind address for the SSE HTTP server (SSE transport only).",
+    ),
+    port: int = typer.Option(
+        8766,
+        "--port",
+        help="TCP port for the SSE HTTP server (SSE transport only).",
+    ),
+) -> None:
+    """Start the MCP server.
+
+    In stdio mode (default) the server reads JSON-RPC messages from stdin and
+    writes responses to stdout, the format expected by Claude Desktop and other
+    MCP hosts. In sse mode it starts an HTTP server; connect your MCP client
+    to http://<host>:<port>/sse.
+
+    Requires the 'mcp' extra: pip install 'champi-tts[mcp]'
+
+    Environment variables:
+
+    * CHAMPI_TTS_PROVIDER: TTS provider used by the tools (default: kokoro)
+
+    * CHAMPI_OUTPUT_DEVICE_INDEX: audio output device index for playback
+
+    * KOKORO_*: Kokoro provider settings (KOKORO_MODEL_DIR, KOKORO_VOICE_DIR,
+      KOKORO_DEFAULT_VOICE, KOKORO_DEFAULT_SPEED, KOKORO_USE_GPU, ...)
+    """
+    try:
+        from champi_tts.mcp.server import MCP_AVAILABLE
+        from champi_tts.mcp.server import main as _main
+    except ImportError:
+        typer.echo(_MCP_INSTALL_HINT, err=True)
+        raise typer.Exit(1) from None
+
+    if not MCP_AVAILABLE:
+        typer.echo(_MCP_INSTALL_HINT, err=True)
+        raise typer.Exit(1)
+
+    _main(transport=transport.value, host=host, port=port)
 
 
 def main():
