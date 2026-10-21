@@ -69,11 +69,29 @@ cli = [
     "typer>=0.16.0",
     "rich>=14.0.0",
     "click>=8.0.0",
+    "textual>=0.80.0",
+    "python-dotenv>=1.0.0",
+]
+
+# HTML / URL reading (read_html, read_url)
+web = [
+    "beautifulsoup4>=4.12.0",
+    "requests",
+]
+
+# PDF reading (read_pdf)
+pdf = [
+    "pymupdf>=1.24.3",
+]
+
+# MCP server (Model Context Protocol)
+mcp = [
+    "mcp[cli]>=1.0,<2.0",
 ]
 
 # All features (default for installation)
 all = [
-    "champi-tts[kokoro,ui,cli]",
+    "champi-tts[kokoro,ui,cli,web,pdf,mcp]",
 ]
 
 # Development tools
@@ -118,6 +136,7 @@ docs = [
 
 [project.scripts]
 champi-tts = "champi_tts.cli:main"
+champi-tts-mcp = "champi_tts.mcp.server:main"
 
 [build-system]
 requires = ["hatchling>=1.22.0"]
@@ -171,6 +190,14 @@ allow-unsafe-include = true
 package = true
 no-build-isolation = false
 managed = true
+# spacy-curated-transformers 0.3.x (pulled in by kokoro -> misaki[en]) caps
+# curated-tokenizers <0.1.0, whose only release (0.0.9) has no Python 3.13
+# wheels and its sdist fails to compile there. 2.0.x keeps the same
+# ByteBPE/SentencePiece/WordPiece API and ships cp312/cp313 wheels. Only uv
+# project commands honour this; see README "Kokoro on Python 3.13".
+override-dependencies = [
+    "curated-tokenizers>=2.0.1,<3.0.0",
+]
 
 [tool.uv.sources]
 champi-signals = { url = "https://github.com/champi-ai/champi-signals/releases/download/v0.1.0/champi_signals-0.1.0-py3-none-any.whl" }
@@ -284,8 +311,8 @@ module = [
     "dotenv.*",
     "bs4.*",
     "requests.*",
-    "PyPDF2.*",
-    "fitz.*",
+    "pymupdf.*",
+    "mcp.*",
 ]
 ignore_missing_imports = true
 

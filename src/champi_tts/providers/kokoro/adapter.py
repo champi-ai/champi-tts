@@ -24,6 +24,14 @@ class KokoroProviderAdapter(BaseTTSProvider):
         super().__init__(config)
         self._kokoro = OriginalKokoroProvider(config)
 
+    def _check_text_length(self, text: str) -> None:
+        """Reject text longer than ``config.max_text_length``."""
+        limit = self.config.max_text_length
+        if len(text) > limit:
+            raise ValueError(
+                f"text is {len(text)} characters; max_text_length is {limit}"
+            )
+
     async def initialize(self) -> None:
         """Initialize the Kokoro TTS provider."""
         try:
@@ -62,7 +70,11 @@ class KokoroProviderAdapter(BaseTTSProvider):
 
         Returns:
             Audio data as numpy array
+
+        Raises:
+            ValueError: If ``text`` exceeds ``config.max_text_length``
         """
+        self._check_text_length(text)
         if not self._initialized:
             raise RuntimeError("Provider not initialized. Call initialize() first.")
 
@@ -99,7 +111,11 @@ class KokoroProviderAdapter(BaseTTSProvider):
 
         Yields:
             Audio chunks as numpy arrays
+
+        Raises:
+            ValueError: If ``text`` exceeds ``config.max_text_length``
         """
+        self._check_text_length(text)
         if not self._initialized:
             raise RuntimeError("Provider not initialized. Call initialize() first.")
 
@@ -117,15 +133,19 @@ class KokoroProviderAdapter(BaseTTSProvider):
             self._is_speaking = False
 
     async def list_voices(self) -> list[str]:
-        """List available voices."""
-        return await self._kokoro.list_voices()
+        """List voices available on disk; does not require initialize()."""
+        return self._kokoro.list_voices()
+
+    async def get_model_info(self) -> dict[str, Any]:
+        """Get provider status plus Kokoro model details; safe before initialize()."""
+        info = await super().get_model_info()
+        info.update(await self._kokoro.get_info())
+        return info
 
     async def interrupt(self) -> None:
         """Interrupt current synthesis/playback."""
         self._is_speaking = False
-        # Kokoro provider should implement interrupt logic
-        if hasattr(self._kokoro, "interrupt"):
-            await self._kokoro.interrupt()
+        await self._kokoro.interrupt()
         logger.info("Synthesis interrupted")
 
     async def __aenter__(self):

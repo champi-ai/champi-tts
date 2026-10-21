@@ -35,7 +35,11 @@ from champi_tts.providers.kokoro.exceptions import (
     KokoroVoiceError,
 )
 from champi_tts.providers.kokoro.inference import KokoroInference
-from champi_tts.providers.kokoro.models import ModelDownloader, VoiceManager
+from champi_tts.providers.kokoro.models import (
+    ModelDownloader,
+    VoiceManager,
+    default_voice_dir,
+)
 
 
 class VoiceCache:
@@ -83,29 +87,18 @@ class VoiceCache:
 
 
 class KokoroProvider:
-    """TTS provider interface for mcp_champi with async singleton"""
+    """TTS provider interface for mcp_champi.
+
+    Each instance owns its own ``KokoroConfig``. Loaded inference engines are
+    shared through the class-level ``_model_cache`` so model weights are only
+    loaded once per process for a given model/voice directory.
+    """
 
     class Meta:
         event_type = "lifecycle"
         signal_manager = TTSSignalManager()
 
-    _instance = None
-    _instance_lock = asyncio.Lock()
-    _model_cache = {}  # Class-level cache
-
-    def __new__(
-        cls,
-        config: KokoroConfig | None = None,
-        model_dir: str | None = None,
-        voice_dir: str | None = None,
-    ):
-        """Singleton pattern implementation - creates instance only once"""
-        if cls._instance is None:
-            instance = super().__new__(cls)
-            # Initialize instance attributes that should only be set once
-            instance._singleton_setup_done = False
-            cls._instance = instance
-        return cls._instance
+    _model_cache: dict[str, KokoroInference] = {}
 
     def __init__(
         self,
@@ -113,22 +106,23 @@ class KokoroProvider:
         model_dir: str | None = None,
         voice_dir: str | None = None,
     ):
-        """Initialize singleton instance - only runs setup once"""
-        # Skip if already setup to prevent re-initialization
-        if self._singleton_setup_done:
-            return
+        """Create a provider bound to ``config``.
 
-        # Setup instance
+        Manual initialization is required via ``await provider.initialize()``.
+        """
         self.config = config or KokoroConfig()
+        # Resolve default paths (without creating them) so voice listing and
+        # get_info() work before the model is loaded.
+        if self.config.model_dir is None:
+            self.config.model_dir = self.get_default_model_dir()
+        if self.config.voice_dir is None:
+            self.config.voice_dir = self.get_default_voice_dir()
+        self.inference_engine: KokoroInference | None = None
         self.signals_manager = TTSSignalManager()
         self._initialized = False
         self._tts_status: LifecycleEvents = LifecycleEvents.UNINITIALIZED.value
         self.audio_operation_lock = asyncio.Lock()
-
-        # Mark singleton as setup
-        self._singleton_setup_done = True
-
-        # Note: Manual initialization required via await provider.initialize()
+        self._interrupt_event = asyncio.Event()
 
     @classmethod
     async def get_instance(
@@ -137,9 +131,8 @@ class KokoroProvider:
         model_dir: str | None = None,
         voice_dir: str | None = None,
     ) -> "KokoroProvider":
-        """Get singleton instance with async-safe access"""
-        async with cls._instance_lock:
-            return cls(config, model_dir, voice_dir)
+        """Create a provider for ``config``; model weights come from the shared cache."""
+        return cls(config, model_dir, voice_dir)
 
     async def _get_cache_key(self) -> str:
         """Generate cache key from model/voice directories and timestamps."""
@@ -161,7 +154,12 @@ class KokoroProvider:
 
     @EventProcessor.emits_event(data=["_tts_status"])
     async def initialize(self, download_model: bool = True) -> None:
-        """Initialize the provider"""
+        """Initialize the provider
+
+        Args:
+            download_model: When False, never download model files; raise
+                KokoroFileError if they are missing or invalid
+        """
         try:
             self._tts_status = LifecycleEvents.INITIALIZING.value
             # Emit initialization start signal
@@ -184,13 +182,17 @@ class KokoroProvider:
                     self.config.model_dir, self.config.voice_dir
                 )
 
+            if download_model and self.config.auto_download_model:
+                self._ensure_default_voice()
+
             # Check cache
             cache_key = await self._get_cache_key()
             cache_file = (
                 Path(self.config.cache_dir) / f"kokoro_inference_{cache_key}.pkl"
             )
 
-            if cache_file.exists() and cache_key in self._model_cache:
+            cached_engine = self._model_cache.get(cache_key)
+            if cached_engine is not None and cached_engine.is_loaded:
                 logger.info("🚀 Loading Kokoro from memory cache...")
                 self.signals_manager.model.send(
                     self,
@@ -198,7 +200,7 @@ class KokoroProvider:
                     sub_event="cache_hit",
                     data={"cache_type": "memory", "cache_key": cache_key},
                 )
-                self.inference_engine = self._model_cache[cache_key]
+                self.inference_engine = cached_engine
                 self._initialized = True
                 return
 
@@ -234,7 +236,7 @@ class KokoroProvider:
 
             # Setup model files
             self._model_path, self._config_path = ModelDownloader.download_model(
-                self.config.model_dir, force=not download_model
+                self.config.model_dir, allow_download=download_model
             )
 
             # Initialize inference engine
@@ -245,10 +247,10 @@ class KokoroProvider:
             VoiceManager.setup_voice_directory(self.config.voice_dir)
 
             # Cache the loaded model
+            self._model_cache[cache_key] = self.inference_engine
             try:
                 with open(cache_file, "wb") as f:
                     pickle.dump(self.inference_engine, f)
-                self._model_cache[cache_key] = self.inference_engine
                 logger.info(f"💾 Cached Kokoro model to {cache_file}")
             except Exception as e:
                 logger.warning(f"Failed to cache model: {e}")
@@ -277,6 +279,15 @@ class KokoroProvider:
                 data={"error": str(e)},
             )
             raise KokoroFileError(f"Model files not found: {e}") from e
+        except KokoroFileError as e:
+            logger.error(f"Model files unavailable: {e}")
+            self.signals_manager.lifecycle.send(
+                self,
+                event_type="lifecycle",
+                sub_event="initialization_error",
+                data={"error": str(e)},
+            )
+            raise
         except Exception as e:
             logger.error(f"Failed to initialize Kokoro provider: {e}")
             # Emit initialization error signal
@@ -289,6 +300,25 @@ class KokoroProvider:
             raise KokoroInitializationError(
                 f"Provider initialization failed: {e}"
             ) from e
+
+    def _ensure_default_voice(self) -> None:
+        """Download the configured default voice if it is not on disk yet."""
+        voice = self.config.default_voice
+        if not voice or voice in self.list_voices():
+            return
+        try:
+            VoiceManager.download_voice(voice, self.config.voice_dir)
+            logger.info(f"Downloaded default voice {voice}")
+        except KokoroVoiceError as e:
+            logger.warning(f"Could not download default voice: {e}")
+
+    def download_voice(self, voice_name: str, force: bool = False) -> str:
+        """Download a voice from hexgrad/Kokoro-82M into the voice directory.
+
+        Returns:
+            Path to the downloaded voice file
+        """
+        return VoiceManager.download_voice(voice_name, self.config.voice_dir, force)
 
     async def _warmup(self) -> None:
         """Warm up the model with a default voice"""
@@ -304,7 +334,7 @@ class KokoroProvider:
 
     async def is_initialized(self) -> bool:
         """Check if provider is initialized"""
-        return (
+        return bool(
             self._initialized
             and self.inference_engine
             and self.inference_engine.is_loaded
@@ -332,7 +362,10 @@ class KokoroProvider:
         voice_path = os.path.join(self.config.voice_dir, voice_name)
 
         if not os.path.exists(voice_path):
-            raise FileNotFoundError(f"Voice file not found: {voice_path}")
+            raise FileNotFoundError(
+                f"{voice_path}. Run 'champi-tts voices download "
+                f"{voice_name[:-3]}' to fetch it"
+            )
 
         return voice_path
 
@@ -444,6 +477,8 @@ class KokoroProvider:
             # Get voice path
             voice_path = await self.get_voice_path(voice)
 
+            self._interrupt_event.clear()
+
             # Generate streaming audio
             async for chunk in self.inference_engine.generate_stream(
                 text=text,
@@ -453,6 +488,9 @@ class KokoroProvider:
                 chunk_size=chunk_size,
                 use_phoneme=use_phoneme,
             ):
+                if self._interrupt_event.is_set():
+                    logger.debug("Streaming synthesis interrupted")
+                    break
                 yield chunk.audio
 
         except Exception as e:
@@ -537,7 +575,10 @@ class KokoroProvider:
         )
 
         if hasattr(self, "inference_engine") and self.inference_engine:
-            self.inference_engine.unload()
+            engine = self.inference_engine
+            for key in [k for k, v in self._model_cache.items() if v is engine]:
+                del self._model_cache[key]
+            engine.unload()
             self.inference_engine = None
 
         self._initialized = False
@@ -550,6 +591,24 @@ class KokoroProvider:
             sub_event="unload_complete",
             data={"initialized": self._initialized},
         )
+
+    async def shutdown(self) -> None:
+        """Shut down the provider, stopping playback and freeing resources.
+
+        Safe to call when the provider was never initialized.
+        """
+        await self.interrupt()
+        await self.unload()
+        self._tts_status = LifecycleEvents.UNINITIALIZED.value
+
+    async def interrupt(self) -> None:
+        """Stop active playback and cancel in-flight streaming synthesis."""
+        self._interrupt_event.set()
+        if sd is not None:
+            sd.stop()
+        if self._initialized:
+            self._tts_status = LifecycleEvents.READY.value
+        logger.debug("Kokoro provider interrupted")
 
     @EventProcessor.emits_event(data=["_initialized"])
     async def reload(self) -> None:
@@ -669,7 +728,10 @@ class KokoroProvider:
         return audio_data, generation_time
 
     async def _play_audio(self, audio_data: np.ndarray) -> float:
-        """Play audio using sounddevice.
+        """Play audio using sounddevice, one buffer at a time.
+
+        Calls are serialised on ``audio_operation_lock`` so overlapping
+        requests queue instead of playing over each other.
 
         Args:
             audio_data: Audio array to play
@@ -680,8 +742,6 @@ class KokoroProvider:
         Raises:
             KokoroAudioError: If audio playback fails
         """
-        playback_start = time.perf_counter()
-
         # Ensure audio is in correct format for playback
         if audio_data.dtype != np.int16:
             # Kokoro typically returns float32, convert to int16 for playback
@@ -695,24 +755,41 @@ class KokoroProvider:
                 "Audio playback unavailable: PortAudio library not found"
             )
 
+        loop = asyncio.get_running_loop()
+        async with self.audio_operation_lock:
+            playback_start = time.perf_counter()
+            try:
+                await loop.run_in_executor(
+                    None, self._play_blocking, audio_data, self.config.sample_rate
+                )
+            except asyncio.CancelledError:
+                sd.stop()
+                raise
+            return time.perf_counter() - playback_start
+
+    @staticmethod
+    def _play_blocking(audio_data: np.ndarray, sample_rate: int) -> None:
+        """Play audio and wait for completion; runs in a worker thread.
+
+        Raises:
+            KokoroAudioError: If neither the PulseAudio nor default device works
+        """
         # Play audio using sounddevice with PulseAudio mixing support
         try:
             # Try PulseAudio device first (allows mixing with other apps)
-            sd.play(audio_data, samplerate=24000, device="pulse")
-            sd.wait()  # Wait for playback to complete
+            sd.play(audio_data, samplerate=sample_rate, device="pulse")
+            sd.wait()
         except Exception as pulse_error:
             logger.error(f"PulseAudio device failed: {pulse_error}, trying default")
             try:
                 # Fallback to default device
-                sd.play(audio_data, samplerate=24000)
+                sd.play(audio_data, samplerate=sample_rate)
                 sd.wait()
             except Exception as default_error:
                 logger.error(f"Audio playback failed: {default_error}")
                 raise KokoroAudioError(
                     f"Could not play audio: {default_error}"
                 ) from default_error
-
-        return time.perf_counter() - playback_start
 
     @EventProcessor.emits_event(data=["_tts_status"])
     async def text_to_speech(
@@ -796,7 +873,7 @@ class KokoroProvider:
                 return False, {"error": "Empty audio generated"}
 
             # Calculate audio metrics
-            audio_duration = len(audio_data) / 24000
+            audio_duration = len(audio_data) / self.config.sample_rate
             ttfa = generation_time  # For non-streaming, this is the same as generation time
 
             # Play audio if requested
@@ -930,19 +1007,8 @@ class KokoroProvider:
         return model_dir
 
     def get_default_voice_dir(self) -> str:
-        """Get default voice directory path"""
-        import os
-        from pathlib import Path
-
-        home_dir = Path.home()
-
-        if os.name == "nt":  # Windows
-            app_data = os.environ.get("APPDATA", home_dir)
-            voice_dir = os.path.join(app_data, "mcp_champi", "kokoro", "voices")
-        else:  # Unix-like
-            voice_dir = os.path.join(home_dir, ".mcp_champi", "kokoro", "voices")
-
-        return voice_dir
+        """Get default voice directory path (honours ``KOKORO_VOICE_DIR``)"""
+        return default_voice_dir()
 
     def get_default_cache_dir(self) -> str:
         """Get default cache directory path"""
@@ -1023,11 +1089,10 @@ class KokoroProvider:
             raise FileNotFoundError(f"PDF file not found: {pdf_path}")
 
         try:
-            # Try PyMuPDF (fitz) first - best for text extraction
             try:
-                import fitz  # PyMuPDF
+                import pymupdf
 
-                doc = fitz.open(pdf_path)
+                doc = pymupdf.open(pdf_path)
                 extracted_text = []
 
                 start_page = 0
@@ -1061,50 +1126,11 @@ class KokoroProvider:
                 )
                 return full_text
 
-            except ImportError:
-                logger.debug("PyMuPDF not available, trying PyPDF2...")
-
-                # Fallback to PyPDF2
-                try:
-                    from PyPDF2 import PdfReader
-
-                    reader = PdfReader(pdf_path)
-                    extracted_text = []
-
-                    start_page = 0
-                    end_page = len(reader.pages)
-
-                    if page_range:
-                        start_page = max(0, page_range[0] - 1)
-                        end_page = min(len(reader.pages), page_range[1])
-
-                    logger.debug(
-                        f"Extracting text from PDF with PyPDF2: {pdf_path} (pages {start_page + 1}-{end_page})"
-                    )
-
-                    for page_num in range(start_page, end_page):
-                        page = reader.pages[page_num]
-                        text = page.extract_text()
-                        if text.strip():
-                            extracted_text.append(
-                                f"--- Page {page_num + 1} ---\n{text.strip()}"
-                            )
-
-                    if not extracted_text:
-                        logger.warning("No text content found in PDF")
-                        return ""
-
-                    full_text = "\n\n".join(extracted_text)
-                    logger.info(
-                        f"Successfully extracted {len(full_text)} characters from {len(extracted_text)} pages"
-                    )
-                    return full_text
-
-                except ImportError as e:
-                    raise RuntimeError(
-                        "No PDF library available. Install with: "
-                        "pip install PyMuPDF (recommended) or pip install PyPDF2"
-                    ) from e
+            except ImportError as e:
+                raise RuntimeError(
+                    "PyMuPDF is required for PDF reading. "
+                    "Install with: pip install 'champi-tts[pdf]'"
+                ) from e
 
         except Exception as e:
             logger.error(f"Failed to extract text from PDF: {e}")
@@ -1293,7 +1319,8 @@ class KokoroProvider:
                     )
                 except ImportError as e:
                     raise RuntimeError(
-                        "requests library required for URL fetching. Install with: pip install requests"
+                        "requests is required for URL fetching. "
+                        "Install with: pip install 'champi-tts[web]'"
                     ) from e
                 except Exception as e:
                     raise RuntimeError(f"Failed to fetch URL: {e}") from e
@@ -1648,17 +1675,6 @@ if __name__ == "__main__":
     async def test_html_synthesis():
         """Test HTML/Web page synthesis functionality"""
         print("🌐 Testing Kokoro HTML/Web Page Synthesis")
-
-        # Load environment from .env.kokoro if it exists
-        env_file = Path(__file__).parent.parent.parent / ".env.kokoro"
-        if env_file.exists():
-            try:
-                from dotenv import load_dotenv
-
-                load_dotenv(env_file)
-                print(f"📁 Loaded config from {env_file}")
-            except ImportError:
-                print("⚠️  python-dotenv not available, using system environment")
 
         # Create config
         config = KokoroConfig()

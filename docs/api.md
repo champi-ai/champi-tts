@@ -714,11 +714,11 @@ signals["processing"].connect(my_handler)
 
 | Method | Description |
 |--------|-------------|
-| `async read_pdf(pdf_path, page_range=None) -> str` | Extract text from PDF (uses PyMuPDF or PyPDF2) |
+| `async read_pdf(pdf_path, page_range=None) -> str` | Extract text from PDF (requires the `[pdf]` extra) |
 | `async synthesize_pdf(pdf_path, voice=None, ...) -> tuple[bool, dict]` | Convert PDF to speech |
-| `async read_html(html_source, clean_text=True) -> str` | Extract text from HTML string, file, or URL |
+| `async read_html(html_source, clean_text=True) -> str` | Extract text from HTML string, file, or URL (URLs and BeautifulSoup parsing use the `[web]` extra) |
 | `async synthesize_html(html_source, voice=None, ...) -> tuple[bool, dict]` | Convert HTML to speech |
-| `async read_url(url, clean_text=True) -> str` | Extract text from a web URL |
+| `async read_url(url, clean_text=True) -> str` | Extract text from a web URL (requires the `[web]` extra) |
 | `async synthesize_url(url, voice=None, ...) -> tuple[bool, dict]` | Convert web page to speech |
 
 ```python

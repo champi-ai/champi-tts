@@ -66,6 +66,32 @@ cd champi-tts
 uv sync --extra dev
 ```
 
+### Kokoro on Python 3.13
+
+The `kokoro` extra pulls in `misaki[en]` → `spacy-curated-transformers` 0.3.x,
+which caps `curated-tokenizers` below 0.1.0. Its only such release (0.0.9) has no
+Python 3.13 wheels and its source build fails on 3.13. `curated-tokenizers` 2.x
+keeps the same tokenizer API and ships 3.12/3.13 wheels, so this project
+overrides it in `pyproject.toml`:
+
+```toml
+[tool.uv]
+override-dependencies = ["curated-tokenizers>=2.0.1,<3.0.0"]
+```
+
+`uv sync --extra kokoro` therefore works on Python 3.12 and 3.13. The override
+is only used by uv project commands (`uv sync`, `uv run`, `uv lock`); it is not
+part of the published package metadata. When installing the wheel elsewhere
+(`uvx`, `uv tool install`, `pip`) on Python 3.13, pass the same override, or use
+Python 3.12:
+
+```bash
+echo "curated-tokenizers>=2.0.1,<3.0.0" > overrides.txt
+uvx --overrides overrides.txt --from "champi-tts[kokoro] @ <wheel-url>" champi-tts
+# or
+uvx --python 3.12 --from "champi-tts[kokoro] @ <wheel-url>" champi-tts
+```
+
 ---
 
 ## 🚀 Quick Start
@@ -141,6 +167,56 @@ champi-tts read document.txt --interactive --show-ui
 # Run standalone UI test
 champi-tts test-ui
 ```
+
+---
+
+## 🤖 MCP Server
+
+Champi TTS exposes its speech tools over the
+[Model Context Protocol (MCP)](https://modelcontextprotocol.io/), so LLM hosts
+such as Claude Desktop and Claude Code can speak text aloud or write it to an
+audio file.
+
+Run it from a release wheel (replace `X.Y.Z` with the
+[latest release](https://github.com/champi-ai/champi-tts/releases/latest)):
+
+```bash
+uvx --python 3.12 --from "champi-tts[mcp,kokoro] @ https://github.com/champi-ai/champi-tts/releases/download/vX.Y.Z/champi_tts-X.Y.Z-py3-none-any.whl" champi-tts mcp serve
+```
+
+From a source checkout: `uv sync --extra mcp --extra kokoro`, then
+`uv run champi-tts mcp serve`.
+
+Add it to `claude_desktop_config.json` (Claude Desktop) or a project
+`.mcp.json` (Claude Code):
+
+```json
+{
+  "mcpServers": {
+    "champi-tts": {
+      "command": "uvx",
+      "args": [
+        "--python",
+        "3.12",
+        "--from",
+        "champi-tts[mcp,kokoro] @ https://github.com/champi-ai/champi-tts/releases/download/vX.Y.Z/champi_tts-X.Y.Z-py3-none-any.whl",
+        "champi-tts",
+        "mcp",
+        "serve"
+      ]
+    }
+  }
+}
+```
+
+Tools: `speak_tool`, `speak_streaming_tool`, `stop_speaking_tool`,
+`synthesize_to_file`, `list_voices`, `list_audio_devices_tool`,
+`list_providers` and `get_provider_status`. Speaker playback needs PortAudio
+(`sudo apt install portaudio19-dev` on Debian/Ubuntu). Run
+`champi-tts mcp serve --help` for the SSE transport options.
+
+See [docs/mcp-integration.md](docs/mcp-integration.md) for prerequisites,
+environment variables, a smoke test and the full tool reference.
 
 ---
 
